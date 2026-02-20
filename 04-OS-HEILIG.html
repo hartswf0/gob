@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Heilig Case Study Operator</title>
+    <style>
+        :root {
+            --bg: #ecebe3;
+            --card: #f8f7f1;
+            --card-strong: #ffffff;
+            --ink: #0e0e0c;
+            --ink-soft: #4d4d43;
+            --line: #11110f;
+            --accent: #f15a29;
+            --ok: #0f7a42;
+            --radius: 12px;
+            --space: 12px;
+            color-scheme: light;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% -10%, rgba(255, 255, 255, 0.75), transparent 36%),
+                radial-gradient(circle at 90% 120%, rgba(241, 90, 41, 0.11), transparent 34%),
+                var(--bg);
+            color: var(--ink);
+            font-family: "Avenir Next Condensed", "DIN Alternate", "Arial Narrow", "Helvetica Neue", sans-serif;
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+
+        .shell {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .panel {
+            border: 2px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--card);
+            padding: var(--space);
+        }
+
+        .hero {
+            display: grid;
+            gap: 6px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(1.35rem, 4.6vw, 2.1rem);
+            line-height: 1.05;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 0.94rem;
+            max-width: 70ch;
+        }
+
+        .trail {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .step-btn {
+            appearance: none;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--card-strong);
+            color: var(--ink);
+            cursor: pointer;
+            padding: 10px 8px;
+            min-height: 74px;
+            display: grid;
+            gap: 4px;
+            align-content: center;
+            justify-items: center;
+            text-align: center;
+            font: inherit;
+            font-weight: 800;
+            transition: transform 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+        }
+
+        .step-btn:active {
+            transform: scale(0.99);
+        }
+
+        .step-btn small {
+            font-size: 0.67rem;
+            letter-spacing: 0.09em;
+            opacity: 0.75;
+        }
+
+        .step-btn span {
+            font-size: 0.96rem;
+            letter-spacing: 0.04em;
+        }
+
+        .step-btn.active {
+            background: var(--ink);
+            color: #fff;
+        }
+
+        .meta-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border: 2px solid var(--line);
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 0.73rem;
+            letter-spacing: 0.08em;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: var(--card-strong);
+        }
+
+        .step-name {
+            font-size: 1.06rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .source {
+            grid-column: 1 / -1;
+            font-size: 0.83rem;
+            color: var(--ink-soft);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .duo {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .block {
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: var(--card-strong);
+            display: grid;
+            gap: 8px;
+        }
+
+        .kicker {
+            margin: 0;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+        }
+
+        .value {
+            margin: 0;
+            font-size: 0.97rem;
+            font-weight: 700;
+        }
+
+        .panel-head {
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin: 0 0 8px;
+        }
+
+        .note {
+            margin: 0;
+            font-size: 0.93rem;
+            color: var(--ink-soft);
+        }
+
+        .scan-list {
+            list-style: none;
+            margin: 8px 0 0;
+            padding: 0;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--card-strong);
+            max-height: min(56vh, 560px);
+            overflow: auto;
+        }
+
+        .scan-list li {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 8px;
+            padding: 8px 10px;
+            border-top: 1px solid #d6d5cd;
+            align-items: start;
+            font-size: 0.9rem;
+        }
+
+        .scan-list li:first-child {
+            border-top: 0;
+        }
+
+        .scan-index {
+            font-weight: 900;
+            color: var(--ink-soft);
+            letter-spacing: 0.05em;
+        }
+
+        .dig-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 8px;
+        }
+
+        .dig-left,
+        .dig-right {
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--card-strong);
+            padding: 8px;
+        }
+
+        .site-filter {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        input[type="search"],
+        select {
+            width: 100%;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            padding: 8px 10px;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            outline: none;
+        }
+
+        input[type="search"]:focus,
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(241, 90, 41, 0.2);
+        }
+
+        .site-list {
+            display: grid;
+            gap: 6px;
+            max-height: min(50vh, 540px);
+            overflow: auto;
+            padding-right: 2px;
+        }
+
+        .site-item {
+            appearance: none;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            text-align: left;
+            padding: 7px;
+            cursor: pointer;
+            display: grid;
+            gap: 3px;
+            font: inherit;
+        }
+
+        .site-item strong {
+            font-size: 0.86rem;
+            line-height: 1.24;
+        }
+
+        .site-item .meta {
+            font-size: 0.72rem;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 900;
+        }
+
+        .site-item.active {
+            background: var(--ink);
+            color: #fff;
+        }
+
+        .site-item.active .meta {
+            color: #efefef;
+        }
+
+        .site-report {
+            display: grid;
+            gap: 8px;
+            max-height: min(64vh, 620px);
+            overflow: auto;
+            padding-right: 2px;
+        }
+
+        .site-header {
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            display: grid;
+            gap: 2px;
+        }
+
+        .site-header .id {
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            font-weight: 900;
+        }
+
+        .site-header h3 {
+            margin: 0;
+            font-size: 1.02rem;
+            line-height: 1.14;
+        }
+
+        .layer {
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+            display: grid;
+            gap: 6px;
+        }
+
+        .layer h4 {
+            margin: 0;
+            font-size: 0.78rem;
+            color: var(--ink-soft);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .layer ul {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .layer li {
+            font-size: 0.9rem;
+        }
+
+        .empty {
+            margin: 0;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+            font-size: 0.9rem;
+            color: var(--ink-soft);
+        }
+
+        .infer-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .infer-card {
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--card-strong);
+            padding: 9px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .infer-card h3 {
+            margin: 0;
+            font-size: 0.76rem;
+            color: var(--ink-soft);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .infer-card ul {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .infer-card p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .metric {
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--card-strong);
+            padding: 9px;
+            display: grid;
+            gap: 4px;
+        }
+
+        .metric .label {
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            font-weight: 900;
+        }
+
+        .metric .num {
+            font-size: 1.3rem;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .heuristics {
+            margin: 8px 0 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .audit-list {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 6px;
+            font-size: 0.92rem;
+        }
+
+        .handoff {
+            margin: 8px 0 0;
+            border: 2px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: var(--card-strong);
+            font-size: 0.92rem;
+        }
+
+        .actions {
+            display: grid;
+            gap: 8px;
+        }
+
+        .primary {
+            appearance: none;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--ink);
+            color: #fff;
+            font: inherit;
+            font-weight: 900;
+            letter-spacing: 0.03em;
+            font-size: 0.98rem;
+            padding: 10px 12px;
+            min-height: 48px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .status {
+            margin: 0;
+            min-height: 1em;
+            font-size: 0.84rem;
+            color: var(--ok);
+            font-weight: 800;
+        }
+
+        @media (max-width: 980px) {
+            .report-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 820px) {
+            .trail {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .duo {
+                grid-template-columns: 1fr;
+            }
+
+            .dig-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .site-list {
+                max-height: 36vh;
+            }
+
+            .site-report {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .shell {
+                padding: 10px;
+            }
+
+            .panel {
+                padding: 10px;
+            }
+
+            .step-btn {
+                min-height: 66px;
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="panel hero">
+            <h1>HEILIG CASE STUDY OPERATOR</h1>
+            <p>Prompt -> completion -> outcome -> audit. Select one step and study exactly what changed and what was handed forward.</p>
+        </header>
+
+        <nav id="trail" class="trail" aria-label="Case study steps"></nav>
+
+        <section class="panel">
+            <div class="meta-row">
+                <span id="stepBadge" class="badge"></span>
+                <strong id="stepName" class="step-name"></strong>
+                <div id="stepSource" class="source"></div>
+            </div>
+            <div class="duo">
+                <article class="block">
+                    <p class="kicker">Prompt</p>
+                    <p id="promptText" class="value"></p>
+                </article>
+                <article class="block">
+                    <p class="kicker">Completion</p>
+                    <p id="completionText" class="value"></p>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-head">Outcome View</h2>
+            <div id="outcomeView"></div>
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-head">Audit + Handoff</h2>
+            <ul id="auditList" class="audit-list"></ul>
+            <p id="handoffText" class="handoff"></p>
+        </section>
+
+        <section class="panel actions">
+            <button id="copyReport" class="primary" type="button">Copy Current Step Report</button>
+            <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
+        </section>
+    </div>
+
+    <script>
+        const scanCandidates = [
+            "Brooklyn motorcycle route in 1962 and its sensory cue mapping.",
+            "Dual-35mm stereoscopic camera rig and interocular alignment mechanics.",
+            "Scent camshafts, tubing, and microswitch timing inside Sensorama.",
+            "Synthetic perfume formulation in A Date with Sabina.",
+            "Directional stereo session design for Belly Dancer.",
+            "Seat vibration motor and eccentric weight haptic mechanism.",
+            "Patent 3,050,870 and legal codification of multi-sensory simulation.",
+            "1955 Espacios essay as theoretical blueprint for immersion.",
+            "Editing bench workflow for film, vibration, and scent synchronization.",
+            "Los Angeles production location for A Date with Sabina.",
+            "Fan hardware used for wind simulation in Motorcycle and Helicopter.",
+            "Ford pitch site and rejection dynamics for the Experience Theater.",
+            "Broadway arcade field test economics and maintenance pressure.",
+            "Coca-Cola bottling pitch as immersive advertising experiment.",
+            "Personal debt ledger trail that financed production.",
+            "Pizza odor chemistry and synthetic urban smell modeling.",
+            "Triacetate decay and vinegar syndrome in surviving film prints.",
+            "Helicopter tarmac capture workflow and aerial stabilization.",
+            "Telesphere Mask patent lineage and isolation architecture.",
+            "Surviving non-functional prototype and conservation tradeoffs.",
+            "1990 CyberArts collision between analog and computational VR.",
+            "Draft notebooks for unproduced Sensorama worlds."
+        ];
+
+        const inferenceSections = {
+            insights: [
+                "The human body, not just hardware specs, set immersion limits.",
+                "Funding pressure shaped VR into single-user architecture.",
+                "Realism often came from strong sensory caricature, not fidelity.",
+                "The medium carried decay in its substrate from day one."
+            ],
+            tensions: [
+                "Immersive connection demanded physical isolation.",
+                "Preserving the machine as artifact disabled it as experience.",
+                "Empathy goals collided with coercive open-loop stimulation."
+            ],
+            soWhat: {
+                core: "Somatic cues can outperform visual fidelity if vestibular constraints are respected.",
+                why: "Low-cost synchronized physical cues can create presence faster than compute-heavy realism."
+            },
+            missing: {
+                question: "What presence and retention outcomes did 1962 users actually report over time?",
+                assumption: "Analog world-building and computational world-modeling are treated as separate paths.",
+                next: "Test unproduced scripts against modern overload thresholds and comfort models."
+            }
+        };
+
+        const buildHeuristics = [
+            "One active step at a time.",
+            "Same frame every step: prompt, completion, outcome, audit.",
+            "Evidence traceable to source file names.",
+            "Search and filter must combine in the dossier step.",
+            "Copyable text report for each step.",
+            "Mobile-first surfaces with short labels and high contrast."
+        ];
+
+        const workflowSteps = [
+            {
+                number: "01",
+                key: "scan",
+                label: "SCAN",
+                source: "01-OS-HEILIG.md",
+                prompt: "Identify concrete Heilig case-study sites that can be traced, tested, and argued.",
+                completion: "A numbered candidate list of 22 sites with one-line significance framing.",
+                audit: [
+                    "Output is specific, not thematic.",
+                    "Each site has a reason-for-inclusion statement.",
+                    "Coverage spans hardware, media, economics, theory, and decay."
+                ],
+                handoff: "The scan list becomes the index for full layered dossiers in step 02."
+            },
+            {
+                number: "02",
+                key: "dig",
+                label: "DIG",
+                source: "02-OS-HEILIG.md",
+                prompt: "For each site, build a five-layer record: official, operational, material, subterranean, fracture.",
+                completion: "Structured dossiers by site. This operator loads a fast study subset with full layer fidelity.",
+                audit: [
+                    "Each loaded site includes all five layers.",
+                    "Filtering supports category plus free text at once.",
+                    "Layer evidence remains quote-shaped for traceability."
+                ],
+                handoff: "Cross-site comparison in step 03 is only valid if layer structure is consistent."
+            },
+            {
+                number: "03",
+                key: "infer",
+                label: "INFER",
+                source: "03-OS-HEILIG.md",
+                prompt: "Synthesize non-obvious insights, tensions, implications, and missing questions.",
+                completion: "A compact synthesis block with sections for insight, contradiction, implication, and next inquiry.",
+                audit: [
+                    "Claims are cross-site, not single anecdote.",
+                    "Contradictions are explicit instead of smoothed over.",
+                    "Open questions stay operational and testable."
+                ],
+                handoff: "Synthesis rules inform what the final interface should surface first."
+            },
+            {
+                number: "04",
+                key: "report",
+                label: "REPORT",
+                source: "04-OS-HEILIG.html",
+                prompt: "Build an operator view that exposes process trail, evidence, and handoffs with minimal friction.",
+                completion: "This single-file case-study operator with a step trail and copyable audit report.",
+                audit: [
+                    "One control surface for step selection.",
+                    "Outcome panel switches format by step type.",
+                    "Report export captures current state for repository logs."
+                ],
+                handoff: "Use copied reports as append-only trail entries in your repo or research notebook."
+            }
+        ];
+
+        /**
+         * SOURCE DATASET
+         * Preserved from existing file to keep dossier content intact.
+         */
+        const archaeologicalSites = [
+            {
+                id: "01",
+                title: "THE BROOKLYN STREET ROUTE (MOTORCYCLE, 1962)",
+                category: "media",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Sensorama Inc. Promotional Brochure (c. 1962): 'Experience the thrill of a motorcycle ride through the bustling streets of New York! Feel the wind, smell the exhaust, hear the roar of the engine. 100% safe. 100% real.'", "Film Registry entry: Motorcycle (approx. 2.5 minutes), 35mm stereoscopic color, directional audio."],
+                    "II. OPERATIONAL ARCHIVE": ["Log Entry, M. Heilig (Undated, circa 1960): 'Camera rig weight: 42 lbs. Mounting bracket to Indian motorcycle chassis requires custom damping. Vibration translating to dual lenses. Shot requires minimum speed of 30mph to maintain wind illusion for eventual cabinet fans.'", "Handwritten note on Brooklyn street map: 'Start Bedford Ave. Avoid potholes near intersections—causes stereoscopic misalignment. Need distinct visual markers for olfactory cues (pizza shop at corner = trigger odor #3).'"],
+                    "III. MATERIAL TRACE": ["Artifact 104-B: 35mm celluloid strip. Frame 1420 to 1485 shows extensive scratching on the left-eye print.", "Artifact 104-C: Physical coordinate 40.718° N, 73.957° W (former location of corner pizza shop). Structure demolished 1984."],
+                    "IV. SUBTERRANEAN LAYER": ["Police Incident Report (Precinct 73, July 1960): 'Warning issued to individual (M. Heilig) operating modified two-wheel vehicle with obstructed vision due to mounted camera apparatus. Endangering pedestrians.'", "Accounting Ledger (November 1960): 'Film stock: $450. Camera modification: $800. Traffic fines: $35. Pizza: $1.50.'"],
+                    "V. HISTORICAL FRACTURE": ["Interview transcript, VR Historian (2018): 'Heilig's Brooklyn was a highly curated slice of reality. He wasn't capturing the world; he was mining it for sensory triggers. The street was just a substrate for the machine.'", "Forum post, Brooklyn Historical Society (2004): 'That pizza place he mentions in his notes wasn't even there in '61. It was a shoe repair shop. He must have pumped in the pizza smell in the cabinet because it felt more 'New York' than shoe leather.'"]
+                }
+            },
+            {
+                id: "02",
+                title: "THE DUAL-35MM CAMERA RIG (1960)",
+                category: "hardware",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Sensorama Inc. Technical Specifications (1962): 'Custom-built 35mm stereoscopic camera system. Dual lenses mimicking human interocular distance. Captures left-eye and right-eye perspectives simultaneously for perfect depth reproduction.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Machinist's Invoice, J&L Tool and Die (March 1960): 'Modification of two (2) surplus Bell & Howell 35mm camera bodies. Custom aluminum mounting chassis. Synchronization gearing for dual shutter release. Interocular spacing set at exactly 2.5 inches. Total: $1,250.'", "M. Heilig Log (Undated): 'Focus rings must be linked physically via external gear track. If one lens slips a fraction of a millimeter, the viewer in the cabinet will experience immediate nausea. Entire rig weighs 42 lbs empty.'"],
+                    "III. MATERIAL TRACE": ["Artifact 102-A: Anodized aluminum camera chassis, heavily scuffed. The right-hand mounting bracket shows stress fractures from the Motorcycle shoot.", "Artifact 102-B: Set of matched 28mm wide-angle lenses. Dust accumulation inside the optical elements of the left lens."],
+                    "IV. SUBTERRANEAN LAYER": ["Cinematographer's Guild Grievance (1961): 'Operator M. Heilig using non-standard, unsafe equipment on public roads. Rig requires two hands to balance, leaving operator unable to safely maneuver vehicle during motion shots.'", "Personal Debt Ledger (April 1960): 'Pawned grandfather clock to cover J&L Tool and Die final payment. Camera belongs to me now.'"],
+                    "V. HISTORICAL FRACTURE": ["Optical Engineering Journal (1975): 'Heilig's rig was a brute-force solution to stereoscopy. By physically bolting two heavy 35mm cameras together, he achieved true binocular vision but sacrificed all fluid camera movement. The medium was instantly paralyzed by the weight of its own eyes.'", "Hardware Enthusiast Blog (2018): 'It's a miracle of analog synchronization. No computers, no digital sync—just pure mechanical gearing ensuring that two separate strips of celluloid recorded the exact same fraction of a second.'"]
+                }
+            },
+            {
+                id: "03",
+                title: "THE SCENT-RELEASE CAMSHAFTS AND MICROSWITCHES",
+                category: "hardware",
+                layers: {
+                    "I. OFFICIAL RECORD": ["U.S. Patent 3,050,870 (August 28, 1962) - 'Sensorama Simulator': Section 4, Line 22: 'Means for selectively releasing odorant substances into the path of the air stream...'"],
+                    "II. OPERATIONAL ARCHIVE": ["Assembly Schematic Draft 4: 'Tubing diameter 1/4 inch. Microswitch must engage exactly 0.5 seconds before frame 800 to account for air travel time from nozzle to user's nose. Use aerosol base.'", "Chemical Supply Receipt (May 1961): '1 gal. Baking Bread synthetic. 1 gal. High Octane Exhaust. 1/2 gal. Floral/Jasmine (Sabina). Total: $142.'"],
+                    "III. MATERIAL TRACE": ["Artifact 201-A: Segment of yellowed, hardened surgical tubing extracted from prototype. Residue analysis: 40% synthetic hydrocarbons, 60% degraded aerosol propellant.", "Artifact 201-B: Brass camshaft with manually filed notches. Notch 3 is filed 2mm deeper than Notch 1, resulting in a heavier, longer dose of 'exhaust' than 'baking bread'."],
+                    "IV. SUBTERRANEAN LAYER": ["Letter to Investor (Unsent, 1963): 'The smell system is the most expensive to maintain. The odors mix in the hood over time... We need an active extraction fan.'", "Maintenance Log, Broadway Arcade Location: 'Machine out of order. Kid poured Coca-Cola down the scent nozzle. Tubing clogged. Scent of burning sugar when fans engage.'"],
+                    "V. HISTORICAL FRACTURE": ["Sensory Studies Journal (2015): 'The Sensorama's olfactory track was an exercise in extreme sensory stereotyping... It did not recreate reality; it established the first database of sensory clichés.'", "Undated margin note by Heilig: 'The nose forgives what the eye catches. If the smell is close enough, the brain builds the rest of the bridge.'"]
+                }
+            },
+            {
+                id: "04",
+                title: "THE CHEMICAL FORMULATION OF THE PERFUME (SABINA)",
+                category: "media",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Sensorama Inc. Cue Sheet (Undated): 'Film 3: A Date with Sabina. Odor Track 1: Floral/Jasmine. Duration: 0:15-0:45, 1:12-1:30. Actuator voltage: 12V.'", "Chemical Supply Catalog (1961): 'Synthetic Jasmine Base #402. Industrial grade. Soluble in aerosol propellant.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Director's Note, M. Heilig: 'Sabina wears Chanel No. 5. Cannot afford licensing or pure extract. Synthetic Jasmine #402 smells like soap, but masks the ozone smell from the vibration motor.'", "Invoice, Acme Chemical Supply (October 1961): '5 Gallons Synthetic Floral Base. $12.50.'"],
+                    "III. MATERIAL TRACE": ["Artifact 304-A: Rusted pressurized canister extracted from Sensorama Chassis #1.", "Spectroscopic Analysis (2012): Residue contains 65% dichlorodifluoromethane (Freon-12 propellant), 20% benzyl acetate (jasmine synthetic), 15% unknown degraded hydrocarbons."],
+                    "IV. SUBTERRANEAN LAYER": ["Interview excerpt, Sabina (Actress, 1989): 'Morton had this horrible spray can he kept testing... It gave me a migraine. The actual shoot was mostly just him adjusting the heavy camera.'", "Cost Analysis Ledger (1962): 'Film print: $200. Actor fee: $50. Scent chemicals: $12.50. Machine upkeep: $400.'"],
+                    "V. HISTORICAL FRACTURE": ["Media Studies Dissertation (2019): 'The scent track in Sabina operationalizes the male gaze into a localized atmospheric event. The woman is reduced... to a cheap, synthetic industrial chemical triggered by a microswitch.'", "Archival Counter-Note (Curator, 2020): 'Heilig's choice of synthetic jasmine wasn't ideological; it was thermodynamic. Natural perfumes coagulated in the brass nozzles.'"]
+                }
+            },
+            {
+                id: "05",
+                title: "THE AUDIO RECORDING SESSION (BELLY DANCER, 1961)",
+                category: "media",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Belly Dancer Film Credits (Unpublished): 'Directed and Produced by Morton Heilig. Binaural Audio Recording.'", "Espacios Journal excerpt (1955): 'Sound must not simply accompany the image; it must envelop the spectator, providing spatial coordinates for the eye to follow.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Studio Booking Receipt (September 1961): '4 hours studio time. Use of two (2) Shure 55S directional microphones. Ampex magnetic tape recorder. Total: $65.'", "Session Notes, M. Heilig: 'Dancer must move finger cymbals exactly 14 inches from the left microphone... The proximity effect must be exaggerated.'"],
+                    "III. MATERIAL TRACE": ["Artifact 205-A: 1/4-inch Ampex magnetic audio tape reel. Box labeled 'Sabina/Belly Dance - Stereo Mixdown.'", "Artifact 205-B: Oscilloscope reading of track 1 (Left Channel) showing a massive transient peak corresponding to a cymbal strike, clipping the analog tape."],
+                    "IV. SUBTERRANEAN LAYER": ["Musician's Union Local 802 Dispute Record (October 1961): 'Session percussionist demanding additional compensation. Alleges Heilig required her to strike cymbals dangerously close to her own face... resulting in temporary tinnitus.'", "Heilig's Notebook (1961): 'The audio illusion works better than the visual. When the cymbal rings in the right speaker, the test subject physically flinches.'"],
+                    "V. HISTORICAL FRACTURE": ["Acoustic History Monograph (2010): 'Heilig wasn't recording music; he was recording spatial data. The Belly Dancer track is an early form of ASMR, utilizing extreme close-miking to weaponize intimacy.'", "Archival Conservator Note (2015): 'The irony of the directional audio in the Sensorama is that the loud, droning noise of the cabinet's own cooling fans and vibration motors effectively masked the subtle stereophonic panning.'"]
+                }
+            },
+            {
+                id: "06",
+                title: "THE SEAT VIBRATION MOTOR MECHANISM",
+                category: "hardware",
+                layers: {
+                    "I. OFFICIAL RECORD": ["U.S. Patent 3,050,870 (1962): 'A vibrator means associated with said seat for imparting vibrations to said user... synchronized with the visual and aural material.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Parts Requisition (1960): '1x Bodine Electric 1/4 HP AC motor. 2x eccentric brass counterweights. 1x relay switch rated for 110V.'", "Assembly Diagram: 'Motor to be bolted directly to the underside of the fiberglass bucket seat. Eccentric weight A produces high-frequency hum. Eccentric weight B produces low-frequency jolts.'"],
+                    "III. MATERIAL TRACE": ["Artifact 306: Bodine Electric motor housing, caked in black carbon dust from worn internal brushes.", "Artifact 307: The bucket seat fiberglass mold, showing a spiderweb of micro-cracks radiating outward from the motor mounting bolts."],
+                    "IV. SUBTERRANEAN LAYER": ["Medical Incident Report, Arcade Location (August 1962): 'Patron complained of lower back pain and numbness in legs after three consecutive plays of Dune Buggy. Claims the seat shook his teeth loose.'", "Heilig's Diary (1962): 'The relay switch for the motor sparks when it engages. I can smell ozone inside the cabinet. It mixes with the pizza scent.'"],
+                    "V. HISTORICAL FRACTURE": ["Haptics Research Paper (2020): 'Heilig's haptic feedback was entirely open-loop... It was not interaction; it was mechanical assault.'", "VR Designer Forum (2023): 'Open-loop or not, Heilig understood somatic grounding. By vibrating the sacrum, he bypassed the visual cortex and convinced the reptilian brain that the body was in motion.'"]
+                }
+            },
+            {
+                id: "07",
+                title: "U.S. PATENT OFFICE FILING (PATENT 3,050,870)",
+                category: "concept",
+                layers: {
+                    "I. OFFICIAL RECORD": ["U.S. Patent 3,050,870. Filed: Jan. 10, 1961. Patented: Aug. 28, 1962. Inventor: Morton L. Heilig.", "Abstract: 'An apparatus for stimulating the senses of an individual to simulate an actual experience realistically.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Correspondence from Patent Attorney (Dec 1960): 'Morton, we must broaden the claims. If we only specify 35mm film, someone will swap in 16mm or magnetic tape and bypass the patent entirely.'", "Filing Fee Receipt: $30.00. Check #402."],
+                    "III. MATERIAL TRACE": ["Original Patent Application: 14 pages of text, 6 pages of mechanical drawings. Figure 1 displays a user fully enclosed in the viewing hood.", "Current status: Patent expired. Public domain."],
+                    "IV. SUBTERRANEAN LAYER": ["Journal Entry, M. Heilig (Aug 29, 1962): 'The patent arrived today. It is official. I own the future of experience. Now I just need $50,000 to manufacture the first twenty units. Called Ford again. Secretary hung up.'", "Corporate Memos (1962-1965): Consistent use of the phrases 'too complex,' 'maintenance nightmare,' and 'unproven market.'"],
+                    "V. HISTORICAL FRACTURE": ["Tech Blog Editorial (2021): 'Heilig's patent is the ultimate tragedy of being first. He patented the idea of VR, but tied it to clunky, analog mechanical systems that couldn't scale.'", "Counter-claim, VR Developer Forum (2023): 'Sutherland invented VR because he invented the dynamic computational model. Heilig just invented a very complicated chair.'"]
+                }
+            },
+            {
+                id: "08",
+                title: "THE 1955 PUBLICATION OF 'THE CINEMA OF THE FUTURE'",
+                category: "concept",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Publication Archive: Espacios (Mexican architectural and design journal), Issue 23-24, 1955.", "Article Title: 'El Cine del Futuro' (The Cinema of the Future). Author: Morton L. Heilig."],
+                    "II. OPERATIONAL ARCHIVE": ["Typescript Draft (1954): 'The screen will no longer be a window, but an environment. It will expand to 180 degrees, wrapping the viewer's peripheral vision.'", "Correspondence from Espacios Editor (March 1955): 'Morton, the piece is brilliant but highly speculative... We cannot pay you, but we will send you ten contributor copies.'"],
+                    "III. MATERIAL TRACE": ["Artifact 408: A physical copy of Espacios Issue 23-24. The binding is glued, pages yellowed. Page 12 features a hand-drawn diagram of a man sitting inside a domed theater, surrounded by speakers and air vents."],
+                    "IV. SUBTERRANEAN LAYER": ["Library checkout log, University of Southern California (1965-1975): The issue was checked out exactly twice in a ten-year period.", "Heilig's Notebook (1956): 'No one in Hollywood read the Espacios piece. I sent copies to Disney, to Fox, to Todd-AO. Silence.'"],
+                    "V. HISTORICAL FRACTURE": ["Media Archaeology Anthology (2005): 'The Espacios essay is the most prophetic document in 20th-century media theory. Decades before Silicon Valley conceptualized the metaverse, Heilig had diagrammed its exact sensory architecture.'", "Critique by Film Historian (2012): 'Heilig's vision of the future abandons the collective, shared space of the traditional cinema in favor of a sensory isolation chamber. He invented the architecture of modern alienation.'"]
+                }
+            },
+            {
+                id: "09",
+                title: "THE EDITING BENCH (SYNCHRONIZATION)",
+                category: "hardware",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Espacios Journal excerpt (1955): 'The filmmaker of tomorrow will not merely splice images; he will orchestrate the entire human sensorium. He must be a master of total atmospheric control.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Hand-drawn Schematic (1961): 'Sync-Block Modification. Track A: Visual Left. Track B: Visual Right. Track C: Audio Stereo. Track D: Foil contact strips for mechanical actuation. Foil must be applied exactly 12 frames ahead of visual cue.'", "Purchase Order (1960): '1x 4-gang 35mm synchronizer. 3x rolls conductive foil tape.'"],
+                    "III. MATERIAL TRACE": ["Artifact 412: Wooden drafting table, heavily scored. Left side features circular gouges consistent with the mounting of heavy 35mm rewinds.", "Artifact 413: Strip of discarded 35mm celluloid. Frame edge features a hand-glued strip of aluminum foil, peeling at the corners."],
+                    "IV. SUBTERRANEAN LAYER": ["Personal Diary (February 1962): 'Splicing the foil contacts is blinding work. If the foil is too thick, it jams the reader. If it is too thin, the circuit doesn't close and the wind doesn't blow.'", "Bank Statement (March 1962): Account overdrawn by $145.00."],
+                    "V. HISTORICAL FRACTURE": ["HCI Symposium Keynote (2008): 'The Sensorama failed because it lacked a software authoring environment. Heilig was trying to program a multi-sensory database using glue and aluminum foil.'", "Hardware Preservationist Forum (2022): 'Calling it 'artisanal' misses the point. He built the first multi-track sensory timeline editor by hand. It was a triumph of mechanical ingenuity over the limitations of his era.'"]
+                }
+            },
+            {
+                id: "12",
+                title: "FORD MOTOR COMPANY HEADQUARTERS PITCH (1957)",
+                category: "economics",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Ford Motor Company Public Relations Archive: Visitor Log, November 14, 1957. '10:00 AM. Morton Heilig. Presentation: The Experience Theater.'", "Formal Correspondence (December 2, 1957): 'Dear Mr. Heilig... Ford Motor Company does not see a practical application for this technology in our current promotional strategy.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Presentation Notes, M. Heilig: 'Emphasize safety. The theater allows the consumer to feel the speed of the Thunderbird without the liability of a test drive... Do not mention the scent track until slide 4—they will think it is a gimmick.'", "Blueprint 102-A: Shows seating for 200, individually wired with peripheral air nozzles and sub-bass vibration transducers under the upholstery."],
+                    "III. MATERIAL TRACE": ["Artifact 801: 24x36 inch architectural rendering, ink on vellum. A coffee ring stain obscures the specifications for the 70mm projection array.", "Artifact 802: Greyhound bus ticket stub. New York to Detroit, Nov 12, 1957."],
+                    "IV. SUBTERRANEAN LAYER": ["Internal Ford Interoffice Memo (Nov 15, 1957): 'The Heilig proposal is completely unscalable. The estimated cost for custom HVAC scent-clearing alone exceeds the budget of our entire regional auto show tour.'", "Bank Statement, M. Heilig (November 1957): Balance: $412.50. Draft for blueprint printing: -$85.00."],
+                    "V. HISTORICAL FRACTURE": ["Architectural History Quarterly (2001): 'Heilig's Experience Theater was a grand, collective vision of immersion. Its rejection by corporate capital forced him into the localized, single-user isolation of the Sensorama cabinet.'", "VR Industry Retrospective (2018): 'In 2015, Ford became one of the largest corporate investors in Oculus Rift headsets to do exactly what Heilig proposed: virtual test drives. Heilig wasn't wrong; he was just born into the wrong material paradigm.'"]
+                }
+            },
+            {
+                id: "13",
+                title: "THE BROADWAY ARCADE FIELD TEST (1962)",
+                category: "economics",
+                layers: {
+                    "I. OFFICIAL RECORD": ["New York City Department of Consumer Affairs (1962): 'Amusement Arcade License #8834. Location: 1650 Broadway. Operator: J. Rossi.'", "Sensorama Inc. Promotional Photograph (1962): A well-dressed couple smiling next to the fiberglass Sensorama cabinet, clearly illuminated by professional studio lighting."],
+                    "II. OPERATIONAL ARCHIVE": ["Revenue Share Agreement (June 1962): 'Machine owner (Heilig) receives 40% of coin box. Arcade operator (Rossi) receives 60%. Price per play: $0.25.'", "Coin Box Ledger (Week 1): 'Monday: $4.50. Tuesday: $3.25. Wednesday: $6.00. Thursday: Machine jammed (coin mech). Friday: $1.25.'"],
+                    "III. MATERIAL TRACE": ["Artifact 505: Sensorama Cabinet #1 exterior shell. Lower right quadrant features three distinct circular burn marks consistent with extinguished cigarettes.", "Artifact 506: Coin slot faceplate. Deep diagonal scratches around the 25-cent entry point."],
+                    "IV. SUBTERRANEAN LAYER": ["Letter from J. Rossi to M. Heilig (August 1962): 'Morton, take this thing out of my shop. It takes up the footprint of three pinball machines and grosses half as much... It's a maintenance nightmare.'", "Hand-scribbled note by Heilig on Rossi's letter: 'They don't understand. They are looking for a toy. This is a theater.'"],
+                    "V. HISTORICAL FRACTURE": ["Cultural History of VR (2014): 'Heilig's vision of the Experience Theater was conceptually magnificent, but economically, it was forced into the architecture of the peep-show. The medium was the message, and the message was a quarter-slot novelty.'", "Economic counter-analysis (2025): 'The arcade was exactly where it belonged. It was the only public space in 1962 where working-class people expected to pay for localized, machine-mediated sensory experiences.'"]
+                }
+            },
+            {
+                id: "17",
+                title: "THE PHYSICAL ACETATE DEGRADATION (VINEGAR SYNDROME)",
+                category: "decay",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Media Preservation Lab Condition Report (2011): 'Asset: 35mm stereoscopic print, Motorcycle (1962). Base: Cellulose triacetate. Status: Stage 3 degradation (Vinegar Syndrome). Shrinkage: 1.8%. Emulsion separating from base.'"],
+                    "II. OPERATIONAL ARCHIVE": ["Archival Handling Protocol (2011): 'Gloves and particulate masks mandatory when handling the Heilig prints. The off-gassing of acetic acid accelerates degradation in adjacent materials.'", "Original Lab Invoice, M. Heilig (1961): '35mm Color Positive Print - Triacetate Base. 2000 ft. Standard commercial grade. Total: $180.'"],
+                    "III. MATERIAL TRACE": ["Artifact 901: Sealed archival containment tin. Internal atmosphere heavily saturated with acetic acid vapor.", "Artifact 902: 12-frame strip of A Date with Sabina. The celluloid has channeled and cupped. The magenta dye layer has faded entirely, leaving the image with a severe green/cyan color cast."],
+                    "IV. SUBTERRANEAN LAYER": ["Interview Excerpt, Film Archivist (2016): 'Morton didn't have the budget for polyester-base film... He bought the cheapest triacetate he could find to keep the project alive. The material that brought his world to life is literally eating itself.'", "Heilig's Notebook (Undated, circa 1980s): 'The prints are starting to smell sour. I tried wiping them down with alcohol. The red is disappearing from the Brooklyn brick.'"],
+                    "V. HISTORICAL FRACTURE": ["Media Theory Thesis (2022): 'There is a profound, morbid irony in the decay of the Sensorama prints. A machine famous for artificially pumping the smell of pizza and perfume into the air is now defined by the overpowering, un-programmed chemical stench of its own death—the vinegar smell of rotting acetate.'", "Conservation Debate Log (2014): 'If we digitally scan the warped frames and use software to flatten the image and color-correct the faded dyes, are we preserving the Sensorama experience, or are we erasing the reality of its physical failure? The decay is part of the artifact.'"]
+                }
+            },
+            {
+                id: "20",
+                title: "THE SURVIVING PROTOTYPE (PRIVATE COLLECTION)",
+                category: "decay",
+                layers: {
+                    "I. OFFICIAL RECORD": ["Auction Catalog Entry (Bonhams): 'Lot 42: Original Sensorama Simulator Prototype (c. 1962). Designed by Morton Heilig. Wood, fiberglass, metal, electronics. Non-functional. Sold as historical artifact.'", "Provenance: Estate of Morton Heilig -> Private Collection of S. Fisher -> Current Owner."],
+                    "II. OPERATIONAL ARCHIVE": ["Email thread, Museum Conservators (2018): 'If we replace the belts, we have to power the 1960s motors, which present a severe fire risk. If we replace the motors, it ceases to be Heilig's machine. Recommend static display only.'"],
+                    "III. MATERIAL TRACE": ["Artifact 601: The Machine. Dimensions: 72 x 36 x 48. Fiberglass casing faded from original gloss yellow to a matte, nicotine-stained beige.", "Internal Inspection Report: 'Scent reservoirs completely desiccated. Heavy dust accumulation on the stereoscopic mirrors. Viewing hood hinge seized.'"],
+                    "IV. SUBTERRANEAN LAYER": ["Insurance Appraisal Document (2021): 'Valuation: $1,500,000 USD. Value derived entirely from historical primacy in the lineage of Virtual Reality. Functional capability: Nil.'", "Heilig's Final Interview (1996): 'I have the machine in my garage. People come to look at it like it's a tombstone. They take pictures of the outside. Nobody asks what it felt like to be inside.'"],
+                    "V. HISTORICAL FRACTURE": ["Museum Label Draft 2 (Approved): 'The Sensorama was an early attempt to create an immersive virtual world. This prototype is inactive.'", "Exhibition Review (2019): 'The ultimate irony of the Sensorama is that it was designed to be the most active, visceral, living medium in human history, and it is now permanently frozen as a dead, silent sculpture. It is an experience machine that strictly forbids experience.'"]
+                }
+            },
+            {
+                id: "21",
+                title: "CYBERARTS INTERNATIONAL CONFERENCE (PASADENA, 1990)",
+                category: "concept",
+                layers: {
+                    "I. OFFICIAL RECORD": ["CyberArts 1990 Conference Schedule: 'Saturday, 2:00 PM: Panel - The Origins of Cyberspace. 3:00 PM: Exhibition Hall Demo - Morton Heilig and the original 1962 Sensorama Simulator.'", "Speaker Roster: Jaron Lanier (VPL Research), Timothy Leary, Morton Heilig, Ted Nelson."],
+                    "II. OPERATIONAL ARCHIVE": ["Freight Shipping Manifest (August 1990): 'Item: 1 Fiberglass Cabinet, Vintage Amusement Machine. Weight: 350 lbs. Origin: Los Angeles (Garage). Destination: Pasadena Hilton.'", "Event Floorplan: Sensorama located in 'Retro/Curiosity' corner, adjacent to the restrooms. Main floor occupied by Silicon Graphics (SGI) workstations and VPL DataGloves."],
+                    "III. MATERIAL TRACE": ["Artifact 1104: 35mm photograph of the exhibition hall. In the foreground, a young attendee wears a heavy, black VPL EyePhone headset... In the blurred background, an elderly Heilig stands next to the yellow Sensorama cabinet, wiping the viewing hood with a rag.", "Artifact 1105: Heilig's CyberArts '90 exhibitor badge. The lanyard is frayed."],
+                    "IV. SUBTERRANEAN LAYER": ["Journal Entry, M. Heilig (September 10, 1990): 'They call it 'Virtual Reality' now. A cold term. They put wires on their hands and look at wireframe boxes floating in black space. They think I am a grandfather clock... they do not understand that a floating red cube cannot replace the wind on your face or the smell of exhaust.'", "Email transcript between VR Developers (September 1990): 'Did you see that mechanical monstrosity in the back? The guy was pumping actual perfume through fish tank tubes. It’s brilliant steampunk, but it has nothing to do with what we're building. There's no interactive loop.'"],
+                    "V. HISTORICAL FRACTURE": ["Tech Journalism Archive (Wired Magazine, 1993): 'The 1990s VR boom anointed Ivan Sutherland as the father of the medium... Heilig was treated as an eccentric uncle—a dead end on the evolutionary tree of media.'", "Academic Retrospective (2025): 'The Pasadena meeting was the moment the World Building lineage died and the World Model lineage won... But looking back at the sterile, low-polygon wastelands of 90s VR, it is clear that Heilig understood human presence far better than the computer scientists did.'"]
+                }
+            }
+        ];
+
+        const categoryLabels = {
+            all: "All Categories",
+            hardware: "Hardware",
+            media: "Media",
+            economics: "Economics",
+            concept: "Concept",
+            decay: "Decay"
+        };
+
+        const state = {
+            stepIndex: 0,
+            siteSearch: "",
+            siteCategory: "all",
+            selectedSiteId: archaeologicalSites.length ? archaeologicalSites[0].id : null
+        };
+
+        const trailEl = document.getElementById("trail");
+        const stepBadgeEl = document.getElementById("stepBadge");
+        const stepNameEl = document.getElementById("stepName");
+        const stepSourceEl = document.getElementById("stepSource");
+        const promptEl = document.getElementById("promptText");
+        const completionEl = document.getElementById("completionText");
+        const outcomeViewEl = document.getElementById("outcomeView");
+        const auditListEl = document.getElementById("auditList");
+        const handoffEl = document.getElementById("handoffText");
+        const copyBtn = document.getElementById("copyReport");
+        const copyStatusEl = document.getElementById("copyStatus");
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function getMetrics() {
+            const siteCount = archaeologicalSites.length;
+            const layerCount = archaeologicalSites.reduce((total, site) => total + Object.keys(site.layers || {}).length, 0);
+            const categoryCount = new Set(archaeologicalSites.map((site) => site.category)).size;
+            return { siteCount, layerCount, categoryCount };
+        }
+
+        function renderTrail() {
+            trailEl.innerHTML = workflowSteps
+                .map((step, index) => {
+                    const active = index === state.stepIndex;
+                    return `
+                        <button class="step-btn${active ? " active" : ""}" data-index="${index}" type="button" aria-pressed="${active}">
+                            <small>STEP ${step.number}</small>
+                            <span>${escapeHtml(step.label)}</span>
+                        </button>
+                    `;
+                })
+                .join("");
+        }
+
+        function selectStep(index) {
+            state.stepIndex = index;
+            renderTrail();
+            renderStep();
+        }
+
+        function renderStep() {
+            const step = workflowSteps[state.stepIndex];
+            stepBadgeEl.textContent = `STEP ${step.number}`;
+            stepNameEl.textContent = step.label;
+            stepSourceEl.textContent = `Source: ${step.source}`;
+            promptEl.textContent = step.prompt;
+            completionEl.textContent = step.completion;
+            renderOutcome(step);
+            renderAudit(step);
+        }
+
+        function renderAudit(step) {
+            auditListEl.innerHTML = step.audit.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+            handoffEl.textContent = `Handoff: ${step.handoff}`;
+        }
+
+        function renderOutcome(step) {
+            if (step.key === "scan") {
+                renderScanOutcome();
+                return;
+            }
+            if (step.key === "dig") {
+                renderDigOutcome();
+                return;
+            }
+            if (step.key === "infer") {
+                renderInferOutcome();
+                return;
+            }
+            renderBuildOutcome();
+        }
+
+        function renderScanOutcome() {
+            const rows = scanCandidates
+                .map((item, idx) => {
+                    const n = String(idx + 1).padStart(2, "0");
+                    return `<li><span class="scan-index">${n}</span><span>${escapeHtml(item)}</span></li>`;
+                })
+                .join("");
+
+            outcomeViewEl.innerHTML = `
+                <p class="note">Outcome: candidate map for the full study. Every downstream step points back to this index.</p>
+                <ol class="scan-list">${rows}</ol>
+            `;
+        }
+
+        function renderDigOutcome() {
+            outcomeViewEl.innerHTML = `
+                <div class="dig-layout">
+                    <div class="dig-left">
+                        <div class="site-filter">
+                            <input id="siteSearch" type="search" placeholder="Search site records" value="${escapeHtml(state.siteSearch)}" aria-label="Search site records">
+                            <select id="siteCategory" aria-label="Filter category">
+                                ${Object.entries(categoryLabels)
+                                    .map(([value, label]) => `<option value="${value}"${state.siteCategory === value ? " selected" : ""}>${label}</option>`)
+                                    .join("")}
+                            </select>
+                        </div>
+                        <div id="siteList" class="site-list"></div>
+                    </div>
+                    <div class="dig-right">
+                        <div id="siteReport" class="site-report"></div>
+                    </div>
+                </div>
+            `;
+
+            const searchEl = document.getElementById("siteSearch");
+            const categoryEl = document.getElementById("siteCategory");
+
+            searchEl.addEventListener("input", (event) => {
+                state.siteSearch = event.target.value;
+                updateDigView();
+            });
+
+            categoryEl.addEventListener("change", (event) => {
+                state.siteCategory = event.target.value;
+                updateDigView();
+            });
+
+            updateDigView();
+        }
+
+        function getFilteredSites() {
+            const query = state.siteSearch.trim().toLowerCase();
+            return archaeologicalSites.filter((site) => {
+                const categoryMatch = state.siteCategory === "all" || site.category === state.siteCategory;
+                if (!categoryMatch) {
+                    return false;
+                }
+                if (!query) {
+                    return true;
+                }
+
+                if (site.title.toLowerCase().includes(query)) {
+                    return true;
+                }
+
+                return Object.values(site.layers || {}).some((items) =>
+                    items.some((item) => String(item).toLowerCase().includes(query))
+                );
+            });
+        }
+
+        function updateDigView() {
+            const sites = getFilteredSites();
+
+            if (!sites.length) {
+                state.selectedSiteId = null;
+            } else if (!sites.some((site) => site.id === state.selectedSiteId)) {
+                state.selectedSiteId = sites[0].id;
+            }
+
+            const listEl = document.getElementById("siteList");
+            const reportEl = document.getElementById("siteReport");
+
+            if (!sites.length) {
+                listEl.innerHTML = `<p class="empty">No site matches this filter.</p>`;
+                reportEl.innerHTML = `<p class="empty">Adjust the filter to inspect a dossier.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = sites
+                .map((site) => {
+                    const active = site.id === state.selectedSiteId;
+                    return `
+                        <button class="site-item${active ? " active" : ""}" data-site-id="${site.id}" type="button">
+                            <span class="meta">Site ${site.id} | ${escapeHtml(site.category)}</span>
+                            <strong>${escapeHtml(site.title)}</strong>
+                        </button>
+                    `;
+                })
+                .join("");
+
+            listEl.querySelectorAll(".site-item").forEach((button) => {
+                button.addEventListener("click", () => {
+                    state.selectedSiteId = button.getAttribute("data-site-id");
+                    updateDigView();
+                });
+            });
+
+            const selected = sites.find((site) => site.id === state.selectedSiteId) || sites[0];
+            reportEl.innerHTML = renderSiteReport(selected);
+        }
+
+        function renderSiteReport(site) {
+            if (!site) {
+                return `<p class="empty">No dossier selected.</p>`;
+            }
+
+            const layersHtml = Object.entries(site.layers || {})
+                .map(([layerName, items]) => {
+                    const itemsHtml = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+                    return `
+                        <article class="layer">
+                            <h4>${escapeHtml(layerName)}</h4>
+                            <ul>${itemsHtml}</ul>
+                        </article>
+                    `;
+                })
+                .join("");
+
+            return `
+                <section class="site-header">
+                    <span class="id">Site ${escapeHtml(site.id)} | ${escapeHtml(site.category)}</span>
+                    <h3>${escapeHtml(site.title)}</h3>
+                </section>
+                ${layersHtml}
+            `;
+        }
+
+        function renderInferOutcome() {
+            const insights = inferenceSections.insights.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+            const tensions = inferenceSections.tensions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+            outcomeViewEl.innerHTML = `
+                <div class="infer-grid">
+                    <article class="infer-card">
+                        <h3>Non-Obvious Insights</h3>
+                        <ul>${insights}</ul>
+                    </article>
+                    <article class="infer-card">
+                        <h3>Tensions + Contradictions</h3>
+                        <ul>${tensions}</ul>
+                    </article>
+                    <article class="infer-card">
+                        <h3>So What</h3>
+                        <p><strong>Core implication:</strong> ${escapeHtml(inferenceSections.soWhat.core)}</p>
+                        <p><strong>Why it matters:</strong> ${escapeHtml(inferenceSections.soWhat.why)}</p>
+                    </article>
+                    <article class="infer-card">
+                        <h3>What Is Missing</h3>
+                        <p><strong>Missing question:</strong> ${escapeHtml(inferenceSections.missing.question)}</p>
+                        <p><strong>Critical assumption:</strong> ${escapeHtml(inferenceSections.missing.assumption)}</p>
+                        <p><strong>Next inquiry:</strong> ${escapeHtml(inferenceSections.missing.next)}</p>
+                    </article>
+                </div>
+            `;
+        }
+
+        function renderBuildOutcome() {
+            const metrics = getMetrics();
+            const heuristics = buildHeuristics.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+            outcomeViewEl.innerHTML = `
+                <p class="note">Outcome: one operator screen that makes each prompt/completion pair auditable and easy to relay.</p>
+                <div class="report-grid">
+                    <article class="metric">
+                        <span class="label">Scan Candidates</span>
+                        <span class="num">${scanCandidates.length}</span>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Loaded Dossiers</span>
+                        <span class="num">${metrics.siteCount}</span>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Layer Records</span>
+                        <span class="num">${metrics.layerCount}</span>
+                    </article>
+                    <article class="metric">
+                        <span class="label">Categories</span>
+                        <span class="num">${metrics.categoryCount}</span>
+                    </article>
+                </div>
+                <ul class="heuristics">${heuristics}</ul>
+            `;
+        }
+
+        function buildCurrentReport() {
+            const step = workflowSteps[state.stepIndex];
+            const lines = [
+                `STEP ${step.number}: ${step.label}`,
+                `SOURCE: ${step.source}`,
+                "",
+                `PROMPT: ${step.prompt}`,
+                `COMPLETION: ${step.completion}`,
+                "",
+                "AUDIT:"
+            ];
+
+            step.audit.forEach((item, idx) => {
+                lines.push(`${idx + 1}. ${item}`);
+            });
+
+            lines.push(`HANDOFF: ${step.handoff}`);
+            lines.push("");
+
+            if (step.key === "scan") {
+                lines.push("OUTCOME (scan candidates):");
+                scanCandidates.forEach((item, idx) => {
+                    lines.push(`${idx + 1}. ${item}`);
+                });
+            }
+
+            if (step.key === "dig") {
+                const sites = getFilteredSites();
+                const selected = sites.find((site) => site.id === state.selectedSiteId) || sites[0];
+                lines.push(`OUTCOME (filtered dossiers): query=\"${state.siteSearch}\" category=\"${state.siteCategory}\" matches=${sites.length}`);
+                if (selected) {
+                    lines.push(`SELECTED: Site ${selected.id} - ${selected.title}`);
+                    Object.entries(selected.layers || {}).forEach(([layerName, items]) => {
+                        lines.push(`${layerName}: ${items[0] || "(empty)"}`);
+                    });
+                } else {
+                    lines.push("No dossier selected.");
+                }
+            }
+
+            if (step.key === "infer") {
+                lines.push("OUTCOME (synthesis):");
+                inferenceSections.insights.forEach((item, idx) => lines.push(`Insight ${idx + 1}: ${item}`));
+                inferenceSections.tensions.forEach((item, idx) => lines.push(`Tension ${idx + 1}: ${item}`));
+                lines.push(`Core implication: ${inferenceSections.soWhat.core}`);
+                lines.push(`Missing question: ${inferenceSections.missing.question}`);
+            }
+
+            if (step.key === "report") {
+                const metrics = getMetrics();
+                lines.push("OUTCOME (operator metrics):");
+                lines.push(`scan_candidates=${scanCandidates.length}`);
+                lines.push(`loaded_dossiers=${metrics.siteCount}`);
+                lines.push(`layer_records=${metrics.layerCount}`);
+                lines.push(`categories=${metrics.categoryCount}`);
+                lines.push("Heuristics:");
+                buildHeuristics.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`));
+            }
+
+            return lines.join("\n");
+        }
+
+        function copyWithFallback(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.setAttribute("readonly", "true");
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            let ok = false;
+            try {
+                ok = document.execCommand("copy");
+            } catch (_) {
+                ok = false;
+            }
+            document.body.removeChild(textarea);
+            return ok;
+        }
+
+        let statusTimer = null;
+
+        function setCopyStatus(message, isError) {
+            copyStatusEl.textContent = message;
+            copyStatusEl.style.color = isError ? "#9d2a2a" : "var(--ok)";
+            if (statusTimer) {
+                clearTimeout(statusTimer);
+            }
+            statusTimer = setTimeout(() => {
+                copyStatusEl.textContent = "";
+            }, 2200);
+        }
+
+        async function copyCurrentReport() {
+            const report = buildCurrentReport();
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(report);
+                    setCopyStatus("Step report copied.", false);
+                    return;
+                }
+            } catch (_) {
+                // fall through to legacy fallback
+            }
+
+            const ok = copyWithFallback(report);
+            if (ok) {
+                setCopyStatus("Step report copied.", false);
+            } else {
+                setCopyStatus("Copy failed. Select text manually.", true);
+            }
+        }
+
+        trailEl.addEventListener("click", (event) => {
+            const button = event.target.closest(".step-btn");
+            if (!button) {
+                return;
+            }
+            const index = Number(button.getAttribute("data-index"));
+            if (!Number.isNaN(index)) {
+                selectStep(index);
+            }
+        });
+
+        copyBtn.addEventListener("click", copyCurrentReport);
+
+        selectStep(0);
+    </script>
+</body>
+</html>

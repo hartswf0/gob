@@ -1,0 +1,22 @@
+1. The exact street route through Brooklyn, New York captured in the *Motorcycle* film: The geographic mapping of real physical space onto the first immersive virtual ride.
+2. The specific dual-35mm camera rig engineered by Morton Heilig: The material origin point of the stereoscopic gaze used to capture *Motorcycle*, *Helicopter*, and *Dune Buggy*.
+3. The scent-release camshafts, rubber tubing, and microswitches inside the original Sensorama cabinet: The physical interface where narrative film timing translates into localized chemical odor release.
+4. The chemical formulation of the perfume used for the scent track in *A Date with Sabina*: The commercial synthesis of intimacy, gender performance, and the male gaze into an aerosolized interactive element.
+5. The audio recording session for the finger cymbals and music in *Belly Dancer*: The threshold where directional stereo sound was captured specifically to simulate physical proximity and motion in an enclosed cabinet.
+6. The seat vibration motor mechanism, likely adapted from surplus industrial equipment, used for *Dune Buggy* and *Motorcycle*: The translation of mechanical hardware into haptic narrative feedback.
+7. The U.S. Patent Office filing for the "Sensorama Simulator" (Patent 3,050,870, August 28, 1962): The legal and mechanical codification of multi-sensory cinematic immersion.
+8. The 1955 publication of Heilig's essay "The Cinema of the Future" in the Mexican architectural journal *Espacios*: The theoretical and textual blueprint that prefigured the physical Sensorama films.
+9. The editing bench where Heilig manually cut and synchronized the 35mm film strips with the analog vibration and scent tracks: The site of early multi-modal timeline authoring and sensory synchronization.
+10. The Los Angeles location or studio where *A Date with Sabina* was filmed: The spatial origin of early first-person, character-driven virtual encounters.
+11. The specific brand and model of the electric fans mounted inside the Sensorama hood: The material hardware used to simulate atmospheric wind, speed, and environmental presence for *Helicopter* and *Motorcycle*.
+12. The corporate offices of Ford Motor Company where Heilig pitched his larger "Experience Theater" concept: The site of capital rejection that forced the miniaturization of his immersive vision into the arcade-style Sensorama.
+13. The specific arcade or public location on Broadway in New York where the Sensorama prototype was first field-tested: The site of initial friction between avant-garde immersive media and the penny arcade economy.
+14. The Coca-Cola bottling plant or marketing department involved in the production of *I'm a Coca-Cola Bottle!*: The threshold between immersive world-building, experimental cinema, and corporate advertising.
+15. The financial ledgers, receipts, and personal debt records Heilig accumulated to self-fund the five films: The material economic reality and individual burden underlying the production of a "lost future" technology.
+16. The chemical composition and sourcing of the "baking pizza" odor used in the *Motorcycle* film: The specific synthetic recreation of urban foodscapes designed for mechanical sensory immersion.
+17. The physical acetate or celluloid degradation (vinegar syndrome) occurring on the original 35mm prints of the Sensorama films: The material entropy and archival vulnerability of early immersive media.
+18. The helicopter tarmac and specific aircraft used to film the aerial stereoscopic footage for *Helicopter*: The physical elevation point where human sight was mechanically untethered to simulate virtual flight.
+19. The U.S. Patent Office filing for the "Telesphere Mask" (Patent 2,955,156, October 4, 1960): The head-mounted precursor to the Sensorama, establishing the complete visual and auditory isolation of the user's sensorium.
+20. The surviving, non-functional Sensorama prototype currently held in private collections (such as that of VR historian Scott Fisher): The physical decay, objectification, and historical preservation of the machine.
+21. The 1990s virtual reality conferences (like CyberArts) where an elderly Heilig exhibited the surviving Sensorama to a new generation of technologists: The site of historical collision between analog, narrative-driven VR and geometric, computationally-driven VR.
+22. Heilig's personal drafting notebooks containing unproduced scripts, scent cues, and storyboards for unmade Sensorama films: The boundary between realized multi-sensory media and infinite theoretical expansion.
