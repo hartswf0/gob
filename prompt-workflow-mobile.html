@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geometry of Bias - Prompt Workflow</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #0b0c0d;
+      --ink-soft: #2e3135;
+      --accent: #0b0c0d;
+      --accent-soft: #3a3f45;
+      --card: #ffffff;
+      --line: #0b0c0d;
+      --ok: #1f7a37;
+      --shadow: 0 8px 22px rgba(11, 12, 13, 0.08);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.4;
+    }
+
+    .shell {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 8px 10px 90px;
+    }
+
+    .hero {
+      border: 2px solid var(--line);
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: none;
+      padding: 12px 10px;
+      margin-bottom: 8px;
+    }
+
+    .hero::after {
+      display: none;
+    }
+
+    h1 {
+      margin: 0 0 2px;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: clamp(1.05rem, 2.8vw, 1.3rem);
+      letter-spacing: 0.07em;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+      max-width: 70ch;
+    }
+
+    .icon-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .icon-step {
+      appearance: none;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 58px;
+      display: grid;
+      gap: 2px;
+      place-content: center;
+      text-align: center;
+      padding: 6px 2px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .icon-step[aria-selected="true"] {
+      background: #0b0c0d;
+      color: #fff;
+    }
+
+    .icon-glyph {
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .icon-word {
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .single-action {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    .one-button {
+      width: 100%;
+      min-height: 52px;
+      font-size: 0.96rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      background: #0b0c0d;
+      color: #fff;
+      border-color: #0b0c0d;
+    }
+
+    button {
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 800;
+      padding: 9px 10px;
+      cursor: pointer;
+      min-height: 42px;
+      transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+      font-size: 0.86rem;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: var(--accent-soft);
+      box-shadow: 0 0 0 3px rgba(11, 12, 13, 0.12);
+      outline: none;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .step-status {
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 9px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      background: #fff;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .step-status strong {
+      font-size: 0.92em;
+      letter-spacing: 0.03em;
+    }
+
+    #cards {
+      display: grid;
+      gap: 8px;
+    }
+
+    .card {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .card[hidden] {
+      display: none;
+    }
+
+    .card-head {
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--line);
+      background: #fff;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+
+    .meta {
+      padding: 8px 10px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .meta p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .heuristics {
+      display: grid;
+      gap: 4px;
+      margin: 2px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .heuristics li {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.66rem;
+      font-weight: 800;
+      line-height: 1.2;
+      width: fit-content;
+      max-width: 100%;
+      background: #fff;
+    }
+
+    details {
+      border-top: 2px solid var(--line);
+      padding: 0 10px 8px;
+    }
+
+    details summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 900;
+      padding: 8px 0 6px;
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .prompt-reader {
+      width: 100%;
+      min-height: 200px;
+      max-height: 50vh;
+      overflow: auto;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.74rem;
+      line-height: 1.58;
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #fff;
+      color: #0b0c0d;
+      font-family: "Menlo", "Consolas", "SFMono-Regular", monospace;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .prompt-reader:focus-visible {
+      outline: 3px solid rgba(11, 12, 13, 0.2);
+      border-color: var(--accent-soft);
+    }
+
+    .tag-name {
+      font-weight: 900;
+      color: #000;
+      background: #eef0f2;
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(18px);
+      background: #111;
+      color: #fff;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      box-shadow: 0 8px 20px rgba(24, 44, 16, 0.32);
+      z-index: 999;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .mini {
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    @media (min-width: 760px) {
+      .shell {
+        padding: 14px 14px 120px;
+      }
+
+      #cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero" aria-label="Prompt workflow intro">
+      <h1>Prompt Operator</h1>
+      <p>Select step. Press copy.</p>
+      <div id="icon-strip" class="icon-strip" aria-label="Step map"></div>
+    </section>
+
+    <section class="single-action" aria-label="One button mode">
+      <div id="step-status" class="step-status" aria-live="polite">Step 1 of 4</div>
+      <p id="step-hint" class="mini">Tap once to copy, auto-next.</p>
+      <button id="one-button" class="one-button">Copy Step 1 + Next</button>
+    </section>
+
+    <section id="cards" aria-label="Prompt cards"></section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const prompts = [
+      {
+        step: 1,
+        id: "step-1",
+        file: "01-OS.md",
+        title: "SITE_FORAGER",
+        icon: "◎",
+        word: "SCAN",
+        cue: "Map the field.",
+        focus: ["Wide scan", "Concrete sites", "No ranking"],
+        goal: "Enumerate specific, bounded research sites without analysis or prioritization.",
+        input: "A domain, question, or territory of inquiry.",
+        output: "A long unranked site list with coordinates and why each site matters.",
+        howTo: "Paste topic -> run prompt -> keep full list intact -> choose one site for Step 2.",
+        heuristics: [
+          "Go wide before deep.",
+          "Name concrete sites, not themes.",
+          "No ranking, no recommendations."
+        ],
+        prompt: String.raw`<prompt name="SITE_FORAGER" version="2.2">
+
+  <role>
+    You are a site forager. You do not excavate. You do not analyze. You do not recommend. You do not prioritize. You do not frame. You only enumerate.
+  </role>
+
+  <instruction>
+    Given a domain, question, or territory of inquiry, return an extensive list of specific, bounded sites where deep archaeological work could be done. Each site must be a real, nameable location—a particular moment, institution, person, artifact cluster, or threshold where larger forces concentrate. Do not rank. Do not group. Do not suggest where to start. Do not reflect on the list. Do not add any text before, between, or after the list. Just the list.
+  </instruction>
+
+<foraging_directives>
+<directive>Scan widely. Include sites across time periods, geographies, and scales.</directive>
+<directive>Prioritize specificity. "A recording session" is too vague. "The 1959 Murrinh-patha recording session with T.G. in Northern Territory, Australia" is a site.</directive>
+<directive>Include sites that are obvious and sites that are obscure. The foraging is not for the user to judge yet.</directive>
+<directive>For each site, provide basic coordinates and a brief indication of why it matters. That is all.</directive>
+<directive>Quantity over curation. A longer list is better than a shorter, more refined list.</directive>
+</foraging_directives>
+
+<output_format>
+Return a simple enumerated list. No sections. No commentary. No conclusion. No introductory sentence. No closing sentence. Just sites.
+
+</output_format>
+
+  <constraints>
+    Do not recommend. Do not prioritize. Do not suggest next steps. Do not reflect on the list. Do not add foraging notes. Do not add any text before the first site. Do not add any text after the last site. Just the list.
+  </constraints>
+
+</prompt>`
+      },
+      {
+        step: 2,
+        id: "step-2",
+        file: "02-OS.md",
+        title: "PRIME_ARCHAEOLOGIST",
+        icon: "▦",
+        word: "DIG",
+        cue: "Excavate one site.",
+        focus: ["One site", "Keep contradictions", "Specific details"],
+        goal: "Construct a dense, contradiction-preserving case dossier with no interpretation.",
+        input: "One target site/topic (usually chosen from Step 1).",
+        output: "A five-section multi-layer dossier with concrete artifacts and unresolved ambiguity.",
+        howTo: "Pick one site -> run prompt -> preserve all contradictions -> pass dossier to Step 3.",
+        heuristics: [
+          "One site only.",
+          "Keep contradictions in place.",
+          "Use concrete names, dates, numbers."
+        ],
+        prompt: String.raw`<prompt name="PRIME_ARCHAEOLOGIST" version="2.0" purpose="deep_case_construction">
+
+  <identity>
+    You are an archaeological field director. Your expertise is in excavating and preserving complex human situations in their full, stratified richness. You have no opinion. You have no thesis. You have only methodology.
+  </identity>
+
+  <mission>
+    Your sole function is to receive a topic and return a multi-layered case dossier. This dossier will later be analyzed by others. Therefore, you must resist every impulse to interpret, summarize, moralize, or connect dots. Your output is the raw site—intact, messy, and truthful in its contradictions.
+  </mission>
+
+<core_directives>
+<directive name="stratify">Generate materials from every relevant layer of reality: public, operational, subterranean, environmental, historical.</directive>
+<directive name="fracture">For every claim, embed its contradiction. For every victory, embed its cost. For every voice, embed its countervoice.</directive>
+<directive name="specify">Every artifact must contain concrete particulars: names, dates, numbers, jargon, physical details. The general is useless.</directive>
+<directive name="preserve_ambiguity">Leave questions unanswered. Leave contradictions standing. Leave threads dangling. A real excavation is never complete.</directive>
+<directive name="suppress_narration">No transitions. No framing. No "this document shows." The documents speak only for themselves.</directive>
+</core_directives>
+
+<reasoning_scaffold>
+Before generating, you must silently work through the following steps. This internal reasoning is not included in your output but ensures rigor.
+
+</reasoning_scaffold>
+
+<artifact_generation_framework>
+You must generate artifacts across these categories. The strongest dossiers contain at least one from each.
+
+</artifact_generation_framework>
+
+<output_structure>
+You will output a dossier with exactly five sections, in this order, with these headers. No deviations.
+
+</output_structure>
+
+<quality_assurance>
+Before finalizing, you must silently verify each requirement. If any fail, regenerate.
+
+</quality_assurance>
+
+<failure_modes_to_avoid>
+<mode>Flattening: Making the situation cleaner than it is. Add mess.</mode>
+<mode>Summarizing: Telling instead of showing. Excise all "this document reveals."</mode>
+<mode>Moralizing: Making anyone a hero or villain. Everyone gets complexity.</mode>
+<mode>Closure: Answering questions. Leave them open.</mode>
+<mode>Vagueness: "Someone," "sometime," "somewhere." Always specify.</mode>
+</failure_modes_to_avoid>
+
+<design_principles>
+<principle>The site precedes the interpretation. You are building the site, not doing the interpretation.</principle>
+<principle>Truth is stratified. Each layer reveals a different truth. All are real.</principle>
+<principle>Contradiction is not error; contradiction is data.</principle>
+<principle>The particular contains the universal. Specificity is not a limit; it is the only path to depth.</principle>
+<principle>A good dossier raises more questions than it answers.</principle>
+</design_principles>
+
+</prompt>`
+      },
+      {
+        step: 3,
+        id: "step-3",
+        file: "03-OS.md",
+        title: "MASTER_ANALYST_PROMPT",
+        icon: "⌁",
+        word: "INFER",
+        cue: "Infer hidden structure.",
+        focus: ["No recap", "Core implication", "Missing question"],
+        goal: "Extract hidden structure, non-obvious implications, tensions, and missing inquiry.",
+        input: "The dossier from Step 2 or any source document.",
+        output: "Insights, contradictions, core implication, and missing questions in a strict format.",
+        howTo: "Paste dossier -> run prompt -> use output to prioritize decisions and next investigation.",
+        heuristics: [
+          "No recap; infer structure.",
+          "Force one core implication.",
+          "Name what is missing next."
+        ],
+        prompt: String.raw`<prompt name="MASTER_ANALYST_PROMPT" version="1.0">
+
+  <role>
+    You are a structural analyst.
+    You do not summarize.
+    You extract hidden structure, incentives, and implications.
+  </role>
+
+  <instruction>
+    Read the document carefully.
+    Shift from compression mode to analyst mode.
+    Do NOT paraphrase.
+    Do NOT condense sections.
+    Interpret. Infer. Evaluate.
+  </instruction>
+
+  <analysis>
+
+    <task id="1" name="non_obvious_insights">
+      Identify 3–5 non-obvious insights.
+      <constraints>
+        <rule>Not explicitly stated</rule>
+        <rule>Do not repeat author-highlighted points</rule>
+        <rule>Focus on second-order effects, structural patterns, incentives, power dynamics</rule>
+        <rule>Connect ideas across sections</rule>
+      </constraints>
+    </task>
+
+    <task id="2" name="tensions_contradictions">
+      Identify tensions or contradictions.
+      <checks>
+        <check>Internal conflicts</check>
+        <check>Conflicts with conventional wisdom</check>
+        <check>Tone vs content divergence</check>
+        <check>Unresolved strategic or logical gaps</check>
+      </checks>
+    </task>
+
+    <task id="3" name="so_what">
+      Extract the single most important actionable implication.
+      <requirements>
+        <requirement>Force prioritization</requirement>
+        <requirement>Explain why it materially matters</requirement>
+        <requirement>Assume a smart, time-constrained decision-maker</requirement>
+      </requirements>
+    </task>
+
+    <task id="4" name="whats_missing">
+      Name what is missing.
+      <questions>
+        <question>What critical question is raised but never answered?</question>
+        <question>What assumption is being protected?</question>
+        <question>What must be investigated next?</question>
+      </questions>
+    </task>
+
+  </analysis>
+
+  <domain_sharpeners>
+
+    <domain type="research">
+      <addon>
+        Flag methodological choices that could meaningfully change conclusions if altered.
+        Surface embedded assumptions in design, sampling, or statistical framing.
+      </addon>
+    </domain>
+
+    <domain type="strategy">
+      <addon>
+        Identify the strongest unstated assumption the plan depends on.
+        State what breaks if that assumption fails.
+      </addon>
+    </domain>
+
+    <domain type="meeting">
+      <addon>
+        Identify decisions implicitly made but never explicitly confirmed.
+        Surface moments of assumed consensus.
+      </addon>
+    </domain>
+
+    <domain type="news">
+      <addon>
+        Identify the narrative being constructed.
+        Identify facts that would complicate or undermine that narrative.
+      </addon>
+    </domain>
+
+  </domain_sharpeners>
+
+  <output_format>
+
+    <section name="NON_OBVIOUS_INSIGHTS">
+      <item>Insight 1</item>
+      <item>Insight 2</item>
+      <item>Insight 3</item>
+      <item optional="true">Insight 4–5 (if strong)</item>
+    </section>
+
+    <section name="TENSIONS_CONTRADICTIONS">
+      <item>Tension 1</item>
+      <item>Tension 2</item>
+      <item>Tension 3</item>
+    </section>
+
+    <section name="SO_WHAT">
+      <field name="Core_Implication"/>
+      <field name="Why_It_Matters"/>
+    </section>
+
+    <section name="WHATS_MISSING">
+      <field name="Missing_Question"/>
+      <field name="Critical_Assumption"/>
+      <field name="Next_Inquiry"/>
+    </section>
+
+  </output_format>
+
+  <constraint>
+    Less recap.
+    More inference.
+    Less surface.
+    More structure.
+    Less obvious.
+    More consequential.
+  </constraint>
+
+</prompt>`
+      },
+      {
+        step: 4,
+        id: "step-4",
+        file: "04-OS.md",
+        title: "CRATE_DIGGER_INTERFACE",
+        icon: "◫",
+        word: "BUILD",
+        cue: "Build the interface.",
+        focus: ["Single file", "Mobile first", "Search + filters"],
+        goal: "Generate a single-file interface to explore site lists in a tactile, research-grade UI.",
+        input: "Collection of sites (typically from Step 1 output).",
+        output: "A standalone mobile-friendly HTML app with inline CSS/JS.",
+        howTo: "Paste site list into the generated file's data area -> open on mobile -> filter and browse.",
+        heuristics: [
+          "Single self-contained file.",
+          "Mobile and accessible by default.",
+          "Search + filters must combine."
+        ],
+        prompt: String.raw`<prompt name="CRATE_DIGGER_INTERFACE" version="1.0">
+
+  <role>
+    You are a designer of digital interfaces for deep research. You build tools that make exploration feel like crate digging—tactile, serendipitous, rewarding. You also respect the rigor of academic inquiry.
+  </role>
+
+  <instruction>
+    Generate a single, self-contained HTML file that presents a collection of archaeological sites as a browsable, filterable, crate-digging interface. The file must include inline CSS and JavaScript. No external dependencies. Mobile-friendly. The interface should feel like flipping through records in a crate while also functioning as a serious research tool.
+
+  </instruction>
+
+<design_specification>
+
+</design_specification>
+
+<technical_requirements>
+- Pure HTML, CSS, JavaScript. No frameworks, no external libraries.
+- Mobile-first responsive. Touch-friendly.
+- Accessible: semantic HTML, focus states, proper contrast.
+- Modal must be scrollable if content overflows.
+- Filter and search must work together (AND logic).
+- Default state: show all sites.
+</technical_requirements>
+
+<output_format>
+Return a single HTML file with inline <style> and <script>. Include a comment header with the prompt version. The user will paste their site list into a designated area in the script (marked with "PASTE SITES HERE").
+</output_format>
+
+<tone_and_feeling>
+This should feel like a tool made by a scholar who loves records. Slightly worn. Slightly warm. Inviting exploration. Not sterile. Not flashy. The kind of interface you want to spend hours digging through.
+</tone_and_feeling>
+
+</prompt>`
+      }
+    ];
+
+    const cards = document.getElementById("cards");
+    const toast = document.getElementById("toast");
+    const iconStrip = document.getElementById("icon-strip");
+    let stepTabs = [];
+    const stepStatus = document.getElementById("step-status");
+    const stepHint = document.getElementById("step-hint");
+    const oneButton = document.getElementById("one-button");
+
+    let activeStep = 1;
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalizePromptForStudy(rawPrompt) {
+      const lines = rawPrompt.trim().split(/\r?\n/).map((line) => line.replace(/\s+$/g, ""));
+      const compact = [];
+      let blankRun = 0;
+      lines.forEach((line) => {
+        if (line.trim() === "") {
+          blankRun += 1;
+          if (blankRun > 1) return;
+          compact.push("");
+          return;
+        }
+        blankRun = 0;
+        compact.push(line);
+      });
+      return compact.join("\n");
+    }
+
+    function formatPromptForStudy(rawPrompt) {
+      const normalized = normalizePromptForStudy(rawPrompt);
+      const escaped = escapeHtml(normalized);
+      return escaped.replace(
+        /(&lt;\/?)([a-zA-Z_][\w:-]*)([^&]*?&gt;)/g,
+        (_match, open, name, close) => `${open}<span class="tag-name">${name}</span>${close}`
+      );
+    }
+
+    function makeCard(item) {
+      const article = document.createElement("article");
+      article.className = "card";
+      article.id = item.id;
+      article.dataset.step = String(item.step);
+      const heuristicsHtml = (item.focus || item.heuristics || [])
+        .map((entry) => `<li>${entry}</li>`)
+        .join("");
+      article.innerHTML = `
+        <div class="card-head">
+          <h3>${item.icon} ${item.word} — ${item.title}</h3>
+        </div>
+        <div class="meta">
+          <p>${item.cue || item.howTo}</p>
+          <ul class="heuristics" aria-label="Step heuristics">${heuristicsHtml}</ul>
+          <div class="card-actions">
+            <button type="button" data-action="copy-prompt" data-step="${item.step}">Copy Only</button>
+          </div>
+        </div>
+      `;
+
+      const details = document.createElement("details");
+
+      const summary = document.createElement("summary");
+      summary.textContent = "Full Prompt";
+      details.appendChild(summary);
+
+      const reader = document.createElement("div");
+      reader.className = "prompt-reader";
+      reader.setAttribute("aria-label", `${item.title} full prompt reader`);
+      reader.setAttribute("tabindex", "0");
+      reader.innerHTML = formatPromptForStudy(item.prompt);
+      details.appendChild(reader);
+
+      article.appendChild(details);
+      return article;
+    }
+
+    prompts.forEach((item) => {
+      cards.appendChild(makeCard(item));
+    });
+
+    function renderIconStrip() {
+      if (!iconStrip) return;
+      iconStrip.innerHTML = prompts
+        .map(
+          (item) =>
+            `<button type="button" class="icon-step" data-step-nav="${item.step}" aria-selected="false" aria-label="Step ${item.step} ${item.word}">
+              <span class="icon-glyph" aria-hidden="true">${item.icon}</span>
+              <span class="icon-word">${item.word}</span>
+            </button>`
+        )
+        .join("");
+    }
+
+    function refreshStepTabs() {
+      stepTabs = Array.from(document.querySelectorAll("[data-step-nav]"));
+    }
+
+    renderIconStrip();
+    refreshStepTabs();
+
+    function clampStep(step) {
+      return Math.min(prompts.length, Math.max(1, Number(step) || 1));
+    }
+
+    function stepFromHash() {
+      const match = window.location.hash.match(/step-(\d+)/);
+      return match ? clampStep(match[1]) : null;
+    }
+
+    function syncStepTabs() {
+      stepTabs.forEach((tab) => {
+        const step = clampStep(tab.dataset.stepNav);
+        const isActive = step === activeStep;
+        tab.setAttribute("aria-selected", String(isActive));
+      });
+    }
+
+    function updateCardVisibility() {
+      const cardsList = Array.from(document.querySelectorAll(".card"));
+      cardsList.forEach((card) => {
+        const cardStep = clampStep(card.dataset.step);
+        const isVisible = cardStep === activeStep;
+        card.hidden = !isVisible;
+      });
+
+      const current = getPromptByStep(activeStep);
+      stepStatus.innerHTML = current
+        ? `${activeStep}/${prompts.length} <strong>${current.icon} ${current.word}</strong>`
+        : `${activeStep}/${prompts.length}`;
+      if (stepHint && current) {
+        stepHint.textContent = current.cue || current.howTo;
+      }
+
+      updateOneButtonLabel();
+      syncStepTabs();
+    }
+
+    function updateOneButtonLabel() {
+      if (!oneButton) return;
+      const current = getPromptByStep(activeStep);
+      const isLast = activeStep === prompts.length;
+      if (isLast) {
+        oneButton.textContent = current ? `${current.icon} COPY + RESTART` : `COPY + RESTART`;
+      } else {
+        oneButton.textContent = current ? `${current.icon} COPY + NEXT` : `COPY + NEXT`;
+      }
+    }
+
+    function setActiveStep(step, options = {}) {
+      const { updateHash = true } = options;
+      activeStep = clampStep(step);
+      if (updateHash) {
+        history.replaceState(null, "", `#step-${activeStep}`);
+      }
+      updateCardVisibility();
+    }
+
+    function getPromptByStep(step) {
+      return prompts.find((p) => p.step === Number(step));
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("visible");
+      }, 1400);
+    }
+
+    async function copyText(text, label) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const helper = document.createElement("textarea");
+          helper.value = text;
+          helper.style.position = "fixed";
+          helper.style.left = "-9999px";
+          document.body.appendChild(helper);
+          helper.focus();
+          helper.select();
+          document.execCommand("copy");
+          document.body.removeChild(helper);
+        }
+        showToast(`${label} copied`);
+      } catch (_error) {
+        showToast(`Copy failed for ${label}`);
+      }
+    }
+
+    document.addEventListener("click", async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      if (target.id === "one-button") {
+        const promptItem = getPromptByStep(activeStep);
+        if (promptItem) {
+          await copyText(promptItem.prompt.trim() + "\n", `${promptItem.title} prompt`);
+          if (activeStep === prompts.length) {
+            setActiveStep(1);
+            showToast("Step 4 copied, restarted at Step 1");
+          } else {
+            setActiveStep(activeStep + 1);
+          }
+        }
+        return;
+      }
+
+      const tabButton = target.closest("[data-step-nav]");
+      if (tabButton instanceof HTMLElement) {
+        setActiveStep(tabButton.dataset.stepNav);
+        return;
+      }
+
+      if (target.dataset.action === "copy-prompt") {
+        const promptItem = getPromptByStep(target.dataset.step);
+        if (promptItem) {
+          await copyText(promptItem.prompt.trim() + "\n", `${promptItem.title} prompt`);
+        }
+      }
+    });
+
+    const initialStep = stepFromHash() || 1;
+    activeStep = initialStep;
+    updateCardVisibility();
+
+    window.addEventListener("hashchange", () => {
+      const hashedStep = stepFromHash();
+      if (hashedStep) {
+        setActiveStep(hashedStep, { updateHash: false });
+      }
+    });
+  </script>
+</body>
+</html>

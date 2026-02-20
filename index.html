@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geometry of Bias OS - System Index</title>
+  <style>
+    :root {
+      --bg: #f5ecd9;
+      --bg-deep: #e4d6bb;
+      --paper: #fff9ec;
+      --ink: #1e1a14;
+      --ink-soft: #514739;
+      --line: #d4c3a3;
+      --accent: #8b3f23;
+      --accent-soft: #b8643b;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(62, 42, 20, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 9%, rgba(255, 251, 243, 0.92), rgba(255, 251, 243, 0) 40%),
+        radial-gradient(circle at 86% 16%, rgba(251, 238, 216, 0.82), rgba(251, 238, 216, 0) 42%),
+        linear-gradient(168deg, var(--bg) 0%, var(--bg-deep) 100%);
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 18px 14px 52px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(255, 247, 231, 0.84));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 14px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -44px;
+      right: -34px;
+      width: 168px;
+      height: 168px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(184, 100, 59, 0.16), rgba(184, 100, 59, 0));
+      pointer-events: none;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      font-size: clamp(1.45rem, 3vw, 2.05rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 7px 0 0;
+      color: var(--ink-soft);
+      max-width: 70ch;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .links a,
+    .card-links a {
+      text-decoration: none;
+      color: var(--ink);
+      background: #fffdf7;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.87rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .links a:hover,
+    .links a:focus-visible,
+    .card-links a:hover,
+    .card-links a:focus-visible {
+      border-color: var(--accent-soft);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(184, 100, 59, 0.15);
+    }
+
+    .links a.primary {
+      background: linear-gradient(140deg, #8b3f23, #a85433);
+      border-color: #7e371e;
+      color: #fff;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: 0 6px 18px rgba(62, 42, 20, 0.08);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: 0.01em;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .interpret-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .interpret-item {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px;
+      background: #fffdf8;
+    }
+
+    .interpret-item strong {
+      color: var(--accent);
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffef9;
+      padding: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .card p + p {
+      margin-top: 6px;
+    }
+
+    .card-links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    code {
+      font-family: "Menlo", "Consolas", "SFMono-Regular", monospace;
+      font-size: 0.88em;
+      background: rgba(139, 63, 35, 0.08);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    ol,
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.93rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      text-align: left;
+      padding: 8px;
+      vertical-align: top;
+      background: #fffef9;
+    }
+
+    th {
+      background: #f8efdf;
+    }
+
+    .runlog {
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: "Menlo", "Consolas", "SFMono-Regular", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      background: #fffef9;
+    }
+
+    .footer {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+    }
+
+    @media (min-width: 760px) {
+      main {
+        padding: 22px 20px 62px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .interpret-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <h1>Geometry of Bias OS</h1>
+      <p>This repository is a four-stage research operating system. Each file isolates a different cognitive move, then passes its output forward. Use this page as the single hub for execution, handoff, and quality control.</p>
+      <nav class="links" aria-label="Project links">
+        <a class="primary" href="prompt-workflow-mobile.html">Open Mobile Workflow</a>
+        <a href="README.md">Open README</a>
+        <a href="01-OS.md">01-OS.md</a>
+        <a href="02-OS.md">02-OS.md</a>
+        <a href="03-OS.md">03-OS.md</a>
+        <a href="04-OS.md">04-OS.md</a>
+      </nav>
+    </section>
+
+    <section class="panel">
+      <h2>Interpretation Of The Overall System</h2>
+      <p>The design separates <strong>discovery</strong>, <strong>excavation</strong>, <strong>inference</strong>, and <strong>interface</strong>. The separation is not cosmetic; it prevents premature closure and keeps evidence density high before decision framing.</p>
+      <div class="interpret-grid">
+        <div class="interpret-item">
+          <strong>01 - Divergence Engine</strong>
+          <p>Expands the search space. It forbids analysis so coverage stays wide and non-committal.</p>
+        </div>
+        <div class="interpret-item">
+          <strong>02 - Evidence Construction</strong>
+          <p>Builds thick dossiers with contradictions intact, turning one site into an evidentiary object.</p>
+        </div>
+        <div class="interpret-item">
+          <strong>03 - Structural Interpretation</strong>
+          <p>Extracts incentives, tensions, and implications from the dossier, forcing a decisive "so what."</p>
+        </div>
+        <div class="interpret-item">
+          <strong>04 - Research Instrument Layer</strong>
+          <p>Transforms site inventories into usable interfaces so exploration scales beyond raw text.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Module Overview + Direct Links</h2>
+      <div class="cards">
+        <article class="card">
+          <span class="tag">Step 1</span>
+          <h3><code>01-OS.md</code> / SITE_FORAGER</h3>
+          <p><strong>Role:</strong> Enumerate specific sites only.</p>
+          <p><strong>Output Type:</strong> Long, unranked list with coordinates and why each site matters.</p>
+          <p><strong>Function:</strong> Prevents tunnel vision at the start.</p>
+          <div class="card-links">
+            <a href="01-OS.md">Open Prompt</a>
+            <a href="prompt-workflow-mobile.html#step-1">Open In Mobile Tool</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="tag">Step 2</span>
+          <h3><code>02-OS.md</code> / PRIME_ARCHAEOLOGIST</h3>
+          <p><strong>Role:</strong> Build a multi-layer case dossier with explicit contradictions.</p>
+          <p><strong>Output Type:</strong> Five-section artifact set with concrete details.</p>
+          <p><strong>Function:</strong> Produces rich substrate for analysis.</p>
+          <div class="card-links">
+            <a href="02-OS.md">Open Prompt</a>
+            <a href="prompt-workflow-mobile.html#step-2">Open In Mobile Tool</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="tag">Step 3</span>
+          <h3><code>03-OS.md</code> / MASTER_ANALYST_PROMPT</h3>
+          <p><strong>Role:</strong> Infer hidden structure instead of summarizing.</p>
+          <p><strong>Output Type:</strong> Non-obvious insights, tensions, core implication, missing inquiry.</p>
+          <p><strong>Function:</strong> Converts evidence into decision-relevant interpretation.</p>
+          <div class="card-links">
+            <a href="03-OS.md">Open Prompt</a>
+            <a href="prompt-workflow-mobile.html#step-3">Open In Mobile Tool</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="tag">Step 4</span>
+          <h3><code>04-OS.md</code> / CRATE_DIGGER_INTERFACE</h3>
+          <p><strong>Role:</strong> Generate a standalone interface for site browsing and filtering.</p>
+          <p><strong>Output Type:</strong> Single-file HTML/CSS/JS tool.</p>
+          <p><strong>Function:</strong> Operationalizes outputs for continued exploration.</p>
+          <div class="card-links">
+            <a href="04-OS.md">Open Prompt</a>
+            <a href="prompt-workflow-mobile.html#step-4">Open In Mobile Tool</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Handoff Contract (Fortification)</h2>
+      <p>Each step has an input contract and an output contract. Keep these boundaries intact so later steps remain reliable.</p>
+      <table aria-label="Step handoff contract">
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Required Input</th>
+            <th>Required Output</th>
+            <th>Feeds Into</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Domain/question/territory</td>
+            <td>Unranked site list with coordinates + relevance</td>
+            <td>02 (choose one site) and 04 (use full list)</td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Single site from 01</td>
+            <td>Five-section dossier with contradictions preserved</td>
+            <td>03</td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Dossier (or equivalent document)</td>
+            <td>Insights, tensions, core implication, missing inquiry</td>
+            <td>Decision and next investigation cycle</td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Site list (usually from 01)</td>
+            <td>Standalone exploration interface</td>
+            <td>Ongoing browsing, filtering, and site selection</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Operational Guardrails</h2>
+      <ul>
+        <li>Do not skip directly from 01 to 03; 03 expects a dense dossier, not a site list.</li>
+        <li>Do not summarize during 02; contradictions and unresolved threads are required data.</li>
+        <li>Freeze outputs between steps; avoid quietly rewriting artifacts before handoff.</li>
+        <li>Log source scope, date, and prompt version for each run so results remain auditable.</li>
+        <li>Treat 04 as interface infrastructure, not analytical evidence.</li>
+      </ul>
+      <div class="runlog">RUN LOG TEMPLATE
+Run Date:
+Topic:
+Step 01 Output Ref:
+Selected Site For 02:
+Step 02 Output Ref:
+Step 03 Core Implication:
+Step 03 Next Inquiry:
+Step 04 Interface File (optional):
+Notes / Assumptions:</div>
+    </section>
+
+    <section class="panel">
+      <h2>Recommended Sequence</h2>
+      <ol>
+        <li>Run <code>01-OS.md</code> on a topic to map the terrain.</li>
+        <li>Select one site and run <code>02-OS.md</code> to excavate depth.</li>
+        <li>Run <code>03-OS.md</code> on the dossier to derive implications.</li>
+        <li>Use <code>04-OS.md</code> when you want interactive browsing of site inventories.</li>
+      </ol>
+    </section>
+
+    <section class="panel footer">
+      <p>System summary: this is a methodological pipeline, not a single prompt. Reliability comes from strict stage boundaries and explicit handoffs.</p>
+      <p>Primary entry points: <a href="README.md">README.md</a> and <a href="prompt-workflow-mobile.html">prompt-workflow-mobile.html</a>.</p>
+    </section>
+  </main>
+</body>
+</html>
