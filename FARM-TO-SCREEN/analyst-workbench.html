@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Farm-to-Screen Analyst Workbench</title>
+  <style>
+    :root {
+      --bg: #f7f2e7;
+      --card: #fffdf7;
+      --ink: #1f1c17;
+      --muted: #5d5449;
+      --line: #d9cbb1;
+      --accent: #8a3f1f;
+      --accent-soft: #b9683d;
+      --ok: #2d6a3f;
+      --warn: #9b2f1f;
+      --radius: 12px;
+      --shadow: 0 8px 20px rgba(52, 32, 12, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(165deg, #f9f4ea 0%, #f3e6d1 100%);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 12px 10px 88px;
+    }
+
+    .hero,
+    .card,
+    .dock,
+    .sheet {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.02rem, 3.2vw, 1.4rem);
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .statusbar {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .ok { color: var(--ok); border-color: #bcd6c4; }
+    .warn { color: var(--warn); border-color: #e5c0b8; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    input[type="search"],
+    input[type="file"],
+    textarea,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input[type="search"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      min-height: 38px;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      border-color: #7d3518;
+      color: #fff;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid rgba(138, 63, 31, 0.35);
+      outline-offset: 1px;
+    }
+
+    .viewport {
+      margin-top: 10px;
+      min-height: 52vh;
+    }
+
+    .stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .entry-card {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .entry-head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .entry-id {
+      font-weight: 800;
+      font-size: 0.78rem;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 3px 7px;
+      background: #fff8ee;
+    }
+
+    .entry-title {
+      font-weight: 800;
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
+    }
+
+    .entry-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .section-block {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffcf5;
+      overflow: hidden;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 9px;
+      border-bottom: 1px solid var(--line);
+      background: #f9efdf;
+      font-weight: 800;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .section-body {
+      padding: 9px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .snippet {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .snippet p {
+      margin: 0;
+      font-size: 0.88rem;
+      overflow-wrap: anywhere;
+    }
+
+    .snippet .meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .snippet-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .snippet-actions button {
+      min-height: 30px;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+    }
+
+    .connect-list,
+    .pattern-list,
+    .board-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .connect-item,
+    .pattern-item,
+    .board-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .connect-item h4,
+    .pattern-item h4,
+    .board-item h4 {
+      margin: 0;
+      font-size: 0.86rem;
+    }
+
+    .small {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 58px;
+      max-height: 48vh;
+      border-radius: 14px 14px 0 0;
+      border-bottom: none;
+      transform: translateY(110%);
+      transition: transform 0.2s ease;
+      z-index: 30;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-head {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sheet-body {
+      overflow: auto;
+      padding: 9px;
+    }
+
+    .dock {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+      z-index: 35;
+      padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .dock button {
+      min-height: 40px;
+      font-size: 0.76rem;
+      padding: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dock button.active {
+      background: #1f1c17;
+      color: #fff;
+      border-color: #1f1c17;
+    }
+
+    .hidden { display: none !important; }
+
+    .toast {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      background: #1f1c17;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 0.76rem;
+      opacity: 0;
+      transform: translateY(-5px);
+      transition: 0.16s ease;
+      z-index: 60;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (min-width: 820px) {
+      .app { padding-bottom: 14px; }
+      .dock { position: static; grid-template-columns: repeat(4, 180px); justify-content: center; border-radius: var(--radius); border-bottom: 1px solid var(--line); margin-top: 10px; }
+      .sheet { right: 12px; left: auto; width: 460px; border-radius: 14px; border: 1px solid var(--line); bottom: 12px; max-height: 70vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <h1>Farm-to-Screen Analyst Workbench</h1>
+      <p>Read each response, detect recurring structure, connect entries, and transclude evidence into a synthesis board.</p>
+      <div class="statusbar">
+        <span id="dataStatus" class="pill warn">No dataset loaded</span>
+        <span id="entryCount" class="pill">0 entries</span>
+        <span id="snippetCount" class="pill">0 snippets</span>
+      </div>
+      <div class="controls">
+        <input id="searchBox" type="search" placeholder="Search video ID, insight text, contradiction, implication…" />
+        <button id="loadDefaultBtn">Load Default</button>
+        <label class="pill" style="justify-content:center;cursor:pointer;min-height:38px;">
+          Import JSON
+          <input id="jsonFileInput" type="file" accept="application/json,.json" class="hidden" />
+        </label>
+      </div>
+    </section>
+
+    <main id="viewExplore" class="viewport"></main>
+    <main id="viewPatterns" class="viewport hidden"></main>
+    <main id="viewBoard" class="viewport hidden"></main>
+
+    <aside id="snippetSheet" class="sheet" aria-hidden="true">
+      <div class="sheet-head">
+        <strong id="sheetTitle">Snippet</strong>
+        <button id="sheetCloseBtn">Close</button>
+      </div>
+      <div class="sheet-body" id="sheetBody"></div>
+    </aside>
+
+    <nav class="dock" aria-label="Main mode selector">
+      <button id="modeExplore" class="active" data-mode="explore">Explore</button>
+      <button id="modePatterns" data-mode="patterns">Patterns</button>
+      <button id="modeBoard" data-mode="board">Board</button>
+      <button id="modeConnections">Connections</button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    "use strict";
+
+    const state = {
+      entries: [],
+      snippets: [],
+      search: "",
+      mode: "explore",
+      selectedEntryId: null,
+      board: [],
+      activePattern: null,
+      patternIndex: [],
+      sheetOpen: false
+    };
+
+    const els = {
+      dataStatus: document.getElementById("dataStatus"),
+      entryCount: document.getElementById("entryCount"),
+      snippetCount: document.getElementById("snippetCount"),
+      searchBox: document.getElementById("searchBox"),
+      loadDefaultBtn: document.getElementById("loadDefaultBtn"),
+      jsonFileInput: document.getElementById("jsonFileInput"),
+      viewExplore: document.getElementById("viewExplore"),
+      viewPatterns: document.getElementById("viewPatterns"),
+      viewBoard: document.getElementById("viewBoard"),
+      modeExplore: document.getElementById("modeExplore"),
+      modePatterns: document.getElementById("modePatterns"),
+      modeBoard: document.getElementById("modeBoard"),
+      modeConnections: document.getElementById("modeConnections"),
+      snippetSheet: document.getElementById("snippetSheet"),
+      sheetTitle: document.getElementById("sheetTitle"),
+      sheetBody: document.getElementById("sheetBody"),
+      sheetCloseBtn: document.getElementById("sheetCloseBtn"),
+      toast: document.getElementById("toast")
+    };
+
+    const STOPWORDS = new Set([
+      "the","and","for","that","this","with","from","they","their","have","into","while","where","what","when","which","will","were","been","being","than","then","them","there","these","those","over","under","also","only","must","more","less","very","just","much","many","some","such","same","across","about","because","could","would","should","might","between","through","within","without","each","every","other","after","before","most","into","onto","your","you","ours","ourselves","hers","his","its","our","not","are","was","is","it","as","of","to","in","on","at","an","a","or","by","we","i","he","she","do","does","did","can","if","so"
+    ]);
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function toast(msg) {
+      els.toast.textContent = msg;
+      els.toast.classList.add("show");
+      window.setTimeout(() => els.toast.classList.remove("show"), 1500);
+    }
+
+    function slug(input) {
+      return String(input || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "item";
+    }
+
+    function getSectionSnippets(entry) {
+      const out = [];
+      const sections = entry.response_sections || {};
+      const sectionNames = ["NON_OBVIOUS_INSIGHTS", "TENSIONS_CONTRADICTIONS", "SO_WHAT", "WHATS_MISSING"];
+
+      sectionNames.forEach((sectionName) => {
+        const payload = sections[sectionName];
+        if (!payload) return;
+
+        if (Array.isArray(payload)) {
+          payload.forEach((text, idx) => {
+            out.push({
+              id: `${entry.index}-${sectionName}-${idx + 1}`,
+              entryIndex: entry.index,
+              videoId: entry.video_id || "",
+              sourceUrl: entry.source_url || "",
+              canonicalUrl: entry.canonical_url || "",
+              section: sectionName,
+              field: null,
+              text: String(text || "").trim()
+            });
+          });
+        } else if (payload && typeof payload === "object") {
+          Object.entries(payload).forEach(([field, text]) => {
+            out.push({
+              id: `${entry.index}-${sectionName}-${slug(field)}`,
+              entryIndex: entry.index,
+              videoId: entry.video_id || "",
+              sourceUrl: entry.source_url || "",
+              canonicalUrl: entry.canonical_url || "",
+              section: sectionName,
+              field,
+              text: String(text || "").trim()
+            });
+          });
+        }
+      });
+
+      return out;
+    }
+
+    function hydrate(entries) {
+      state.entries = entries
+        .filter((x) => x && typeof x === "object" && x.response_sections)
+        .sort((a, b) => (a.index || 0) - (b.index || 0));
+
+      state.snippets = state.entries.flatMap(getSectionSnippets);
+      state.patternIndex = buildPatternIndex(state.snippets);
+
+      if (!state.selectedEntryId && state.entries.length) {
+        state.selectedEntryId = state.entries[0].index;
+      }
+
+      updateHeaderStats();
+      render();
+      persistBoard();
+    }
+
+    function normalizeToken(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    function tokenize(text) {
+      return String(text || "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .map((x) => x.trim())
+        .filter((x) => x.length > 3 && !STOPWORDS.has(x));
+    }
+
+    function buildPatternIndex(snippets) {
+      const termMap = new Map();
+      const snippetSets = new Map();
+
+      snippets.forEach((snip) => {
+        const terms = Array.from(new Set(tokenize(snip.text)));
+        snippetSets.set(snip.id, new Set(terms));
+        terms.forEach((term) => {
+          if (!termMap.has(term)) {
+            termMap.set(term, { term, count: 0, entries: new Set(), snippetIds: new Set() });
+          }
+          const node = termMap.get(term);
+          node.count += 1;
+          node.entries.add(snip.entryIndex);
+          node.snippetIds.add(snip.id);
+        });
+      });
+
+      const ranked = Array.from(termMap.values())
+        .filter((x) => x.count >= 4 && x.entries.size >= 3)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 80)
+        .map((x) => ({
+          term: x.term,
+          count: x.count,
+          entryCount: x.entries.size,
+          snippetIds: Array.from(x.snippetIds)
+        }));
+
+      return { ranked, snippetSets };
+    }
+
+    function getFilteredEntries() {
+      const q = state.search.trim().toLowerCase();
+      if (!q) return state.entries;
+      return state.entries.filter((entry) => {
+        const blob = [
+          entry.video_id,
+          entry.source_url,
+          entry.canonical_url,
+          JSON.stringify(entry.response_sections || {})
+        ].join(" ").toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    function getEntryByIndex(idx) {
+      return state.entries.find((e) => e.index === idx) || null;
+    }
+
+    function sectionLabel(key) {
+      return key
+        .toLowerCase()
+        .split("_")
+        .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+        .join(" ");
+    }
+
+    function addToBoard(snippet) {
+      const exists = state.board.some((x) => x.id === snippet.id);
+      if (exists) {
+        toast("Already in board");
+        return;
+      }
+      state.board.push({ ...snippet, note: "" });
+      persistBoard();
+      updateHeaderStats();
+      if (state.mode === "board") renderBoard();
+      toast("Added to board");
+    }
+
+    function removeFromBoard(id) {
+      state.board = state.board.filter((x) => x.id !== id);
+      persistBoard();
+      updateHeaderStats();
+      renderBoard();
+    }
+
+    function moveBoard(id, direction) {
+      const i = state.board.findIndex((x) => x.id === id);
+      if (i < 0) return;
+      const j = direction === "up" ? i - 1 : i + 1;
+      if (j < 0 || j >= state.board.length) return;
+      const tmp = state.board[i];
+      state.board[i] = state.board[j];
+      state.board[j] = tmp;
+      persistBoard();
+      renderBoard();
+    }
+
+    function updateBoardNote(id, note) {
+      const item = state.board.find((x) => x.id === id);
+      if (!item) return;
+      item.note = note;
+      persistBoard();
+    }
+
+    function boardMarkdown() {
+      const lines = ["# Transclusion Board", ""];
+      state.board.forEach((item, idx) => {
+        lines.push(`## ${idx + 1}. ${item.section}${item.field ? ` / ${item.field}` : ""}`);
+        lines.push(`- Entry: ${item.entryIndex}`);
+        lines.push(`- Video: ${item.canonicalUrl || item.sourceUrl || "N/A"}`);
+        lines.push("");
+        lines.push(item.text);
+        lines.push("");
+        if (item.note && item.note.trim()) {
+          lines.push(`Note: ${item.note.trim()}`);
+          lines.push("");
+        }
+      });
+      return lines.join("\n");
+    }
+
+    function synthesisPrompt() {
+      return [
+        "SYNTHESIS TASK",
+        "Use only the transcluded evidence below.",
+        "Map recurring structural incentives, contradictions, and leverage points.",
+        "Output:",
+        "1. 3 system-level patterns",
+        "2. 3 contradictions with decision impact",
+        "3. one actionable priority for a time-constrained operator",
+        "4. one missing inquiry that changes the strategy",
+        "",
+        "TRANSCLUDED EVIDENCE:",
+        "",
+        boardMarkdown()
+      ].join("\n");
+    }
+
+    function copyText(text, label) {
+      navigator.clipboard.writeText(text).then(() => toast(label)).catch(() => toast("Copy failed"));
+    }
+
+    function download(name, content, type) {
+      const blob = new Blob([content], { type: type || "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 500);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const map = {
+        explore: els.viewExplore,
+        patterns: els.viewPatterns,
+        board: els.viewBoard
+      };
+
+      Object.entries(map).forEach(([key, node]) => {
+        node.classList.toggle("hidden", key !== mode);
+      });
+
+      els.modeExplore.classList.toggle("active", mode === "explore");
+      els.modePatterns.classList.toggle("active", mode === "patterns");
+      els.modeBoard.classList.toggle("active", mode === "board");
+
+      render();
+    }
+
+    function openSheet(title, bodyHtml) {
+      els.sheetTitle.textContent = title;
+      els.sheetBody.innerHTML = bodyHtml;
+      els.snippetSheet.classList.add("open");
+      els.snippetSheet.setAttribute("aria-hidden", "false");
+      state.sheetOpen = true;
+    }
+
+    function closeSheet() {
+      els.snippetSheet.classList.remove("open");
+      els.snippetSheet.setAttribute("aria-hidden", "true");
+      state.sheetOpen = false;
+    }
+
+    function entryTextBlob(entry) {
+      return JSON.stringify(entry.response_sections || {}).toLowerCase();
+    }
+
+    function buildConnections(entry, limit = 8) {
+      const sourceSnippets = getSectionSnippets(entry);
+      const sourceTerms = new Set(sourceSnippets.flatMap((s) => tokenize(s.text)));
+      const scored = [];
+
+      state.entries.forEach((other) => {
+        if (other.index === entry.index) return;
+        const otherTerms = new Set(getSectionSnippets(other).flatMap((s) => tokenize(s.text)));
+        let overlap = 0;
+        sourceTerms.forEach((t) => {
+          if (otherTerms.has(t)) overlap += 1;
+        });
+        if (overlap > 0) {
+          scored.push({ entry: other, overlap });
+        }
+      });
+
+      scored.sort((a, b) => b.overlap - a.overlap);
+      return scored.slice(0, limit);
+    }
+
+    function renderExplore() {
+      const entries = getFilteredEntries();
+      const html = [];
+
+      if (!entries.length) {
+        els.viewExplore.innerHTML = `<section class="card entry-card"><p>No entries match the current search.</p></section>`;
+        return;
+      }
+
+      entries.forEach((entry) => {
+        const isSelected = entry.index === state.selectedEntryId;
+        const sections = entry.response_sections || {};
+
+        html.push(`<article class="card entry-card" data-entry="${entry.index}">`);
+        html.push(`<div class="entry-head">`);
+        html.push(`<span class="entry-id">#${entry.index}</span>`);
+        html.push(`<div class="entry-title">${escapeHtml(entry.video_id || "No Video ID")}</div>`);
+        html.push(`<button data-select="${entry.index}">${isSelected ? "Focused" : "Focus"}</button>`);
+        html.push(`</div>`);
+
+        html.push(`<div class="entry-meta">`);
+        if (entry.canonical_url) {
+          html.push(`<a class="pill" href="${escapeHtml(entry.canonical_url)}" target="_blank" rel="noreferrer">Watch Video</a>`);
+        } else if (entry.source_url) {
+          html.push(`<a class="pill" href="${escapeHtml(entry.source_url)}" target="_blank" rel="noreferrer">Open Source URL</a>`);
+        }
+        html.push(`<span class="pill">lines ${entry.user_turn.start_line}-${entry.gemini_turn ? entry.gemini_turn.end_line : entry.user_turn.end_line}</span>`);
+        html.push(`</div>`);
+
+        ["NON_OBVIOUS_INSIGHTS", "TENSIONS_CONTRADICTIONS", "SO_WHAT", "WHATS_MISSING"].forEach((sectionName) => {
+          const payload = sections[sectionName];
+          if (!payload) return;
+          html.push(`<section class="section-block">`);
+          html.push(`<header class="section-head"><span>${sectionLabel(sectionName)}</span><button data-open="${entry.index}|${sectionName}">Open</button></header>`);
+          html.push(`<div class="section-body">`);
+
+          if (Array.isArray(payload)) {
+            payload.slice(0, 2).forEach((text, idx) => {
+              const snip = {
+                id: `${entry.index}-${sectionName}-${idx + 1}`,
+                entryIndex: entry.index,
+                videoId: entry.video_id || "",
+                sourceUrl: entry.source_url || "",
+                canonicalUrl: entry.canonical_url || "",
+                section: sectionName,
+                field: null,
+                text
+              };
+              html.push(renderSnippetInline(snip));
+            });
+            if (payload.length > 2) {
+              html.push(`<div class="small">+${payload.length - 2} more items in this section</div>`);
+            }
+          } else {
+            Object.entries(payload).slice(0, 2).forEach(([field, text]) => {
+              const snip = {
+                id: `${entry.index}-${sectionName}-${slug(field)}`,
+                entryIndex: entry.index,
+                videoId: entry.video_id || "",
+                sourceUrl: entry.source_url || "",
+                canonicalUrl: entry.canonical_url || "",
+                section: sectionName,
+                field,
+                text
+              };
+              html.push(renderSnippetInline(snip));
+            });
+            const remain = Math.max(0, Object.keys(payload).length - 2);
+            if (remain > 0) {
+              html.push(`<div class="small">+${remain} more fields in this section</div>`);
+            }
+          }
+
+          html.push(`</div></section>`);
+        });
+
+        if (isSelected) {
+          const connections = buildConnections(entry, 5);
+          html.push(`<section class="section-block"><header class="section-head"><span>Connected Entries</span><span class="small">shared terms</span></header><div class="section-body"><div class="connect-list">`);
+          connections.forEach((row) => {
+            html.push(`<div class="connect-item"><h4>#${row.entry.index} ${escapeHtml(row.entry.video_id || "No Video ID")}</h4><div class="small">overlap: ${row.overlap}</div><div><a href="${escapeHtml(row.entry.canonical_url || row.entry.source_url || "#")}" target="_blank" rel="noreferrer">Open video</a></div></div>`);
+          });
+          if (!connections.length) html.push(`<div class="small">No strong overlaps yet.</div>`);
+          html.push(`</div></div></section>`);
+        }
+
+        html.push(`</article>`);
+      });
+
+      els.viewExplore.innerHTML = html.join("");
+
+      els.viewExplore.querySelectorAll("[data-select]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.selectedEntryId = Number(btn.dataset.select);
+          renderExplore();
+        });
+      });
+
+      els.viewExplore.querySelectorAll("[data-open]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const [entryIdxRaw, sectionName] = btn.dataset.open.split("|");
+          const entryIdx = Number(entryIdxRaw);
+          const entry = getEntryByIndex(entryIdx);
+          if (!entry) return;
+          const payload = (entry.response_sections || {})[sectionName];
+          const items = [];
+
+          if (Array.isArray(payload)) {
+            payload.forEach((text, idx) => {
+              items.push({
+                id: `${entry.index}-${sectionName}-${idx + 1}`,
+                entryIndex: entry.index,
+                videoId: entry.video_id || "",
+                sourceUrl: entry.source_url || "",
+                canonicalUrl: entry.canonical_url || "",
+                section: sectionName,
+                field: null,
+                text
+              });
+            });
+          } else if (payload && typeof payload === "object") {
+            Object.entries(payload).forEach(([field, text]) => {
+              items.push({
+                id: `${entry.index}-${sectionName}-${slug(field)}`,
+                entryIndex: entry.index,
+                videoId: entry.video_id || "",
+                sourceUrl: entry.source_url || "",
+                canonicalUrl: entry.canonical_url || "",
+                section: sectionName,
+                field,
+                text
+              });
+            });
+          }
+
+          openSheet(
+            `#${entry.index} ${sectionLabel(sectionName)}`,
+            items.length
+              ? items.map((snip) => renderSnippetInline(snip)).join("")
+              : "<p>No content in this section.</p>"
+          );
+          bindSnippetActions(els.sheetBody);
+        });
+      });
+
+      bindSnippetActions(els.viewExplore);
+    }
+
+    function renderSnippetInline(snip) {
+      return `
+        <article class="snippet" data-sid="${escapeHtml(snip.id)}">
+          <div class="meta">#${snip.entryIndex} • ${sectionLabel(snip.section)}${snip.field ? ` • ${escapeHtml(snip.field)}` : ""}</div>
+          <p>${escapeHtml(snip.text)}</p>
+          <div class="snippet-actions">
+            <button data-add="${escapeHtml(snip.id)}">Transclude</button>
+            <button data-copy="${escapeHtml(snip.id)}">Copy</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function findSnippetById(id) {
+      return state.snippets.find((x) => x.id === id) || state.board.find((x) => x.id === id) || null;
+    }
+
+    function bindSnippetActions(root) {
+      root.querySelectorAll("[data-add]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const snip = findSnippetById(btn.dataset.add);
+          if (snip) addToBoard(snip);
+        });
+      });
+
+      root.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const snip = findSnippetById(btn.dataset.copy);
+          if (snip) copyText(snip.text, "Snippet copied");
+        });
+      });
+    }
+
+    function renderPatterns() {
+      const q = state.search.trim().toLowerCase();
+      let patterns = state.patternIndex.ranked;
+      if (q) {
+        patterns = patterns.filter((p) => p.term.includes(q));
+      }
+
+      const active = state.activePattern && patterns.find((p) => p.term === state.activePattern)
+        ? state.activePattern
+        : (patterns[0] ? patterns[0].term : null);
+      state.activePattern = active;
+
+      const left = [];
+      left.push(`<section class="card entry-card"><div class="entry-head"><div class="entry-title">Recurring Pattern Terms</div></div><div class="pattern-list">`);
+      patterns.slice(0, 40).forEach((p) => {
+        const selected = p.term === active;
+        left.push(`<div class="pattern-item"><h4>${escapeHtml(p.term)}</h4><div class="small">${p.count} snippets • ${p.entryCount} entries</div><button data-pattern="${escapeHtml(p.term)}" class="${selected ? "primary" : ""}">${selected ? "Selected" : "View"}</button></div>`);
+      });
+      if (!patterns.length) {
+        left.push(`<p class="small">No terms matched. Clear search to see mined patterns.</p>`);
+      }
+      left.push(`</div></section>`);
+
+      const right = [];
+      right.push(`<section class="card entry-card"><div class="entry-head"><div class="entry-title">Pattern Transclusion</div></div>`);
+      if (active) {
+        const pattern = state.patternIndex.ranked.find((p) => p.term === active);
+        const snippets = (pattern ? pattern.snippetIds : [])
+          .map(findSnippetById)
+          .filter(Boolean)
+          .slice(0, 24);
+
+        right.push(`<div class="small">Showing snippets containing <strong>${escapeHtml(active)}</strong></div>`);
+        right.push(`<div class="stack">`);
+        snippets.forEach((snip) => right.push(renderSnippetInline(snip)));
+        right.push(`</div>`);
+        if (!snippets.length) right.push(`<p class="small">No snippets available for this pattern.</p>`);
+      } else {
+        right.push(`<p class="small">No active pattern yet.</p>`);
+      }
+      right.push(`</section>`);
+
+      els.viewPatterns.innerHTML = `<div class="stack">${left.join("")}${right.join("")}</div>`;
+
+      els.viewPatterns.querySelectorAll("[data-pattern]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.activePattern = btn.dataset.pattern;
+          renderPatterns();
+        });
+      });
+
+      bindSnippetActions(els.viewPatterns);
+    }
+
+    function renderBoard() {
+      const html = [];
+      html.push(`<section class="card entry-card">`);
+      html.push(`<div class="entry-head"><div class="entry-title">Synthesis Board (${state.board.length})</div></div>`);
+      html.push(`<div class="snippet-actions">`);
+      html.push(`<button id="copyBoardBtn" class="primary">Copy Board</button>`);
+      html.push(`<button id="copyPromptBtn">Copy Synthesis Prompt</button>`);
+      html.push(`<button id="downloadBoardBtn">Download JSON</button>`);
+      html.push(`<button id="clearBoardBtn">Clear</button>`);
+      html.push(`</div>`);
+      html.push(`</section>`);
+
+      if (!state.board.length) {
+        html.push(`<section class="card entry-card"><p>No transclusions yet. In Explore or Patterns, tap <strong>Transclude</strong> on any snippet.</p></section>`);
+      } else {
+        html.push(`<section class="card entry-card"><div class="board-list">`);
+        state.board.forEach((item, idx) => {
+          html.push(`
+            <article class="board-item">
+              <h4>${idx + 1}. #${item.entryIndex} ${sectionLabel(item.section)}${item.field ? ` / ${escapeHtml(item.field)}` : ""}</h4>
+              <div class="small"><a href="${escapeHtml(item.canonicalUrl || item.sourceUrl || "#")}" target="_blank" rel="noreferrer">Video link</a></div>
+              <p>${escapeHtml(item.text)}</p>
+              <textarea data-note="${escapeHtml(item.id)}" rows="2" placeholder="Optional synthesis note...">${escapeHtml(item.note || "")}</textarea>
+              <div class="snippet-actions">
+                <button data-moveup="${escapeHtml(item.id)}">Up</button>
+                <button data-movedown="${escapeHtml(item.id)}">Down</button>
+                <button data-remove="${escapeHtml(item.id)}">Remove</button>
+              </div>
+            </article>
+          `);
+        });
+        html.push(`</div></section>`);
+      }
+
+      els.viewBoard.innerHTML = html.join("");
+
+      const copyBoardBtn = document.getElementById("copyBoardBtn");
+      const copyPromptBtn = document.getElementById("copyPromptBtn");
+      const downloadBoardBtn = document.getElementById("downloadBoardBtn");
+      const clearBoardBtn = document.getElementById("clearBoardBtn");
+
+      if (copyBoardBtn) copyBoardBtn.onclick = () => copyText(boardMarkdown(), "Board copied");
+      if (copyPromptBtn) copyPromptBtn.onclick = () => copyText(synthesisPrompt(), "Prompt copied");
+      if (downloadBoardBtn) {
+        downloadBoardBtn.onclick = () => {
+          download("transclusion-board.json", JSON.stringify(state.board, null, 2), "application/json;charset=utf-8");
+          toast("Board saved");
+        };
+      }
+      if (clearBoardBtn) {
+        clearBoardBtn.onclick = () => {
+          state.board = [];
+          persistBoard();
+          updateHeaderStats();
+          renderBoard();
+          toast("Board cleared");
+        };
+      }
+
+      els.viewBoard.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => removeFromBoard(btn.dataset.remove));
+      });
+      els.viewBoard.querySelectorAll("[data-moveup]").forEach((btn) => {
+        btn.addEventListener("click", () => moveBoard(btn.dataset.moveup, "up"));
+      });
+      els.viewBoard.querySelectorAll("[data-movedown]").forEach((btn) => {
+        btn.addEventListener("click", () => moveBoard(btn.dataset.movedown, "down"));
+      });
+      els.viewBoard.querySelectorAll("[data-note]").forEach((box) => {
+        box.addEventListener("input", () => updateBoardNote(box.dataset.note, box.value));
+      });
+    }
+
+    function renderConnectionsSheet() {
+      const entry = getEntryByIndex(state.selectedEntryId) || state.entries[0];
+      if (!entry) {
+        openSheet("Connections", "<p>No dataset loaded.</p>");
+        return;
+      }
+      const links = buildConnections(entry, 20);
+      const html = [];
+      html.push(`<div class="small">Anchor: <strong>#${entry.index} ${escapeHtml(entry.video_id || "No Video ID")}</strong></div>`);
+      html.push(`<div class="connect-list">`);
+      links.forEach((row) => {
+        html.push(`<article class="connect-item"><h4>#${row.entry.index} ${escapeHtml(row.entry.video_id || "No Video ID")}</h4><div class="small">shared terms: ${row.overlap}</div><div><a href="${escapeHtml(row.entry.canonical_url || row.entry.source_url || "#")}" target="_blank" rel="noreferrer">Open video</a></div></article>`);
+      });
+      if (!links.length) html.push(`<p class="small">No strong links for this anchor yet.</p>`);
+      html.push(`</div>`);
+      openSheet("Connection Mesh", html.join(""));
+    }
+
+    function render() {
+      if (state.mode === "explore") renderExplore();
+      if (state.mode === "patterns") renderPatterns();
+      if (state.mode === "board") renderBoard();
+    }
+
+    function updateHeaderStats() {
+      els.entryCount.textContent = `${state.entries.length} entries`;
+      els.snippetCount.textContent = `${state.snippets.length} snippets • ${state.board.length} in board`;
+    }
+
+    function markLoaded(label, ok) {
+      els.dataStatus.textContent = label;
+      els.dataStatus.classList.toggle("ok", !!ok);
+      els.dataStatus.classList.toggle("warn", !ok);
+    }
+
+    function persistBoard() {
+      try {
+        window.localStorage.setItem("fts-transclusion-board", JSON.stringify(state.board));
+      } catch (_) {
+        // ignore storage failures
+      }
+    }
+
+    function restoreBoard() {
+      try {
+        const raw = window.localStorage.getItem("fts-transclusion-board");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) state.board = parsed;
+      } catch (_) {
+        // ignore parse failures
+      }
+    }
+
+    async function loadDefault() {
+      try {
+        const response = await fetch("parsed_master_analyst/index.json", { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        hydrate(data);
+        markLoaded("Loaded parsed_master_analyst/index.json", true);
+      } catch (err) {
+        markLoaded("Default load blocked. Use Import JSON.", false);
+        toast("Import index.json manually");
+      }
+    }
+
+    function handleImportFile(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || "[]"));
+          if (!Array.isArray(parsed)) throw new Error("Expected top-level array");
+          hydrate(parsed);
+          markLoaded(`Imported ${file.name}`, true);
+          toast("Dataset imported");
+        } catch (err) {
+          markLoaded("Import failed: invalid JSON", false);
+          toast("Invalid JSON");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function bindEvents() {
+      els.searchBox.addEventListener("input", (e) => {
+        state.search = e.target.value || "";
+        render();
+      });
+
+      els.loadDefaultBtn.addEventListener("click", () => loadDefault());
+
+      els.jsonFileInput.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) handleImportFile(file);
+        e.target.value = "";
+      });
+
+      els.modeExplore.addEventListener("click", () => setMode("explore"));
+      els.modePatterns.addEventListener("click", () => setMode("patterns"));
+      els.modeBoard.addEventListener("click", () => setMode("board"));
+      els.modeConnections.addEventListener("click", () => renderConnectionsSheet());
+
+      els.sheetCloseBtn.addEventListener("click", () => closeSheet());
+    }
+
+    function boot() {
+      restoreBoard();
+      updateHeaderStats();
+      bindEvents();
+      setMode("explore");
+      markLoaded("Attempting default load…", false);
+      loadDefault();
+    }
+
+    boot();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Farm-to-Screen — Slop & Signal Reader</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --paper: #fffdf8;
+      --ink: #17140f;
+      --muted: #5a5144;
+      --line: #d8c7a9;
+      --accent: #8a3f1f;
+      --accent-soft: #b9683d;
+      --ok: #1f6a39;
+      --warn: #8e291c;
+      --radius: 12px;
+      --shadow: 0 8px 24px rgba(46, 28, 10, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(165deg, #f9f4ea 0%, #f3e6d1 100%);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 10px 80px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+      letter-spacing: 0.01em;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      max-width: 90ch;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .pill.ok { color: var(--ok); border-color: #b8d7c3; }
+    .pill.warn { color: var(--warn); border-color: #e3c3bc; }
+
+    .controls {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+    }
+
+    input[type="search"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 10px;
+      font: inherit;
+    }
+
+    button, .btn {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      min-height: 36px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    button.primary, .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      border-color: #7e3619;
+      color: #fff;
+    }
+
+    .chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      color: #fff;
+      background: #17140f;
+      border-color: #17140f;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+      gap: 10px;
+      min-height: 60vh;
+    }
+
+    .pane {
+      min-height: 52vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pane-head {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #f9efdd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pane-head strong {
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .pane-body {
+      padding: 10px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .entry {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+      gap: 0;
+    }
+
+    .entry-head {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 7px;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #efe7d8;
+    }
+
+    .eid {
+      font-size: 0.7rem;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff8ee;
+      color: var(--accent);
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+
+    .etitle {
+      font-size: 0.83rem;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .tiny-btn {
+      min-height: 30px;
+      padding: 5px 7px;
+      font-size: 0.7rem;
+    }
+
+    .entry-meta {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .thumb-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+    }
+
+    .summary {
+      font-size: 0.78rem;
+      color: #2a241b;
+      display: grid;
+      gap: 5px;
+    }
+
+    .summary .line {
+      padding: 6px 7px;
+      border: 1px solid #ece3d2;
+      border-radius: 8px;
+      background: #fffefb;
+    }
+
+    .k {
+      display: inline-block;
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    details {
+      border-top: 1px solid #efe7d8;
+      background: #fffcf6;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .detail {
+      padding: 0 8px 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .embed {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .embed iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: 0;
+      display: block;
+    }
+
+    .sec {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .sec-h {
+      background: #f9efdd;
+      border-bottom: 1px solid var(--line);
+      padding: 6px 7px;
+      font-size: 0.66rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #3b3327;
+    }
+
+    .sec-b {
+      padding: 7px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .snip {
+      border: 1px solid #e9decb;
+      border-radius: 8px;
+      padding: 7px;
+      background: #fffefb;
+      display: grid;
+      gap: 6px;
+      font-size: 0.76rem;
+    }
+
+    .snip-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .snip-actions button { min-height: 28px; padding: 4px 7px; font-size: 0.68rem; }
+
+    .board-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .board-item h4 {
+      margin: 0;
+      font-size: 0.76rem;
+      line-height: 1.3;
+    }
+
+    .board-item p {
+      margin: 0;
+      font-size: 0.76rem;
+      color: #1f1a12;
+    }
+
+    .board-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .path-grid {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .path-btn {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      padding: 7px;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1.3;
+    }
+
+    .small { font-size: 0.68rem; color: var(--muted); }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      background: #fff;
+    }
+
+    .mobile-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .mobile-nav button {
+      border: 0;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      min-height: 46px;
+      background: #fff;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mobile-nav button:last-child { border-right: 0; }
+    .mobile-nav button.active { background: #17140f; color: #fff; }
+
+    .toast {
+      position: fixed;
+      right: 10px;
+      top: 10px;
+      z-index: 40;
+      background: #17140f;
+      color: #fff;
+      padding: 7px 9px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: .15s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .mobile-nav { display: grid; }
+      .pane { min-height: 42vh; }
+      body.mobile-board #entriesPane { display: none; }
+      body.mobile-entries #boardPane { display: none; }
+    }
+
+    @media (max-width: 700px) {
+      .controls { grid-template-columns: 1fr; }
+      .entry-head { grid-template-columns: auto minmax(0, 1fr) auto; }
+      .entry-head .watch-link { display: none; }
+      .path-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="mobile-entries">
+  <div class="app">
+    <header class="card hero">
+      <h1>Slop & Signal — Provenance First Reader</h1>
+      <p>Subtractive mode: one skim feed, one board. Output is cheap; proof is premium. Use pattern chips to narrow, then transclude snippets into paths.</p>
+
+      <div class="status-row">
+        <span id="loadStatus" class="pill warn">Dataset not loaded</span>
+        <span id="entryStat" class="pill">0 entries</span>
+        <span id="boardStat" class="pill">0 transclusions</span>
+      </div>
+
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search implication, tension, pattern term, video id..." />
+        <button id="reloadBtn">Reload Data</button>
+        <label class="btn" for="importDataInput">Import JSON</label>
+        <input id="importDataInput" type="file" accept=".json,application/json" hidden />
+      </div>
+
+      <div class="chips" id="patternChips"></div>
+    </header>
+
+    <section class="layout">
+      <article id="entriesPane" class="card pane">
+        <div class="pane-head">
+          <strong>Entry Feed</strong>
+          <span class="small" id="feedHint">Tap details to embed video + transclude</span>
+        </div>
+        <div id="entryList" class="pane-body"></div>
+      </article>
+
+      <aside id="boardPane" class="card pane">
+        <div class="pane-head">
+          <strong>Transclusion Board</strong>
+          <div class="board-actions">
+            <button id="copyBoardBtn">Copy Board</button>
+            <button id="copyPromptBtn">Copy Prompt</button>
+          </div>
+        </div>
+
+        <div class="pane-body" id="boardBody">
+          <section class="sec">
+            <div class="sec-h">Path Presets (Auto-Transclude)</div>
+            <div class="sec-b">
+              <div class="path-grid" id="pathGrid"></div>
+              <div class="board-actions">
+                <button id="addTopFilteredBtn">Add Top 6 From Filter</button>
+                <button id="clearBoardBtn">Clear Board</button>
+              </div>
+            </div>
+          </section>
+
+          <div id="boardList"></div>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <nav class="mobile-nav">
+    <button id="mobileEntriesBtn" class="active">Entries</button>
+    <button id="mobileBoardBtn">Board</button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const DATASET_URL = 'parsed_master_analyst/index.json';
+    const BOARD_KEY = 'farm-to-screen-board-v2';
+    const META_KEY = 'farm-to-screen-video-meta-v2';
+
+    const PATTERNS = [
+      { id: 'P-A', name: 'Output commodity -> process certification', keywords: ['process certification', 'oral defense', 'grading the machine', 'artifact', 'closed loop', 'ai grades ai', 'output is now a zero-margin commodity', 'proof of learning'] },
+      { id: 'P-B', name: 'AI as institutional patch', keywords: ['patch for institutional friction', 'bureaucracy', 'administrative', 'silo', 'workflow glue', 'concierge', 'institutional rot'] },
+      { id: 'P-C', name: 'Hype overrides governance', keywords: ['moonshot', 'first-mover', 'first-of-its-kind', 'historic', 'hype cycle', 'innovation theater', 'fast-tracked'] },
+      { id: 'P-D', name: 'Liability / data laundering', keywords: ['terms of service', 'nested tos', 'subprocessor', 'liability', 'data sovereignty', 'licensed access', 'upstream'] },
+      { id: 'P-E', name: 'Surveillance as product', keywords: ['surveillance', 'tracking', 'telemetry', 'bossware', 'panopticon', 'engagement policing', 'minute-by-minute'] },
+      { id: 'P-F', name: 'Humanities as QA layer', keywords: ['humanities', 'archival', 'provenance', 'vibe check', 'qa', 'benchmarking', 'cultural specificity'] },
+      { id: 'P-G', name: 'Compute/platform centralization', keywords: ['compute', 'data center', 'centralization', 'platform', 'monopoly', 'industrial capability', 'unit economics'] },
+      { id: 'P-H', name: 'Cognitive offloading -> atrophy', keywords: ['cognitive', 'offloading', 'atrophy', 'desirable difficulty', 'dependency', 'deep reading', 'effort'] },
+      { id: 'P-I', name: 'Creativity needs friction', keywords: ['friction', 'homogeneity', 'regression to the mean', 'gehalt', 'good enough', 'statistical average', 'originality'] }
+    ];
+
+    const PATH_PRESETS = [
+      { id: 'gov', name: 'Governance First', desc: 'P-C + P-D + P-B', patterns: ['P-C', 'P-D', 'P-B'] },
+      { id: 'learning', name: 'Learning Integrity', desc: 'P-A + P-H + P-E', patterns: ['P-A', 'P-H', 'P-E'] },
+      { id: 'culture', name: 'Cultural Signal', desc: 'P-F + P-I + P-G', patterns: ['P-F', 'P-I', 'P-G'] }
+    ];
+
+    const state = {
+      entries: [],
+      filtered: [],
+      board: [],
+      search: '',
+      patternFilter: 'ALL',
+      metaCache: {},
+      mobileTab: 'entries'
+    };
+
+    const els = {
+      loadStatus: document.getElementById('loadStatus'),
+      entryStat: document.getElementById('entryStat'),
+      boardStat: document.getElementById('boardStat'),
+      searchInput: document.getElementById('searchInput'),
+      reloadBtn: document.getElementById('reloadBtn'),
+      importDataInput: document.getElementById('importDataInput'),
+      patternChips: document.getElementById('patternChips'),
+      entryList: document.getElementById('entryList'),
+      pathGrid: document.getElementById('pathGrid'),
+      boardList: document.getElementById('boardList'),
+      copyBoardBtn: document.getElementById('copyBoardBtn'),
+      copyPromptBtn: document.getElementById('copyPromptBtn'),
+      addTopFilteredBtn: document.getElementById('addTopFilteredBtn'),
+      clearBoardBtn: document.getElementById('clearBoardBtn'),
+      mobileEntriesBtn: document.getElementById('mobileEntriesBtn'),
+      mobileBoardBtn: document.getElementById('mobileBoardBtn'),
+      toast: document.getElementById('toast')
+    };
+
+    function esc(s='') {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function toast(msg) {
+      els.toast.textContent = msg;
+      els.toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => els.toast.classList.remove('show'), 1400);
+    }
+
+    function extractVideoId(url='') {
+      const raw = String(url || '');
+      if (!raw) return null;
+      const watch = raw.match(/[?&]v=([A-Za-z0-9_-]{6,})/);
+      if (watch) return watch[1];
+      const short = raw.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+      if (short) return short[1];
+      const live = raw.match(/youtube\.com\/live\/([A-Za-z0-9_-]{6,})/i);
+      if (live) return live[1];
+      const shorts = raw.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/i);
+      if (shorts) return shorts[1];
+      return null;
+    }
+
+    function canonicalWatch(videoId) {
+      return videoId ? `https://www.youtube.com/watch?v=${videoId}` : null;
+    }
+
+    function embedUrl(videoId, autoplay=false) {
+      return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&rel=0` : null;
+    }
+
+    function thumbUrl(videoId) {
+      return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+    }
+
+    function sectionLabel(key) {
+      return String(key).toLowerCase().split('_').map(x => x[0].toUpperCase() + x.slice(1)).join(' ');
+    }
+
+    function normalizeEntry(raw) {
+      const sections = raw.response_sections || {};
+      const insights = Array.isArray(sections.NON_OBVIOUS_INSIGHTS) ? sections.NON_OBVIOUS_INSIGHTS : [];
+      const tensions = Array.isArray(sections.TENSIONS_CONTRADICTIONS) ? sections.TENSIONS_CONTRADICTIONS : [];
+      const soWhat = (sections.SO_WHAT && typeof sections.SO_WHAT === 'object') ? sections.SO_WHAT : {};
+      const missing = (sections.WHATS_MISSING && typeof sections.WHATS_MISSING === 'object') ? sections.WHATS_MISSING : {};
+
+      const videoId = raw.video_id || extractVideoId(raw.canonical_url || raw.source_url || '');
+      const watch = raw.canonical_url || canonicalWatch(videoId) || raw.source_url || null;
+      const teaser = soWhat.Core_Implication || insights[0] || tensions[0] || missing.Missing_Question || '(No parsed text)';
+
+      const entry = {
+        ...raw,
+        video_id: videoId || null,
+        watch_url: watch,
+        embed_url: embedUrl(videoId, false),
+        thumb_url: thumbUrl(videoId),
+        insights,
+        tensions,
+        soWhat,
+        missing,
+        teaser,
+        display_title: videoId ? `Video ${videoId}` : `Entry ${raw.index}`,
+        video_title: videoId ? `Video ${videoId}` : null,
+        pattern_tags: []
+      };
+
+      entry.pattern_tags = inferPatterns(entry);
+      return entry;
+    }
+
+    function entryText(entry) {
+      return JSON.stringify(entry.response_sections || {}).toLowerCase();
+    }
+
+    function inferPatterns(entry) {
+      const txt = entryText(entry);
+      const scored = PATTERNS.map((p) => {
+        let score = 0;
+        p.keywords.forEach((kw) => {
+          if (txt.includes(kw.toLowerCase())) score += 1;
+        });
+        return { id: p.id, score };
+      }).filter(x => x.score > 0).sort((a,b) => b.score - a.score);
+
+      if (!scored.length) return [];
+      return scored.slice(0, 3).map(x => x.id);
+    }
+
+    function getPatternById(id) {
+      return PATTERNS.find(p => p.id === id) || null;
+    }
+
+    function patternCounts(entries) {
+      const counts = new Map(PATTERNS.map(p => [p.id, 0]));
+      entries.forEach((e) => {
+        e.pattern_tags.forEach((tag) => counts.set(tag, (counts.get(tag) || 0) + 1));
+      });
+      return counts;
+    }
+
+    function extractSnippets(entry, sectionKey) {
+      const val = (entry.response_sections || {})[sectionKey];
+      const out = [];
+      if (!val) return out;
+
+      if (Array.isArray(val)) {
+        val.forEach((text, i) => {
+          const t = String(text || '').trim();
+          if (!t) return;
+          out.push({
+            id: `${entry.index}|${sectionKey}|${i+1}`,
+            entryIndex: entry.index,
+            video_id: entry.video_id || '',
+            watch_url: entry.watch_url || '',
+            section: sectionKey,
+            field: null,
+            text: t
+          });
+        });
+      } else if (typeof val === 'object') {
+        Object.entries(val).forEach(([field, text]) => {
+          const t = String(text || '').trim();
+          if (!t) return;
+          out.push({
+            id: `${entry.index}|${sectionKey}|${field}`,
+            entryIndex: entry.index,
+            video_id: entry.video_id || '',
+            watch_url: entry.watch_url || '',
+            section: sectionKey,
+            field,
+            text: t
+          });
+        });
+      }
+      return out;
+    }
+
+    function getCoreSnippet(entry) {
+      const so = extractSnippets(entry, 'SO_WHAT');
+      const core = so.find(s => String(s.field || '').toLowerCase() === 'core_implication');
+      if (core) return core;
+      if (so[0]) return so[0];
+      const ins = extractSnippets(entry, 'NON_OBVIOUS_INSIGHTS');
+      return ins[0] || null;
+    }
+
+    function getMissingSnippet(entry) {
+      const miss = extractSnippets(entry, 'WHATS_MISSING');
+      const q = miss.find(s => String(s.field || '').toLowerCase() === 'missing_question');
+      if (q) return q;
+      return miss[0] || null;
+    }
+
+    function loadBoard() {
+      try {
+        const raw = localStorage.getItem(BOARD_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) state.board = parsed;
+        }
+      } catch (_) {}
+    }
+
+    function saveBoard() {
+      try { localStorage.setItem(BOARD_KEY, JSON.stringify(state.board)); } catch (_) {}
+    }
+
+    function loadMetaCache() {
+      try {
+        const raw = localStorage.getItem(META_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') state.metaCache = parsed;
+        }
+      } catch (_) {}
+    }
+
+    function saveMetaCache() {
+      try { localStorage.setItem(META_KEY, JSON.stringify(state.metaCache)); } catch (_) {}
+    }
+
+    async function fetchMarkdownHeading(entry) {
+      if (!entry || !entry.response_file) return null;
+      try {
+        const p = `parsed_master_analyst/${entry.response_file}`;
+        const r = await fetch(p, { cache: 'no-store' });
+        if (!r.ok) return null;
+        const md = await r.text();
+        const lines = md.split('\n').map(x => x.trim());
+        for (const ln of lines) {
+          const m = ln.match(/^##\s+(.+)/);
+          if (m && m[1] && !/^Gemini Response$/i.test(m[1])) return m[1].trim();
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    async function fetchVideoTitle(entry) {
+      const id = entry.video_id;
+      if (!id) return null;
+      if (state.metaCache[id] && state.metaCache[id].title) return state.metaCache[id].title;
+
+      const watch = canonicalWatch(id);
+      const providers = [
+        `https://www.youtube.com/oembed?url=${encodeURIComponent(watch)}&format=json`,
+        `https://noembed.com/embed?url=${encodeURIComponent(watch)}`
+      ];
+
+      for (const url of providers) {
+        try {
+          const r = await fetch(url, { cache: 'no-store' });
+          if (!r.ok) continue;
+          const data = await r.json();
+          if (data && data.title) {
+            state.metaCache[id] = {
+              title: data.title,
+              thumbnail: data.thumbnail_url || thumbUrl(id)
+            };
+            saveMetaCache();
+            return data.title;
+          }
+        } catch (_) {}
+      }
+      return null;
+    }
+
+    async function hydrateEntryTitles() {
+      if (!state.entries.length) return;
+
+      state.entries.forEach((entry) => {
+        const id = entry.video_id;
+        if (id && state.metaCache[id]) {
+          if (state.metaCache[id].title) {
+            entry.video_title = state.metaCache[id].title;
+            entry.display_title = state.metaCache[id].title;
+          }
+          if (state.metaCache[id].thumbnail) entry.thumb_url = state.metaCache[id].thumbnail;
+        }
+      });
+
+      renderEntries();
+
+      const tasks = state.entries.map(async (entry) => {
+        if (entry.video_id) {
+          const title = await fetchVideoTitle(entry);
+          if (title) {
+            entry.video_title = title;
+            entry.display_title = title;
+            const c = state.metaCache[entry.video_id] || {};
+            if (c.thumbnail) entry.thumb_url = c.thumbnail;
+          }
+        } else {
+          const heading = await fetchMarkdownHeading(entry);
+          if (heading) entry.display_title = heading;
+        }
+      });
+
+      await Promise.all(tasks);
+      renderEntries();
+    }
+
+    function setLoadedStatus(text, ok=false) {
+      els.loadStatus.textContent = text;
+      els.loadStatus.classList.toggle('ok', ok);
+      els.loadStatus.classList.toggle('warn', !ok);
+    }
+
+    function renderPatternChips() {
+      const counts = patternCounts(state.entries);
+      const chips = [];
+      chips.push(`<button class="chip ${state.patternFilter === 'ALL' ? 'active' : ''}" data-pat="ALL">ALL (${state.entries.length})</button>`);
+      PATTERNS.forEach((p) => {
+        chips.push(`<button class="chip ${state.patternFilter === p.id ? 'active' : ''}" data-pat="${p.id}">${p.id} (${counts.get(p.id) || 0})</button>`);
+      });
+      els.patternChips.innerHTML = chips.join('');
+
+      els.patternChips.querySelectorAll('[data-pat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.patternFilter = btn.dataset.pat;
+          applyFilters();
+          renderPatternChips();
+          renderEntries();
+        });
+      });
+    }
+
+    function applyFilters() {
+      const q = state.search.trim().toLowerCase();
+      state.filtered = state.entries.filter((e) => {
+        const patternOk = state.patternFilter === 'ALL' || e.pattern_tags.includes(state.patternFilter);
+        if (!patternOk) return false;
+        if (!q) return true;
+        const blob = [
+          e.video_id,
+          e.display_title,
+          e.video_title,
+          e.watch_url,
+          JSON.stringify(e.response_sections || {})
+        ].join(' ').toLowerCase();
+        return blob.includes(q);
+      });
+
+      els.entryStat.textContent = `${state.filtered.length} visible / ${state.entries.length} total`;
+      els.boardStat.textContent = `${state.board.length} transclusions`;
+    }
+
+    function patternBadges(entry) {
+      if (!entry.pattern_tags.length) return '<span class="small">No pattern tags</span>';
+      return entry.pattern_tags.map((id) => {
+        const p = getPatternById(id);
+        return `<span class="chip">${id}${p ? ` · ${esc(p.name)}` : ''}</span>`;
+      }).join(' ');
+    }
+
+    function snippetBlock(snip) {
+      return `
+        <article class="snip" data-sid="${esc(snip.id)}">
+          <div class="small">${esc(sectionLabel(snip.section))}${snip.field ? ` / ${esc(snip.field)}` : ''}</div>
+          <div>${esc(snip.text)}</div>
+          <div class="snip-actions">
+            <button data-add="${esc(snip.id)}">Transclude</button>
+            <button data-copy="${esc(snip.id)}">Copy</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function findSnippetById(id) {
+      for (const e of state.entries) {
+        const all = [
+          ...extractSnippets(e, 'NON_OBVIOUS_INSIGHTS'),
+          ...extractSnippets(e, 'TENSIONS_CONTRADICTIONS'),
+          ...extractSnippets(e, 'SO_WHAT'),
+          ...extractSnippets(e, 'WHATS_MISSING')
+        ];
+        const hit = all.find((s) => s.id === id);
+        if (hit) return hit;
+      }
+      return state.board.find((x) => x.id === id) || null;
+    }
+
+    function addToBoard(snip) {
+      if (!snip) return;
+      if (state.board.some((x) => x.id === snip.id)) {
+        toast('Already in board');
+        return;
+      }
+      state.board.push({ ...snip, note: '' });
+      saveBoard();
+      renderBoard();
+      renderEntries();
+      applyFilters();
+      toast('Transcluded');
+    }
+
+    function bindSnippetActions(root) {
+      root.querySelectorAll('[data-add]').forEach((btn) => {
+        btn.addEventListener('click', () => addToBoard(findSnippetById(btn.dataset.add)));
+      });
+      root.querySelectorAll('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const s = findSnippetById(btn.dataset.copy);
+          if (s) copyText(s.text, 'Snippet copied');
+        });
+      });
+    }
+
+    function renderEntries() {
+      if (!state.filtered.length) {
+        els.entryList.innerHTML = '<div class="empty">No entries match current search/filter.</div>';
+        return;
+      }
+
+      const html = state.filtered.map((entry) => {
+        const core = getCoreSnippet(entry);
+        const miss = getMissingSnippet(entry);
+        const ins = extractSnippets(entry, 'NON_OBVIOUS_INSIGHTS');
+        const ten = extractSnippets(entry, 'TENSIONS_CONTRADICTIONS');
+        const so = extractSnippets(entry, 'SO_WHAT');
+        const wm = extractSnippets(entry, 'WHATS_MISSING');
+
+        return `
+          <article class="entry" data-eid="${entry.index}">
+            <div class="entry-head">
+              <span class="eid">#${entry.index}</span>
+              <div class="etitle">${esc(entry.display_title || entry.video_id || `Entry ${entry.index}`)}</div>
+              ${entry.watch_url ? `<a class="btn tiny-btn watch-link" href="${esc(entry.watch_url)}" target="_blank" rel="noreferrer">Watch</a>` : ''}
+              <button class="tiny-btn" data-quick="${entry.index}">+Core</button>
+            </div>
+            <div class="entry-meta">
+              ${entry.thumb_url ? `<div class="thumb-wrap"><img class="thumb" src="${esc(entry.thumb_url)}" alt="${esc(entry.display_title || 'Video')}" loading="lazy"></div>` : ''}
+              <div class="chips">${patternBadges(entry)}</div>
+              <div class="summary">
+                <div class="line">${core ? `<span class="k">Core</span>${esc(core.text)}` : '<span class="k">Core</span>(none)'}</div>
+                <div class="line">${miss ? `<span class="k">Missing</span>${esc(miss.text)}` : '<span class="k">Missing</span>(none)'}</div>
+              </div>
+            </div>
+            <details>
+              <summary>Open details, embed, and section snippets</summary>
+              <div class="detail">
+                ${entry.embed_url ? `<div class="embed"><iframe src="${esc(entry.embed_url)}" title="${esc(entry.display_title || 'Video')}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>` : ''}
+
+                <section class="sec">
+                  <div class="sec-h">Non Obvious Insights (${ins.length})</div>
+                  <div class="sec-b">${ins.slice(0, 4).map(snippetBlock).join('') || '<div class="small">None</div>'}</div>
+                </section>
+
+                <section class="sec">
+                  <div class="sec-h">Tensions / Contradictions (${ten.length})</div>
+                  <div class="sec-b">${ten.slice(0, 4).map(snippetBlock).join('') || '<div class="small">None</div>'}</div>
+                </section>
+
+                <section class="sec">
+                  <div class="sec-h">So What (${so.length})</div>
+                  <div class="sec-b">${so.map(snippetBlock).join('') || '<div class="small">None</div>'}</div>
+                </section>
+
+                <section class="sec">
+                  <div class="sec-h">Whats Missing (${wm.length})</div>
+                  <div class="sec-b">${wm.map(snippetBlock).join('') || '<div class="small">None</div>'}</div>
+                </section>
+              </div>
+            </details>
+          </article>
+        `;
+      }).join('');
+
+      els.entryList.innerHTML = html;
+
+      bindSnippetActions(els.entryList);
+
+      els.entryList.querySelectorAll('[data-quick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const e = state.entries.find(x => x.index === Number(btn.dataset.quick));
+          if (!e) return;
+          addToBoard(getCoreSnippet(e));
+        });
+      });
+    }
+
+    function renderPathPresets() {
+      els.pathGrid.innerHTML = PATH_PRESETS.map((p) => `
+        <button class="path-btn" data-path="${p.id}">
+          <div>${esc(p.name)}</div>
+          <div class="small">${esc(p.desc)}</div>
+        </button>
+      `).join('');
+
+      els.pathGrid.querySelectorAll('[data-path]').forEach((btn) => {
+        btn.addEventListener('click', () => runPathPreset(btn.dataset.path));
+      });
+    }
+
+    function runPathPreset(pathId) {
+      const preset = PATH_PRESETS.find(p => p.id === pathId);
+      if (!preset) return;
+
+      const candidates = state.entries
+        .filter((e) => e.pattern_tags.some((tag) => preset.patterns.includes(tag)))
+        .sort((a,b) => a.index - b.index)
+        .slice(0, 6);
+
+      let added = 0;
+      candidates.forEach((e) => {
+        const core = getCoreSnippet(e);
+        if (core && !state.board.some(x => x.id === core.id)) {
+          state.board.push({ ...core, note: `[${preset.name}]` });
+          added += 1;
+        }
+      });
+
+      if (added === 0) {
+        toast('Path added nothing new');
+      } else {
+        saveBoard();
+        renderBoard();
+        renderEntries();
+        applyFilters();
+        toast(`Added ${added} snippets`);
+      }
+    }
+
+    function addTopFromFilter() {
+      const top = state.filtered.slice(0, 6);
+      let added = 0;
+      top.forEach((e) => {
+        const core = getCoreSnippet(e);
+        if (core && !state.board.some(x => x.id === core.id)) {
+          state.board.push({ ...core, note: '' });
+          added += 1;
+        }
+      });
+      if (added === 0) return toast('No new snippets added');
+      saveBoard();
+      renderBoard();
+      renderEntries();
+      applyFilters();
+      toast(`Added ${added} from filter`);
+    }
+
+    function renderBoard() {
+      if (!state.board.length) {
+        els.boardList.innerHTML = '<div class="empty">No transclusions yet. Use +Core or Transclude in entry details.</div>';
+        els.boardStat.textContent = '0 transclusions';
+        return;
+      }
+
+      els.boardList.innerHTML = state.board.map((item, idx) => `
+        <article class="board-item" data-bid="${esc(item.id)}">
+          <h4>${idx + 1}. #${item.entryIndex} ${esc(sectionLabel(item.section))}${item.field ? ` / ${esc(item.field)}` : ''}</h4>
+          <p>${esc(item.text)}</p>
+          <textarea data-note="${esc(item.id)}" rows="2" placeholder="Optional note...">${esc(item.note || '')}</textarea>
+          <div class="board-actions">
+            <button data-up="${esc(item.id)}">Up</button>
+            <button data-down="${esc(item.id)}">Down</button>
+            <button data-copy="${esc(item.id)}">Copy</button>
+            <button data-watch="${esc(item.id)}">Watch</button>
+            <button data-remove="${esc(item.id)}">Remove</button>
+          </div>
+        </article>
+      `).join('');
+
+      els.boardList.querySelectorAll('[data-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.board = state.board.filter(x => x.id !== btn.dataset.remove);
+          saveBoard();
+          renderBoard();
+          renderEntries();
+          applyFilters();
+        });
+      });
+
+      els.boardList.querySelectorAll('[data-up]').forEach((btn) => {
+        btn.addEventListener('click', () => moveBoard(btn.dataset.up, -1));
+      });
+      els.boardList.querySelectorAll('[data-down]').forEach((btn) => {
+        btn.addEventListener('click', () => moveBoard(btn.dataset.down, 1));
+      });
+
+      els.boardList.querySelectorAll('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = state.board.find(x => x.id === btn.dataset.copy);
+          if (item) copyText(item.text, 'Snippet copied');
+        });
+      });
+
+      els.boardList.querySelectorAll('[data-watch]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = state.board.find(x => x.id === btn.dataset.watch);
+          if (item && item.watch_url) window.open(item.watch_url, '_blank', 'noopener,noreferrer');
+        });
+      });
+
+      els.boardList.querySelectorAll('[data-note]').forEach((ta) => {
+        ta.addEventListener('input', () => {
+          const item = state.board.find(x => x.id === ta.dataset.note);
+          if (item) {
+            item.note = ta.value;
+            saveBoard();
+          }
+        });
+      });
+
+      els.boardStat.textContent = `${state.board.length} transclusions`;
+    }
+
+    function moveBoard(id, delta) {
+      const i = state.board.findIndex(x => x.id === id);
+      if (i < 0) return;
+      const j = i + delta;
+      if (j < 0 || j >= state.board.length) return;
+      const tmp = state.board[i];
+      state.board[i] = state.board[j];
+      state.board[j] = tmp;
+      saveBoard();
+      renderBoard();
+    }
+
+    function boardMarkdown() {
+      const lines = ['# Slop & Signal Transclusion Board', ''];
+      state.board.forEach((item, idx) => {
+        lines.push(`## ${idx + 1}. #${item.entryIndex} ${item.section}${item.field ? ` / ${item.field}` : ''}`);
+        lines.push(`- Video: ${item.watch_url || 'N/A'}`);
+        lines.push('');
+        lines.push(item.text);
+        lines.push('');
+        if (item.note && item.note.trim()) {
+          lines.push(`Note: ${item.note.trim()}`);
+          lines.push('');
+        }
+      });
+      return lines.join('\n');
+    }
+
+    function synthesisPrompt() {
+      return [
+        'SYNTHESIS TASK',
+        'Use only the transcluded evidence below.',
+        'Map recurrent structure, contradictions, and decision leverage points.',
+        '',
+        'Output:',
+        '1) 3 system-level patterns',
+        '2) 3 tensions with strategic consequence',
+        '3) one highest-priority implication for a time-constrained operator',
+        '4) one missing inquiry that changes strategy',
+        '',
+        boardMarkdown()
+      ].join('\n');
+    }
+
+    function copyText(text, ok='Copied') {
+      navigator.clipboard.writeText(String(text || '')).then(() => toast(ok)).catch(() => toast('Copy failed'));
+    }
+
+    async function loadDefaultDataset() {
+      try {
+        const r = await fetch(DATASET_URL, { cache: 'no-store' });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const json = await r.json();
+        if (!Array.isArray(json)) throw new Error('Dataset must be array');
+
+        state.entries = json.map(normalizeEntry).sort((a,b) => a.index - b.index);
+        applyFilters();
+        renderPatternChips();
+        renderEntries();
+        renderBoard();
+        renderPathPresets();
+        setLoadedStatus(`Loaded ${state.entries.length} entries`, true);
+        hydrateEntryTitles();
+      } catch (_) {
+        setLoadedStatus('Default load blocked. Import JSON.', false);
+        toast('Use Import JSON');
+      }
+    }
+
+    function importDatasetFile(file) {
+      const fr = new FileReader();
+      fr.onload = () => {
+        try {
+          const json = JSON.parse(String(fr.result || '[]'));
+          if (!Array.isArray(json)) throw new Error('Top-level must be array');
+          state.entries = json.map(normalizeEntry).sort((a,b) => a.index - b.index);
+          applyFilters();
+          renderPatternChips();
+          renderEntries();
+          renderBoard();
+          renderPathPresets();
+          setLoadedStatus(`Imported ${state.entries.length} entries`, true);
+          hydrateEntryTitles();
+          toast('Dataset imported');
+        } catch (err) {
+          setLoadedStatus('Import failed', false);
+          toast('Invalid JSON');
+        }
+      };
+      fr.readAsText(file);
+    }
+
+    function switchMobileTab(tab) {
+      state.mobileTab = tab;
+      document.body.classList.toggle('mobile-entries', tab === 'entries');
+      document.body.classList.toggle('mobile-board', tab === 'board');
+      els.mobileEntriesBtn.classList.toggle('active', tab === 'entries');
+      els.mobileBoardBtn.classList.toggle('active', tab === 'board');
+    }
+
+    function bindEvents() {
+      els.searchInput.addEventListener('input', (e) => {
+        state.search = (e.target.value || '').trim().toLowerCase();
+        applyFilters();
+        renderEntries();
+      });
+
+      els.reloadBtn.addEventListener('click', loadDefaultDataset);
+
+      els.importDataInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importDatasetFile(file);
+        e.target.value = '';
+      });
+
+      els.copyBoardBtn.addEventListener('click', () => copyText(boardMarkdown(), 'Board copied'));
+      els.copyPromptBtn.addEventListener('click', () => copyText(synthesisPrompt(), 'Prompt copied'));
+      els.clearBoardBtn.addEventListener('click', () => {
+        state.board = [];
+        saveBoard();
+        renderBoard();
+        renderEntries();
+        applyFilters();
+      });
+      els.addTopFilteredBtn.addEventListener('click', addTopFromFilter);
+
+      els.mobileEntriesBtn.addEventListener('click', () => switchMobileTab('entries'));
+      els.mobileBoardBtn.addEventListener('click', () => switchMobileTab('board'));
+    }
+
+    function boot() {
+      loadBoard();
+      loadMetaCache();
+      bindEvents();
+      renderPathPresets();
+      renderBoard();
+      applyFilters();
+      setLoadedStatus('Loading dataset...', false);
+      loadDefaultDataset();
+      switchMobileTab('entries');
+    }
+
+    boot();
+  </script>
+</body>
+</html>
