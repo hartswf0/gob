@@ -1,0 +1,3080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification Premium Corpus — Lanes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body { font-family: 'Courier New', monospace; background: #1a1a1a; color: #fff; }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #5b6472 #0c0f13;
+    }
+
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    .header {
+      border-bottom: 1px solid #2a313d;
+      background: linear-gradient(180deg, #090c10 0%, #0d1117 100%);
+    }
+
+    .appbar {
+      min-height: 52px;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: auto minmax(220px, 1fr) auto auto auto auto;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .appbar-left,
+    .appbar-right {
+      display: contents;
+    }
+
+    .appbar-btn {
+      min-height: 36px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border-radius: 0;
+    }
+
+    .appbar-block {
+      border: 1px solid #3a4454;
+      background: #10161f;
+      min-height: 36px;
+      padding: 6px 8px;
+      border-radius: 0;
+    }
+
+    .identity {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+      align-content: center;
+    }
+
+    .headline {
+      font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      font-size: 1.12rem;
+      font-weight: 900;
+      letter-spacing: -0.15px;
+      color: #fff;
+      line-height: 1.06;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 50vw;
+    }
+
+    .subhead {
+      font-size: 0.62rem;
+      color: #8f9aab;
+      line-height: 1.25;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 50vw;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+      align-content: center;
+    }
+
+    .metric-pill {
+      border: 1px solid #3b4452;
+      background: #10151d;
+      color: #b6c0cf;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 7px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .metric-pill strong {
+      color: #fff;
+    }
+
+    .control-tray {
+      display: none;
+      border-top: 1px solid #232a34;
+      background: #0d1117;
+      padding: 7px 10px 9px;
+    }
+
+    .control-tray.open {
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      padding-right: 6px;
+      margin-right: 2px;
+      border-right: 1px solid #2a303a;
+    }
+
+    .toolbar-group:last-of-type {
+      border-right: 0;
+      padding-right: 0;
+      margin-right: 0;
+    }
+
+    .toolbar-group.compact {
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      color: #8a93a3;
+      font-weight: bold;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .control-btn {
+      padding: 6px 9px;
+      border: 1px solid #465062;
+      background: #151b24;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 10px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      line-height: 1.1;
+    }
+
+    .control-btn:hover { background: #202837; border-color: #6d778b; }
+    .control-btn.active { background: #c00; border-color: #c00; }
+    .control-btn.good.active { background: #0d7a2e; border-color: #0d7a2e; }
+    .desktop-only { display: inline-block; }
+    .mobile-only { display: none; }
+
+    .toolbar-select {
+      border: 1px solid #465062;
+      background: #10161f;
+      color: #fff;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 8px;
+      min-height: 28px;
+      min-width: 138px;
+      outline: none;
+    }
+
+    .toolbar-select:focus { border-color: #8fa2c3; }
+
+    .search {
+      padding: 6px 8px;
+      border: 1px solid #465062;
+      background: #0f151e;
+      color: #fff;
+      font-family: inherit;
+      font-size: 10px;
+      min-width: 170px;
+      flex: 1;
+      min-height: 28px;
+      outline: none;
+    }
+    .search:focus { border-color: #8fa2c3; }
+
+    .status {
+      padding: 6px 8px;
+      border: 1px solid #465062;
+      background: #0f151e;
+      color: #aaa;
+      font-size: 10px;
+      font-weight: bold;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status.ok {
+      border-color: #1e6f33;
+      background: #0f2a17;
+      color: #7fd59b;
+    }
+
+    .actions-menu {
+      position: relative;
+      margin-left: auto;
+    }
+
+    .actions-menu > summary {
+      list-style: none;
+    }
+
+    .actions-menu > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .actions-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 120;
+      min-width: 158px;
+      border: 1px solid #4d5768;
+      background: #0f141c;
+      padding: 6px;
+      display: grid;
+      gap: 6px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .actions-menu:not([open]) .actions-popover {
+      display: none;
+    }
+
+    .lanes-container {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #1a1a1a;
+    }
+
+    .lanes-container::-webkit-scrollbar,
+    .legend::-webkit-scrollbar,
+    .match-panel::-webkit-scrollbar {
+      width: 11px;
+      height: 11px;
+    }
+
+    .lanes-container::-webkit-scrollbar-track,
+    .legend::-webkit-scrollbar-track,
+    .match-panel::-webkit-scrollbar-track {
+      background: #0c0f13;
+      border: 1px solid #252c37;
+    }
+
+    .lanes-container::-webkit-scrollbar-thumb,
+    .legend::-webkit-scrollbar-thumb,
+    .match-panel::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #667384 0%, #4a5362 100%);
+      border: 2px solid #0c0f13;
+      border-radius: 999px;
+    }
+
+    .lanes-container::-webkit-scrollbar-thumb:hover,
+    .legend::-webkit-scrollbar-thumb:hover,
+    .match-panel::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #7c8ea8 0%, #5a6679 100%);
+    }
+
+    .lanes {
+      display: flex;
+      gap: 2px;
+      padding: 14px;
+      min-width: max-content;
+      min-height: 100%;
+      align-items: flex-start;
+    }
+
+    .lane {
+      width: 165px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+
+    .lane-header {
+      background: #0a0a0a;
+      border: 2px solid #333;
+      padding: 10px 7px;
+      text-align: left;
+      font-weight: bold;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lane-header:hover { border-color: #777; }
+    .lane-header.active { border-color: #fff; }
+
+    .lane-id {
+      font-size: 10px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lane-name {
+      font-size: 10px;
+      line-height: 1.25;
+      color: #ddd;
+      margin-bottom: 3px;
+    }
+
+    .lane-count {
+      font-size: 9px;
+      color: #999;
+    }
+
+    .lane-anchor {
+      font-size: 8px;
+      line-height: 1.28;
+      color: #b7c1d0;
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .lane-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .block {
+      min-height: 156px;
+      height: 156px;
+      border: 2px solid #000;
+      padding: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      touch-action: manipulation;
+    }
+
+    .block:hover {
+      transform: scale(1.03);
+      z-index: 5;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+    }
+
+    .block.empty {
+      background: #2a2a2a;
+      border-color: #333;
+      min-height: 38px;
+      opacity: 0.28;
+      cursor: default;
+    }
+
+    .block.shared {
+      border-color: #fff;
+      border-width: 3px;
+    }
+
+    .block.highlighted {
+      border-color: #FFD700;
+      border-width: 4px;
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+      z-index: 10;
+    }
+
+    .block.trail { opacity: 1; }
+    .block.trail-dim { opacity: 0.17; }
+
+    .block-title {
+      font-weight: bold;
+      font-size: 11px;
+      margin-bottom: 3px;
+      line-height: 1.2;
+      color: #fff;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+    }
+
+    .block-sub {
+      font-size: 8px;
+      opacity: 0.85;
+      line-height: 1.2;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+    }
+
+    .block-evidence {
+      margin-top: 4px;
+      font-size: 8px;
+      line-height: 1.25;
+      color: rgba(255, 255, 255, 0.97);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .block-thumb-wrap {
+      width: 100%;
+      border: 1px solid rgba(0, 0, 0, 0.65);
+      background: #000;
+      margin-bottom: 5px;
+    }
+
+    .block-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+
+    .block-count {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 16px;
+      height: 16px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: bold;
+    }
+
+    .legend {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: #0a0a0a;
+      border: 2px solid #333;
+      padding: 12px;
+      font-size: 10px;
+      z-index: 100;
+      max-width: 280px;
+      max-height: 42vh;
+      overflow: auto;
+    }
+    .legend.mobile-hidden { display: none; }
+    .legend { display: none !important; }
+
+    .legend-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      color: #fff;
+      font-size: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #000;
+      flex-shrink: 0;
+    }
+
+    .legend-text {
+      font-size: 9px;
+      color: #ddd;
+    }
+
+    .tooltip {
+      position: fixed;
+      background: #0a0a0a;
+      border: 2px solid #fff;
+      padding: 10px;
+      font-size: 10px;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      max-width: 320px;
+    }
+
+    .tooltip.active { display: block; }
+
+    .tooltip-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 11px;
+      color: #fff;
+    }
+
+    .tooltip-meta {
+      color: #bbb;
+      font-size: 9px;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .tooltip-core {
+      color: #ddd;
+      font-size: 9px;
+      line-height: 1.3;
+      white-space: pre-line;
+    }
+
+    .match-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0a0a0a;
+      border-top: 3px solid #c00;
+      padding: 12px;
+      transform: translateY(101%);
+      transition: transform 0.25s;
+      z-index: 200;
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+
+    .match-panel.active { transform: translateY(0); }
+
+    .match-header {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .match-close {
+      cursor: pointer;
+      font-size: 19px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .match-top {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+      border: 2px solid #444;
+      padding: 10px;
+      background: #1a1a1a;
+    }
+
+    .match-thumb-wrap {
+      border: 1px solid #333;
+      background: #000;
+      overflow: hidden;
+      max-width: 280px;
+    }
+
+    .match-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+
+    .match-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .match-core {
+      font-size: 10px;
+      color: #ddd;
+      line-height: 1.35;
+    }
+
+    .match-meta-line {
+      font-size: 9px;
+      color: #c3cedf;
+      line-height: 1.35;
+    }
+
+    .match-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 8px;
+    }
+
+    .match-option {
+      background: #1a1a1a;
+      border: 2px solid #444;
+      padding: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: grid;
+      gap: 6px;
+    }
+
+    .match-option:hover { border-color: #c00; background: #262626; }
+
+    .match-option-top {
+      font-size: 10px;
+      font-weight: bold;
+      color: #fca5a5;
+    }
+
+    .match-option-title {
+      font-size: 10px;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .match-option-core {
+      font-size: 9px;
+      color: #aaa;
+      line-height: 1.3;
+    }
+
+    .match-option-thumb-wrap {
+      border: 1px solid #333;
+      background: #000;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .match-option-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+
+    .analysis-panel {
+      position: fixed;
+      top: 58px;
+      right: 0;
+      bottom: 0;
+      width: min(390px, 92vw);
+      background: #0c1118;
+      border-left: 1px solid #2f3948;
+      z-index: 240;
+      transform: translateX(102%);
+      transition: transform 0.22s ease;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      box-shadow: -8px 0 22px rgba(0, 0, 0, 0.35);
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .analysis-panel.open {
+      transform: translateX(0);
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .analysis-head {
+      padding: 10px;
+      border-bottom: 1px solid #2a3342;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: #0e141d;
+    }
+
+    .analysis-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #d6deea;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .analysis-body {
+      padding: 10px;
+      overflow-y: auto;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .analysis-section {
+      border: 1px solid #2c3543;
+      background: #111721;
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .analysis-section-head {
+      font-size: 10px;
+      font-weight: 700;
+      color: #9db0ca;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+    }
+
+    .analysis-chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .analysis-chip {
+      border: 1px solid #40506a;
+      background: #182131;
+      color: #e4ebf7;
+      font-family: inherit;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 5px 7px;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+
+    .analysis-chip:hover {
+      border-color: #6f84a9;
+      background: #212d40;
+    }
+
+    .analysis-chip.active {
+      background: #0f4d73;
+      border-color: #0f4d73;
+      color: #fff;
+    }
+
+    .analysis-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .analysis-list-item {
+      border: 1px solid #3a4352;
+      background: #161d29;
+      padding: 6px;
+      display: grid;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .analysis-list-item:hover {
+      border-color: #5f6f8a;
+      background: #1d2635;
+    }
+
+    .analysis-list-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+    }
+
+    .analysis-list-sub {
+      font-size: 8px;
+      color: #9aabbe;
+      line-height: 1.25;
+    }
+
+    .analysis-theme-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .analysis-theme-card {
+      border: 1px solid #3d4a5e;
+      background: #162032;
+      color: #fff;
+      padding: 7px;
+      display: grid;
+      gap: 4px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .analysis-theme-card:hover {
+      border-color: #7186a8;
+      background: #1d2b41;
+    }
+
+    .analysis-theme-card.active {
+      border-color: #1a88c7;
+      background: #0f3657;
+    }
+
+    .analysis-theme-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .analysis-swatch {
+      width: 12px;
+      height: 12px;
+      border: 1px solid rgba(255,255,255,0.6);
+      flex-shrink: 0;
+    }
+
+    .analysis-theme-anchor,
+    .analysis-theme-desc,
+    .analysis-theme-thesis {
+      font-size: 9px;
+      line-height: 1.35;
+      color: #d9e2ef;
+    }
+
+    body.light {
+      background: #edf1f6;
+      color: #141821;
+    }
+
+    body.light .header {
+      border-bottom-color: #c4cfdd;
+      background: linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+    }
+
+    body.light .appbar-block {
+      border-color: #c3ccda;
+      background: #ffffff;
+    }
+
+    body.light .headline { color: #161b24; }
+    body.light .subhead { color: #5f6d82; }
+
+    body.light .metric-pill {
+      border-color: #c6cedb;
+      background: #f6f8fb;
+      color: #2f3b4f;
+    }
+    body.light .metric-pill strong { color: #141a23; }
+
+    body.light .control-tray {
+      border-top-color: #cfd6e1;
+      background: #f3f6fb;
+    }
+
+    body.light .control-label { color: #556277; }
+    body.light .control-btn {
+      border-color: #bdc7d6;
+      background: #fff;
+      color: #131923;
+    }
+    body.light .control-btn:hover {
+      background: #eef2f9;
+      border-color: #9eabc0;
+    }
+    body.light .toolbar-select,
+    body.light .search,
+    body.light .status {
+      border-color: #bdc7d6;
+      background: #fff;
+      color: #1a202b;
+    }
+    body.light .status.ok {
+      background: #ebf7ef;
+      border-color: #78bb8b;
+      color: #1d5c2f;
+    }
+
+    body.light .lanes-container { background: #e9eef5; }
+    body.light .lanes-container::-webkit-scrollbar-track,
+    body.light .legend::-webkit-scrollbar-track,
+    body.light .match-panel::-webkit-scrollbar-track {
+      background: #e2e8f1;
+      border-color: #c7d0dd;
+    }
+    body.light .lanes-container::-webkit-scrollbar-thumb,
+    body.light .legend::-webkit-scrollbar-thumb,
+    body.light .match-panel::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #a4b2c8 0%, #8999b1 100%);
+      border-color: #e2e8f1;
+    }
+
+    body.light .lane-header {
+      background: #fff;
+      border-color: #c8d1df;
+      color: #151b25;
+    }
+    body.light .lane-name { color: #202838; }
+    body.light .lane-count { color: #546174; }
+    body.light .lane-anchor { color: #4d5b71; }
+
+    body.light .block-title,
+    body.light .block-sub,
+    body.light .block-evidence {
+      color: #fff;
+    }
+
+    body.light .legend {
+      background: #fff;
+      border-color: #c5cedc;
+    }
+    body.light .legend-title,
+    body.light .legend-text {
+      color: #172030;
+    }
+
+    body.light .analysis-panel {
+      background: #f4f7fc;
+      border-left-color: #c4cddd;
+    }
+    body.light .analysis-head {
+      background: #e8edf6;
+      border-bottom-color: #c4cddd;
+    }
+    body.light .analysis-title { color: #203047; }
+    body.light .analysis-section {
+      background: #fff;
+      border-color: #c7d0de;
+    }
+    body.light .analysis-section-head { color: #3a4f70; }
+    body.light .analysis-chip {
+      background: #f1f4fa;
+      border-color: #c2cbda;
+      color: #1f2b3d;
+    }
+    body.light .analysis-chip:hover {
+      background: #e6ecf6;
+      border-color: #a7b4c9;
+    }
+    body.light .analysis-theme-card {
+      background: #f5f8fd;
+      border-color: #c4cedd;
+      color: #1a2638;
+    }
+    body.light .analysis-theme-card:hover {
+      background: #ebf0f8;
+      border-color: #aebacd;
+    }
+    body.light .analysis-theme-card.active {
+      background: #d9e7f8;
+      border-color: #5f8cc8;
+    }
+    body.light .analysis-theme-anchor,
+    body.light .analysis-theme-desc,
+    body.light .analysis-theme-thesis {
+      color: #344561;
+    }
+    body.light .analysis-list-item {
+      background: #f7f9fd;
+      border-color: #c4cedd;
+    }
+    body.light .analysis-list-title { color: #1d2738; }
+    body.light .analysis-list-sub { color: #4c5c75; }
+
+    body.light .report-panel {
+      background: #f5f8fd;
+      border-color: #c7d0de;
+    }
+    body.light .report-head {
+      background: #e8eef7;
+      border-bottom-color: #c7d0de;
+    }
+    body.light .report-title { color: #1b283d; }
+    body.light .report-section {
+      background: #fff;
+      border-color: #ccd5e2;
+    }
+    body.light .report-section-head { color: #44628a; }
+    body.light .report-line,
+    body.light .report-list-item { color: #1f2f47; }
+    body.light .report-list-item {
+      background: #f6f9fd;
+      border-color: #d2dbe8;
+    }
+    body.light .report-pre {
+      background: #f6f9fd;
+      border-color: #d2dbe8;
+      color: #1f2f47;
+    }
+
+    .video-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .video-overlay.active { display: flex; }
+
+    .video-wrap {
+      position: relative;
+      width: 92%;
+      max-width: 1080px;
+      aspect-ratio: 16/9;
+    }
+
+    .video-frame {
+      width: 100%;
+      height: 100%;
+      border: 3px solid #fff;
+      background: #000;
+    }
+
+    .video-close {
+      position: absolute;
+      top: -50px;
+      right: 0;
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .video-close:hover { background: #fff; color: #000; }
+
+    .video-info {
+      position: absolute;
+      bottom: -68px;
+      left: 0;
+      width: 100%;
+      display: grid;
+      gap: 6px;
+    }
+
+    .video-title {
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-tools {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .video-btn {
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .video-btn:hover { background: #fff; color: #000; }
+    .video-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .report-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.84);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 360;
+      padding: 12px;
+    }
+
+    .report-overlay.active {
+      display: flex;
+    }
+
+    .report-panel {
+      width: min(1100px, 96vw);
+      height: min(90vh, 980px);
+      border: 1px solid #364052;
+      background: #0f141c;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .report-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid #2f3a4d;
+      background: #121a26;
+    }
+
+    .report-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #e2e9f4;
+      line-height: 1.2;
+    }
+
+    .report-body {
+      overflow-y: auto;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .report-section {
+      border: 1px solid #364052;
+      background: #161d28;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .report-section-head {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #8fa4c2;
+      font-weight: 700;
+    }
+
+    .report-line {
+      font-size: 10px;
+      line-height: 1.4;
+      color: #e0e8f6;
+    }
+
+    .report-pre {
+      border: 1px solid #3a4457;
+      background: #111927;
+      color: #dce5f3;
+      padding: 8px;
+      font-size: 10px;
+      line-height: 1.4;
+      overflow: auto;
+      max-height: 340px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .report-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .report-list-item {
+      border: 1px solid #3a4457;
+      background: #1c2330;
+      padding: 7px;
+      font-size: 10px;
+      line-height: 1.35;
+      color: #dce5f3;
+    }
+
+    .toast {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      border: 2px solid #fff;
+      background: #000;
+      color: #fff;
+      padding: 7px 10px;
+      font-size: 10px;
+      z-index: 400;
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .appbar {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: 72px;
+        gap: 6px;
+        padding: 6px;
+      }
+      .appbar .appbar-block {
+        min-height: 72px;
+        height: 72px;
+        padding: 6px;
+        text-align: center;
+        justify-content: center;
+      }
+      .identity {
+        justify-items: center;
+        align-content: center;
+      }
+      .headline {
+        font-size: 0.84rem;
+        line-height: 1.12;
+        max-width: none;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+      .subhead { display: none; }
+      .header-meta {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+        justify-items: center;
+        align-content: center;
+      }
+      .metric-pill {
+        width: 100%;
+        text-align: center;
+        padding: 5px 4px;
+        font-size: 9px;
+      }
+      .appbar-btn {
+        font-size: 11px;
+        padding: 6px;
+      }
+
+      .lanes {
+        gap: 6px;
+        padding: 8px;
+      }
+      .lane {
+        width: 170px;
+        gap: 6px;
+      }
+      .lane-header {
+        min-height: 170px;
+        height: 170px;
+        padding: 8px;
+        align-content: start;
+        display: grid;
+      }
+      .block {
+        min-height: 170px;
+        height: 170px;
+        padding: 7px;
+      }
+      .block-evidence {
+        -webkit-line-clamp: 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        border-bottom-color: #323a48;
+      }
+      .appbar {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-auto-rows: 64px;
+        min-height: 48px;
+        padding: 6px;
+        gap: 4px;
+      }
+      .appbar-left,
+      .appbar-right {
+        gap: 4px;
+      }
+      .appbar-btn {
+        min-height: 64px;
+        height: 64px;
+        padding: 6px;
+      }
+      .appbar .appbar-block {
+        min-height: 64px;
+        height: 64px;
+      }
+      .headline {
+        font-size: 0.76rem;
+        max-width: none;
+      }
+      .subhead {
+        display: none;
+      }
+      .metric-pill {
+        font-size: 8px;
+        padding: 4px;
+      }
+
+      .control-tray {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        top: 152px;
+        z-index: 180;
+        border: 1px solid #3a4455;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+        padding: 8px;
+        max-height: calc(100vh - 72px);
+        overflow-y: auto;
+      }
+      .controls {
+        gap: 6px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+      }
+      .toolbar-group {
+        display: contents;
+      }
+      .toolbar-group.compact {
+        display: contents;
+      }
+      .control-label {
+        display: none;
+      }
+      .control-btn {
+        font-size: 10px;
+        padding: 6px;
+        min-height: 64px;
+        height: 64px;
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+      .desktop-only { display: inline-block !important; }
+      .mobile-only { display: inline-block; }
+      .toolbar-select {
+        min-width: 0;
+        min-height: 64px;
+        height: 64px;
+        width: 100%;
+        text-align: center;
+      }
+      .search {
+        min-width: 0;
+        width: 100%;
+        height: 64px;
+        font-size: 11px;
+        text-align: center;
+      }
+      .status {
+        max-width: none;
+        height: 64px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .actions-menu .actions-popover {
+        position: fixed;
+        top: auto;
+        right: 8px;
+        left: 8px;
+        bottom: 8px;
+        min-width: 0;
+        max-height: 55vh;
+        overflow-y: auto;
+      }
+      .lane { width: 168px; }
+      .lane-header {
+        padding: 7px;
+        min-height: 156px;
+        height: 156px;
+      }
+      .block {
+        min-height: 156px;
+        height: 156px;
+        padding: 7px;
+      }
+      .block-title { font-size: 9px; }
+      .block-sub { font-size: 8px; }
+      .legend {
+        display: none;
+        bottom: 8px;
+        right: 8px;
+        max-width: 220px;
+      }
+      .legend.mobile-open {
+        display: block;
+        position: fixed;
+        inset: 160px 8px 8px 8px;
+        max-width: none;
+        max-height: none;
+        z-index: 260;
+      }
+      .analysis-panel {
+        top: 50px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        transform: translateY(102%);
+        border-left: 0;
+        border-top: 1px solid #364156;
+      }
+      .analysis-panel.open {
+        transform: translateY(0);
+      }
+      .match-grid { grid-template-columns: 1fr; }
+      .match-panel { max-height: 68vh; }
+      .match-actions .control-btn { min-height: 34px; }
+
+      .video-wrap {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        aspect-ratio: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-top: 50px;
+      }
+      .video-frame {
+        width: 100%;
+        height: 56vw;
+        max-height: 60vh;
+        border-width: 2px;
+      }
+      .video-close {
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .video-info {
+        position: static;
+        padding: 10px 8px 14px;
+      }
+      .video-title { font-size: 0.74rem; }
+      .video-tools {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .video-btn {
+        font-size: 10px;
+        padding: 7px 8px;
+        min-height: 34px;
+        flex: 0 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="appbar">
+        <div class="appbar-left">
+          <button id="trayToggleBtn" class="control-btn appbar-btn appbar-block" aria-expanded="false">Controls</button>
+          <div class="identity appbar-block">
+            <h1 class="headline">Verification Premium Corpus</h1>
+            <p class="subhead">Compact lane analysis for pattern connections and synthesis.</p>
+          </div>
+        </div>
+        <div class="appbar-right">
+          <div class="header-meta appbar-block">
+            <div class="metric-pill"><strong id="visibleCount">0</strong> / <span id="totalCount">0</span></div>
+            <div class="metric-pill">Board <strong id="boardCount">0</strong></div>
+          </div>
+          <button id="analysisToggleBtn" class="control-btn appbar-btn appbar-block">Atlas</button>
+          <button id="utilitiesToggleBtn" class="control-btn appbar-btn appbar-block">Utilities</button>
+        </div>
+      </div>
+      <div id="controlTray" class="control-tray">
+        <div class="controls">
+        <div class="toolbar-group" aria-label="Filter">
+          <button class="control-btn active" data-filter="all">All</button>
+          <button class="control-btn" data-filter="shared">Shared</button>
+          <button class="control-btn" data-filter="unique">Unique</button>
+        </div>
+
+        <div class="toolbar-group" aria-label="Mode">
+          <button class="control-btn good active" data-mode="explore">Explore</button>
+          <button class="control-btn good" data-mode="trail">Trail</button>
+        </div>
+
+        <div class="toolbar-group compact" aria-label="Path">
+          <label class="control-label" for="pathSelect">Path</label>
+          <select id="pathSelect" class="toolbar-select">
+            <option value="clear">All Paths</option>
+            <option value="education">Education</option>
+            <option value="governance">Governance</option>
+            <option value="humanities">Humanities</option>
+            <option value="creativity">Creativity</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group compact" aria-label="Sort">
+          <label class="control-label" for="sortSelect">Sort</label>
+          <select id="sortSelect" class="toolbar-select">
+            <option value="index-asc">Index ↑</option>
+            <option value="index-desc">Index ↓</option>
+            <option value="title-asc">Title A-Z</option>
+            <option value="bridge-first">Bridge Density</option>
+            <option value="tension-first">Tension Density</option>
+          </select>
+        </div>
+
+        <input id="searchInput" class="search" placeholder="Search title, core, tension, URL..." />
+        <div id="status" class="status">Loading…</div>
+
+        <details class="actions-menu">
+          <summary class="control-btn">Actions</summary>
+          <div class="actions-popover">
+            <button id="openIndexBtn" class="control-btn">Open Index</button>
+            <button id="openWriteupBtn" class="control-btn">Open Write-Up</button>
+            <button id="reloadBtn" class="control-btn">Reload Dataset</button>
+            <button id="importDatasetBtn" class="control-btn">Import Dataset</button>
+            <button id="copyBoardBtn" class="control-btn">Copy Board</button>
+            <button id="clearBoardBtn" class="control-btn">Clear Board</button>
+            <button id="themeToggleBtn" class="control-btn">Toggle Light / Dark</button>
+          </div>
+        </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="lanes-container">
+      <div class="lanes" id="lanes"></div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+    <aside class="analysis-panel" id="analysisPanel">
+      <div class="analysis-head">
+        <div class="analysis-title">Analysis Lab</div>
+        <button id="analysisCloseBtn" class="control-btn">Close</button>
+      </div>
+      <div class="analysis-body">
+        <section class="analysis-section">
+          <div class="analysis-section-head">Theme Atlas (Legend + Anchors)</div>
+          <div id="themeAtlas" class="analysis-theme-grid"></div>
+        </section>
+        <section class="analysis-section">
+          <div class="analysis-section-head">Lower-Level Signals</div>
+          <div id="microCluster" class="analysis-chip-grid"></div>
+        </section>
+        <section class="analysis-section">
+          <div class="analysis-section-head">Pattern Co-occurrence</div>
+          <div id="pairCluster" class="analysis-list"></div>
+        </section>
+        <section class="analysis-section">
+          <div class="analysis-section-head">High-Leverage Entries</div>
+          <div id="bridgeCluster" class="analysis-list"></div>
+        </section>
+      </div>
+    </aside>
+
+    <div class="tooltip" id="tooltip">
+      <div class="tooltip-title" id="tooltipTitle"></div>
+      <div class="tooltip-meta" id="tooltipMeta"></div>
+      <div class="tooltip-core" id="tooltipCore"></div>
+    </div>
+
+    <div class="match-panel" id="matchPanel">
+      <div class="match-header">
+        <span>Entry Explorer</span>
+        <span id="matchClose" class="match-close">✕</span>
+      </div>
+      <div class="match-top">
+        <div id="matchThumbWrap" class="match-thumb-wrap" style="display:none;">
+          <img id="matchThumb" class="match-thumb" alt="Video thumbnail" loading="lazy" />
+        </div>
+        <div class="match-title" id="matchTitle"></div>
+        <div class="match-core" id="matchCore"></div>
+        <div class="match-meta-line" id="matchLogline"></div>
+        <div class="match-meta-line" id="matchTheme"></div>
+        <div class="match-meta-line" id="matchThesis"></div>
+        <div class="match-meta-line" id="matchEvidence"></div>
+        <div class="match-actions">
+          <button id="matchWatchBtn" class="control-btn">Watch Video</button>
+          <button id="matchCoreBtn" class="control-btn">+ Core</button>
+          <button id="matchTensionBtn" class="control-btn">+ Tension</button>
+          <button id="matchMissingBtn" class="control-btn">+ Missing</button>
+          <button id="matchReportBtn" class="control-btn">Full Report</button>
+          <button id="matchOpenYTBtn" class="control-btn">Open YouTube</button>
+        </div>
+      </div>
+      <div class="match-grid" id="matchGrid"></div>
+    </div>
+  </div>
+
+  <div class="video-overlay" id="videoOverlay">
+    <div class="video-wrap">
+      <button id="videoClose" class="video-close">✕</button>
+      <iframe id="videoFrame" class="video-frame" referrerpolicy="no-referrer-when-downgrade" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <div class="video-info">
+        <div class="video-title" id="videoTitle">—</div>
+        <div class="video-tools">
+          <button id="videoPrev" class="video-btn">← Prev</button>
+          <button id="videoNext" class="video-btn">Next →</button>
+          <button id="videoYT" class="video-btn">Open YouTube</button>
+          <button id="videoCopy" class="video-btn">Copy URL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-overlay" id="reportOverlay">
+    <div class="report-panel">
+      <div class="report-head">
+        <div id="reportTitle" class="report-title">Full Report</div>
+        <button id="reportCloseBtn" class="control-btn">Close</button>
+      </div>
+      <div id="reportBody" class="report-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const DATASET_URL = 'parsed_master_analyst/index.json';
+    const TAGS_URL = 'parsed_master_analyst/tags-index.json';
+    const EVIDENCE_URL = 'parsed_master_analyst/pattern-evidence.json';
+    const INDEX_JSON_URL = 'parsed_master_analyst/index.json';
+    const WRITEUP_URL = 'raw.md';
+    const BOARD_KEY = 'verification-premium-board-lanes-v1';
+    const VIDEO_META_KEY = 'verification-premium-video-meta-v1';
+    const THEME_KEY = 'verification-premium-theme-v1';
+
+    const PATTERNS = [
+      {
+        id: 'P-A',
+        name: 'Output -> Process Certification',
+        color: '#2E86DE',
+        logline: 'When output becomes cheap, only process can still prove competence.',
+        theme_desc: 'Assessment and legitimacy systems built on artifacts lose signal.',
+        thesis: 'Institutions must certify cognition-in-action, not polished final products.'
+      },
+      {
+        id: 'P-B',
+        name: 'Institutional Patch / Rot Masking',
+        color: '#A569BD',
+        logline: 'AI is often deployed to hide friction rather than fix root causes.',
+        theme_desc: 'Administrative pain gets rerouted into automation theater.',
+        thesis: 'Workflow redesign beats chatbot patching when structural failures are the issue.'
+      },
+      {
+        id: 'P-C',
+        name: 'Hype Overrides Governance',
+        color: '#E74C3C',
+        logline: 'Prestige narratives accelerate adoption faster than safeguards can form.',
+        theme_desc: 'Moonshot optics outpace due diligence and institutional readiness.',
+        thesis: 'First-mover signaling without controls creates compounding systemic risk.'
+      },
+      {
+        id: 'P-D',
+        name: 'Liability + Data Laundering',
+        color: '#F39C12',
+        logline: 'Responsibility disperses as data crosses opaque vendor chains.',
+        theme_desc: 'Contract stacks hide who actually processes, stores, and learns from data.',
+        thesis: 'Without enforceable provenance and liability, compliance becomes performative.'
+      },
+      {
+        id: 'P-E',
+        name: 'Surveillance as Product',
+        color: '#C0392B',
+        logline: 'Control telemetry quietly replaces pedagogy and trust.',
+        theme_desc: 'Behavior monitoring is sold as personalization and safety.',
+        thesis: 'Coercive measurement systems degrade agency while claiming optimization.'
+      },
+      {
+        id: 'P-F',
+        name: 'Humanities as QA Layer',
+        color: '#27AE60',
+        logline: 'Interpretive judgment becomes technical infrastructure.',
+        theme_desc: 'Context, rhetoric, and historical method operate as validation tools.',
+        thesis: 'Humanistic expertise is load-bearing when truth conditions are unstable.'
+      },
+      {
+        id: 'P-G',
+        name: 'Compute Centralization',
+        color: '#16A085',
+        logline: 'Model capability follows capital and infrastructure concentration.',
+        theme_desc: 'Energy, chips, and cloud ownership shape who can build and govern AI.',
+        thesis: 'Power asymmetry is a physics problem before it is a policy problem.'
+      },
+      {
+        id: 'P-H',
+        name: 'Cognitive Offloading -> Atrophy',
+        color: '#D35400',
+        logline: 'Convenience tools can reduce the effort that builds competence.',
+        theme_desc: 'Friction removal may trade short-term speed for long-term capability loss.',
+        thesis: 'Design must preserve desirable difficulty where learning is the objective.'
+      },
+      {
+        id: 'P-I',
+        name: 'Creativity Needs Friction',
+        color: '#8E44AD',
+        logline: 'Originality declines when systems optimize for fluency and speed.',
+        theme_desc: 'Generative averages flatten voice unless constraints are deliberate.',
+        thesis: 'Meaningful creative advantage comes from intention, context, and resistance.'
+      }
+    ];
+
+    const TENSIONS = [
+      { id: 'T-1', name: 'Stated Mission vs Operational Reality' },
+      { id: 'T-2', name: 'Efficiency vs Efficacy' },
+      { id: 'T-3', name: 'Local Sovereignty vs Global Infrastructure' },
+      { id: 'T-4', name: 'Democratization vs Stratification' },
+      { id: 'T-5', name: 'Transparency vs Competitive Advantage' },
+      { id: 'T-6', name: 'Human Values vs Market Incentives' }
+    ];
+
+    const patternMap = new Map(PATTERNS.map(p => [p.id, p]));
+    const tensionMap = new Map(TENSIONS.map(t => [t.id, t]));
+
+    const HIGHER_PATTERNS = [
+      { id: 'H-1', name: 'Legitimacy & Signal', patterns: ['P-A', 'P-C', 'P-H'], thesis: 'Legacy proof systems fail under abundant generation.' },
+      { id: 'H-2', name: 'Governance & Liability', patterns: ['P-C', 'P-D', 'P-E'], thesis: 'Adoption velocity outpaces enforceable constraints.' },
+      { id: 'H-3', name: 'Power & Infrastructure', patterns: ['P-D', 'P-G'], thesis: 'Control follows compute, contracts, and platform dependence.' },
+      { id: 'H-4', name: 'Human Meaning Systems', patterns: ['P-F', 'P-I', 'P-H'], thesis: 'Interpretation and friction become strategic assets.' }
+    ];
+
+    const LOWER_SIGNALS = [
+      { id: 'L-1', name: 'Assessment Collapse', terms: ['assessment', 'grades', 'essay', 'rubric', 'credential', 'artifact'] },
+      { id: 'L-2', name: 'Procurement Exposure', terms: ['procurement', 'contract', 'vendor', 'pilot', 'nda', 'subprocessor'] },
+      { id: 'L-3', name: 'Surveillance Stack', terms: ['surveillance', 'telemetry', 'tracking', 'monitor', 'bossware', 'sentiment'] },
+      { id: 'L-4', name: 'Verification Labor', terms: ['verification', 'provenance', 'audit', 'citation', 'ground truth'] },
+      { id: 'L-5', name: 'Centralization Physics', terms: ['compute', 'data center', 'cloud', 'monopoly', 'infrastructure'] },
+      { id: 'L-6', name: 'Cognitive Atrophy Risk', terms: ['offloading', 'dependency', 'atrophy', 'friction', 'effort', 'attention'] },
+      { id: 'L-7', name: 'Cultural Flattening', terms: ['culture', 'homogenization', 'authenticity', 'pluralism', 'voice'] },
+      { id: 'L-8', name: 'Archive / Memory Risk', terms: ['archive', 'digitization', 'history', 'preservation', 'revocation'] }
+    ];
+
+    const PATTERN_HINTS = {
+      'P-A': ['process', 'assessment', 'grade', 'credential', 'artifact', 'proof'],
+      'P-B': ['bureaucracy', 'workflow', 'admin', 'silo', 'operations', 'patch'],
+      'P-C': ['hype', 'moonshot', 'first', 'innovation', 'announcement', 'governance'],
+      'P-D': ['contract', 'vendor', 'liability', 'subprocessor', 'retention', 'compliance'],
+      'P-E': ['surveillance', 'tracking', 'telemetry', 'monitor', 'compliance', 'bossware'],
+      'P-F': ['humanities', 'interpret', 'context', 'provenance', 'verification', 'archive'],
+      'P-G': ['compute', 'cloud', 'infrastructure', 'platform', 'centralization', 'energy'],
+      'P-H': ['cognitive', 'offloading', 'dependency', 'atrophy', 'attention', 'friction'],
+      'P-I': ['creativity', 'voice', 'homogenization', 'meaning', 'constraint', 'friction']
+    };
+
+    const higherPatternMap = new Map(HIGHER_PATTERNS.map(h => [h.id, h]));
+    const lowerSignalMap = new Map(LOWER_SIGNALS.map(l => [l.id, l]));
+
+    const state = {
+      entries: [],
+      tagsByIndex: new Map(),
+      videoMetaCache: {},
+      board: [],
+      filterMode: 'all',
+      viewMode: 'explore',
+      query: '',
+      activePathPatterns: new Set(),
+      activePathTensions: new Set(),
+      activeEntry: null,
+      trailPath: [],
+      visibleEntries: [],
+      videoList: [],
+      videoIndex: -1,
+      legendOpen: false,
+      sortMode: 'index-asc',
+      controlsOpen: false,
+      analysisOpen: false,
+      activeHigherPattern: null,
+      activeLowerSignal: null,
+      evidenceOverrides: new Map(),
+      theme: 'dark'
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function esc(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function short(s, n = 140) {
+      const t = String(s || '').replace(/\s+/g, ' ').trim();
+      if (t.length <= n) return t;
+      return `${t.slice(0, n - 1)}…`;
+    }
+
+    function isPlaceholderVideoTitle(title = '') {
+      return /^Video\s+[A-Za-z0-9_-]{6,}$/i.test(String(title || '').trim());
+    }
+
+    function toast(msg) {
+      const el = $('toast');
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => { el.style.display = 'none'; }, 1500);
+    }
+
+    function setStatus(text, ok = false) {
+      const el = $('status');
+      el.textContent = text;
+      el.classList.toggle('ok', !!ok);
+    }
+
+    function parseVideoId(url = '') {
+      const s = String(url || '');
+      if (!s) return null;
+      const w = s.match(/[?&]v=([A-Za-z0-9_-]{6,})/);
+      if (w) return w[1];
+      const y = s.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+      if (y) return y[1];
+      const l = s.match(/youtube\.com\/live\/([A-Za-z0-9_-]{6,})/i);
+      if (l) return l[1];
+      return null;
+    }
+
+    function watchUrl(videoId) {
+      return videoId ? `https://www.youtube.com/watch?v=${videoId}` : '';
+    }
+
+    function embedUrl(videoId) {
+      return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
+    }
+
+    function thumbnailUrl(videoId) {
+      return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+    }
+
+    function stripTags(s) {
+      return String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function xmlField(text, tag) {
+      const m = String(text || '').match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+      return m ? m[1].trim() : '';
+    }
+
+    function asArray(raw) {
+      if (Array.isArray(raw)) return raw.map(stripTags).filter(Boolean);
+      if (!raw) return [];
+      return [stripTags(raw)].filter(Boolean);
+    }
+
+    function firstSentence(text = '') {
+      const clean = String(text || '').replace(/\s+/g, ' ').trim();
+      if (!clean) return '';
+      const m = clean.match(/^(.{30,220}?[.!?])\s/);
+      return m ? m[1].trim() : short(clean, 180);
+    }
+
+    function deriveHigherPatterns(patterns = []) {
+      return HIGHER_PATTERNS
+        .filter(h => h.patterns.some(p => patterns.includes(p)))
+        .map(h => h.id);
+    }
+
+    function deriveLowerSignals(textBlob = '') {
+      const blob = String(textBlob || '').toLowerCase();
+      return LOWER_SIGNALS
+        .filter(sig => sig.terms.some(term => blob.includes(term)))
+        .map(sig => sig.id);
+    }
+
+    function uniqueLines(lines = []) {
+      const seen = new Set();
+      const out = [];
+      lines.forEach(line => {
+        const clean = stripTags(line).replace(/\s+/g, ' ').trim();
+        if (!clean) return;
+        const key = clean.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        out.push(clean);
+      });
+      return out;
+    }
+
+    function lineScoreForPattern(line = '', pattern = '') {
+      const lower = String(line || '').toLowerCase();
+      const hints = PATTERN_HINTS[pattern] || [];
+      let score = 0;
+      hints.forEach(h => {
+        if (lower.includes(h)) score += 3;
+      });
+      if (lower.includes('because') || lower.includes('therefore')) score += 1;
+      if (lower.length >= 45 && lower.length <= 180) score += 1.5;
+      if (lower.length > 240) score -= 1;
+      return score;
+    }
+
+    function evidenceForPattern(entry, pattern) {
+      const key = `${entry.index}|${pattern}`;
+      const manual = state.evidenceOverrides.get(key);
+      if (manual) return manual;
+
+      const pool = entry.evidence_pool || [];
+      if (!pool.length) return entry.logline || entry.core;
+
+      let best = pool[0];
+      let bestScore = -1;
+      pool.forEach(line => {
+        const s = lineScoreForPattern(line, pattern);
+        if (s > bestScore) {
+          best = line;
+          bestScore = s;
+        }
+      });
+      return best || entry.logline || entry.core;
+    }
+
+    function setTheme(theme) {
+      state.theme = theme === 'light' ? 'light' : 'dark';
+      document.body.classList.toggle('light', state.theme === 'light');
+      const btn = $('themeToggleBtn');
+      if (btn) btn.textContent = state.theme === 'light' ? 'Dark' : 'Light';
+      try {
+        localStorage.setItem(THEME_KEY, state.theme);
+      } catch (_) {}
+    }
+
+    function loadTheme() {
+      try {
+        const raw = localStorage.getItem(THEME_KEY);
+        setTheme(raw === 'dark' ? 'dark' : 'light');
+      } catch (_) {
+        setTheme('light');
+      }
+    }
+
+    function normalizeSoWhat(raw) {
+      const out = { core: '', why: '', bullets: [] };
+      if (!raw) return out;
+
+      if (Array.isArray(raw)) {
+        raw.forEach(item => {
+          const txt = String(item || '');
+          const core = xmlField(txt, 'Core_Implication');
+          const why = xmlField(txt, 'Why_It_Matters');
+          if (core && !out.core) out.core = core;
+          if (why && !out.why) out.why = why;
+          const clean = stripTags(txt);
+          if (clean) out.bullets.push(clean);
+        });
+      } else if (typeof raw === 'string') {
+        out.core = xmlField(raw, 'Core_Implication') || '';
+        out.why = xmlField(raw, 'Why_It_Matters') || '';
+        const clean = stripTags(raw);
+        if (clean) out.bullets.push(clean);
+      } else if (typeof raw === 'object') {
+        Object.entries(raw).forEach(([k, v]) => {
+          const clean = stripTags(v);
+          if (!clean) return;
+          const kk = k.toLowerCase();
+          if (kk.includes('core')) out.core = clean;
+          else if (kk.includes('why')) out.why = clean;
+          else out.bullets.push(clean);
+        });
+      }
+
+      if (!out.core && out.bullets[0]) out.core = out.bullets[0];
+      if (!out.why && out.bullets[1]) out.why = out.bullets[1];
+      return out;
+    }
+
+    function normalizeMissing(raw) {
+      const out = { question: '', assumption: '', next: '', bullets: [] };
+      if (!raw) return out;
+
+      const read = (txt) => {
+        const q = xmlField(txt, 'Missing_Question');
+        const a = xmlField(txt, 'Critical_Assumption');
+        const n = xmlField(txt, 'Next_Inquiry');
+        if (q && !out.question) out.question = q;
+        if (a && !out.assumption) out.assumption = a;
+        if (n && !out.next) out.next = n;
+        const clean = stripTags(txt);
+        if (clean) out.bullets.push(clean);
+      };
+
+      if (Array.isArray(raw)) raw.forEach(item => read(String(item || '')));
+      else if (typeof raw === 'string') read(raw);
+      else if (typeof raw === 'object') {
+        Object.entries(raw).forEach(([k, v]) => {
+          const clean = stripTags(v);
+          if (!clean) return;
+          const kk = k.toLowerCase();
+          if (kk.includes('missing')) out.question = clean;
+          else if (kk.includes('assumption')) out.assumption = clean;
+          else if (kk.includes('next')) out.next = clean;
+          else out.bullets.push(clean);
+        });
+      }
+
+      if (!out.question && out.bullets[0]) out.question = out.bullets[0];
+      return out;
+    }
+
+    function loadVideoMetaCache() {
+      try {
+        const raw = localStorage.getItem(VIDEO_META_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') state.videoMetaCache = parsed;
+      } catch (_) {
+        state.videoMetaCache = {};
+      }
+    }
+
+    function saveVideoMetaCache() {
+      try {
+        localStorage.setItem(VIDEO_META_KEY, JSON.stringify(state.videoMetaCache));
+      } catch (_) {}
+    }
+
+    async function fetchVideoTitle(entry) {
+      if (!entry.video_id) return null;
+      const cached = state.videoMetaCache[entry.video_id];
+      if (cached && cached.title) return cached.title;
+
+      const watch = watchUrl(entry.video_id);
+      const providers = [
+        `https://www.youtube.com/oembed?url=${encodeURIComponent(watch)}&format=json`,
+        `https://noembed.com/embed?url=${encodeURIComponent(watch)}`
+      ];
+
+      for (const p of providers) {
+        try {
+          const r = await fetch(p, { cache: 'no-store' });
+          if (!r.ok) continue;
+          const d = await r.json();
+          if (d && d.title) {
+            state.videoMetaCache[entry.video_id] = {
+              title: d.title,
+              watch_url: watch,
+              thumbnail_url: d.thumbnail_url || thumbnailUrl(entry.video_id)
+            };
+            saveVideoMetaCache();
+            return d.title;
+          }
+        } catch (_) {}
+      }
+
+      return null;
+    }
+
+    async function hydrateVideoTitles() {
+      if (!state.entries.length) return;
+
+      state.entries.forEach(entry => {
+        const cached = entry.video_id ? state.videoMetaCache[entry.video_id] : null;
+        if (cached && cached.title) entry.video_title = cached.title;
+        if (cached && cached.thumbnail_url) entry.thumbnail_url = cached.thumbnail_url;
+      });
+      renderLanes();
+
+      const tasks = state.entries.map(async (entry) => {
+        if (!entry.video_id || (entry.video_title && !isPlaceholderVideoTitle(entry.video_title))) return;
+        const t = await fetchVideoTitle(entry);
+        if (t) entry.video_title = t;
+        const cached = state.videoMetaCache[entry.video_id];
+        if (cached && cached.thumbnail_url) entry.thumbnail_url = cached.thumbnail_url;
+      });
+
+      await Promise.all(tasks);
+      renderLanes();
+    }
+
+    function normalizeEntry(raw) {
+      const tags = state.tagsByIndex.get(raw.index) || { patterns: [], tensions: [] };
+      const sec = raw.response_sections || {};
+      const videoId = raw.video_id || tags.video_id || parseVideoId(raw.canonical_url || raw.source_url);
+      const so = normalizeSoWhat(sec.SO_WHAT);
+      const missing = normalizeMissing(sec.WHATS_MISSING);
+      const insights = asArray(sec.NON_OBVIOUS_INSIGHTS);
+      const tensionsText = asArray(sec.TENSIONS_CONTRADICTIONS);
+      const core = so.core || insights[0] || tensionsText[0] || '(No core implication)';
+      const patternNames = (tags.patterns || []).map(p => patternMap.get(p)?.name || p);
+      const logline = firstSentence(insights[0] || core);
+      const themeDescription = patternNames.length
+        ? `Theme: ${patternNames.join(' + ')}`
+        : 'Theme: Unclassified';
+      const thesis = firstSentence(so.why || core);
+      const evidencePool = uniqueLines([
+        ...insights,
+        ...tensionsText,
+        so.core,
+        so.why,
+        missing.question,
+        ...missing.bullets
+      ]);
+      const blob = [
+        raw.index,
+        videoId,
+        raw.source_url,
+        raw.canonical_url,
+        core,
+        so.why,
+        logline,
+        themeDescription,
+        thesis,
+        ...insights,
+        ...tensionsText,
+        ...so.bullets,
+        ...missing.bullets,
+        ...(tags.patterns || []),
+        ...(tags.tensions || [])
+      ].join('\n').toLowerCase();
+      const higherPatterns = deriveHigherPatterns(tags.patterns || []);
+      const lowerSignals = deriveLowerSignals(blob);
+
+      return {
+        index: raw.index,
+        video_id: videoId || null,
+        video_title: videoId ? `Video ${videoId}` : `Entry ${raw.index}`,
+        watch_url: raw.canonical_url || watchUrl(videoId) || raw.source_url || '',
+        source_url: raw.source_url || '',
+        canonical_url: raw.canonical_url || '',
+        thumbnail_url: thumbnailUrl(videoId),
+        patterns: tags.patterns || [],
+        tensions: tags.tensions || [],
+        insights,
+        tensionsText,
+        core,
+        why: so.why || '',
+        so_bullets: so.bullets || [],
+        missing,
+        logline,
+        theme_description: themeDescription,
+        thesis,
+        higher_patterns: higherPatterns,
+        lower_signals: lowerSignals,
+        evidence_pool: evidencePool,
+        blob,
+        raw_record: raw
+      };
+    }
+
+    function getVisibleEntries() {
+      let items = state.entries.slice();
+
+      if (state.query) {
+        items = items.filter(e => e.blob.includes(state.query) || String(e.video_title || '').toLowerCase().includes(state.query));
+      }
+
+      if (state.activePathPatterns.size) {
+        items = items.filter(e => e.patterns.some(p => state.activePathPatterns.has(p)));
+      }
+
+      if (state.activePathTensions.size) {
+        items = items.filter(e => e.tensions.some(t => state.activePathTensions.has(t)));
+      }
+
+      if (state.activeHigherPattern) {
+        items = items.filter(e => e.higher_patterns.includes(state.activeHigherPattern));
+      }
+
+      if (state.activeLowerSignal) {
+        items = items.filter(e => e.lower_signals.includes(state.activeLowerSignal));
+      }
+
+      if (state.filterMode === 'shared') items = items.filter(e => e.patterns.length > 1);
+      if (state.filterMode === 'unique') items = items.filter(e => e.patterns.length === 1);
+
+      state.visibleEntries = items;
+      return items;
+    }
+
+    function countPattern(entries) {
+      const out = {};
+      entries.forEach(e => (e.patterns || []).forEach(p => { out[p] = (out[p] || 0) + 1; }));
+      return out;
+    }
+
+    function compareEntries(a, b, mode) {
+      if (mode === 'index-desc') return b.index - a.index;
+      if (mode === 'title-asc') return String(a.video_title || '').localeCompare(String(b.video_title || ''));
+      if (mode === 'bridge-first') {
+        return (b.patterns.length - a.patterns.length) || (b.tensions.length - a.tensions.length) || (a.index - b.index);
+      }
+      if (mode === 'tension-first') {
+        return (b.tensions.length - a.tensions.length) || (b.patterns.length - a.patterns.length) || (a.index - b.index);
+      }
+      return a.index - b.index;
+    }
+
+    function renderAnalysisPanel() {
+      const visible = state.visibleEntries || [];
+      const patternCounts = countPattern(visible);
+
+      $('themeAtlas').innerHTML = PATTERNS.map(p => {
+        const active = state.activePathPatterns.size === 1 && state.activePathPatterns.has(p.id);
+        const count = patternCounts[p.id] || 0;
+        return `
+          <button class="analysis-theme-card ${active ? 'active' : ''}" data-theme="${p.id}">
+            <div class="analysis-theme-top">
+              <span class="analysis-swatch" style="background:${p.color}"></span>
+              <span>${esc(p.id)} ${esc(p.name)} (${count})</span>
+            </div>
+            <div class="analysis-theme-anchor"><strong>Anchor:</strong> ${esc(p.logline)}</div>
+            <div class="analysis-theme-desc"><strong>Theme:</strong> ${esc(p.theme_desc)}</div>
+            <div class="analysis-theme-thesis"><strong>Thesis:</strong> ${esc(p.thesis)}</div>
+          </button>
+        `;
+      }).join('');
+
+      const macroCounts = {};
+      HIGHER_PATTERNS.forEach(h => { macroCounts[h.id] = 0; });
+      visible.forEach(e => {
+        (e.higher_patterns || []).forEach(h => { macroCounts[h] = (macroCounts[h] || 0) + 1; });
+      });
+
+      const lowerCounts = {};
+      LOWER_SIGNALS.forEach(sig => { lowerCounts[sig.id] = 0; });
+      visible.forEach(e => {
+        (e.lower_signals || []).forEach(sig => { lowerCounts[sig] = (lowerCounts[sig] || 0) + 1; });
+      });
+
+      $('microCluster').innerHTML = LOWER_SIGNALS
+        .slice()
+        .sort((a, b) => (lowerCounts[b.id] || 0) - (lowerCounts[a.id] || 0))
+        .map(sig => `
+          <button class="analysis-chip ${state.activeLowerSignal === sig.id ? 'active' : ''}" data-lower="${sig.id}">
+            ${esc(sig.name)} (${lowerCounts[sig.id] || 0})
+          </button>
+        `).join('');
+
+      const pairCounts = new Map();
+      visible.forEach(e => {
+        const p = (e.patterns || []).slice().sort();
+        for (let i = 0; i < p.length; i++) {
+          for (let j = i + 1; j < p.length; j++) {
+            const key = `${p[i]}|${p[j]}`;
+            pairCounts.set(key, (pairCounts.get(key) || 0) + 1);
+          }
+        }
+      });
+
+      const pairRows = Array.from(pairCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+
+      $('pairCluster').innerHTML = pairRows.length
+        ? pairRows.map(([pair, count]) => {
+            const [a, b] = pair.split('|');
+            const aName = patternMap.get(a)?.name || a;
+            const bName = patternMap.get(b)?.name || b;
+            return `
+              <div class="analysis-list-item" data-pair="${pair}">
+                <div class="analysis-list-title">${esc(a)} + ${esc(b)} (${count})</div>
+                <div class="analysis-list-sub">${esc(short(`${aName} + ${bName}`, 86))}</div>
+              </div>
+            `;
+          }).join('')
+        : '<div class="analysis-list-sub">No pair overlaps in current filter.</div>';
+
+      const bridgeRows = visible
+        .slice()
+        .map(e => ({
+          entry: e,
+          score: (e.patterns.length * 2) + (e.tensions.length) + (e.lower_signals.length) + (e.higher_patterns.length)
+        }))
+        .sort((a, b) => b.score - a.score || a.entry.index - b.entry.index)
+        .slice(0, 8);
+
+      $('bridgeCluster').innerHTML = bridgeRows.length
+        ? bridgeRows.map(({ entry, score }) => `
+            <div class="analysis-list-item" data-bridge="${entry.index}" data-pattern="${entry.patterns[0] || ''}">
+              <div class="analysis-list-title">#${entry.index} ${esc(short(entry.video_title, 76))} · score ${score}</div>
+              <div class="analysis-list-sub"><strong>Evidence:</strong> ${esc(evidenceForPattern(entry, entry.patterns[0] || ''))}</div>
+              <div class="analysis-list-sub"><strong>Thesis:</strong> ${esc(entry.thesis)}</div>
+            </div>
+          `).join('')
+        : '<div class="analysis-list-sub">No entries in current filter.</div>';
+
+      document.querySelectorAll('[data-theme]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.theme;
+          if (state.activePathPatterns.size === 1 && state.activePathPatterns.has(id)) {
+            state.activePathPatterns.clear();
+            state.activeHigherPattern = null;
+          } else {
+            state.activePathPatterns = new Set([id]);
+            state.activeHigherPattern = null;
+            state.activeLowerSignal = null;
+            const pathControl = $('pathSelect');
+            if (pathControl) pathControl.value = 'clear';
+          }
+          renderLanes();
+        });
+      });
+
+      document.querySelectorAll('[data-lower]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.lower;
+          state.activeLowerSignal = state.activeLowerSignal === id ? null : id;
+          renderLanes();
+        });
+      });
+
+      document.querySelectorAll('[data-pair]').forEach(item => {
+        item.addEventListener('click', () => {
+          const pair = String(item.dataset.pair || '').split('|').filter(Boolean);
+          state.activeHigherPattern = null;
+          state.activePathPatterns = new Set(pair);
+          renderLanes();
+        });
+      });
+
+      document.querySelectorAll('[data-bridge]').forEach(item => {
+        item.addEventListener('click', () => {
+          const idx = Number(item.dataset.bridge);
+          const pat = item.dataset.pattern || '';
+          if (idx) jumpToBlock(idx, pat);
+        });
+      });
+    }
+
+    function updateCounts() {
+      $('visibleCount').textContent = state.visibleEntries.length;
+      $('totalCount').textContent = state.entries.length;
+      $('boardCount').textContent = state.board.length;
+    }
+
+    function legendHtml(counts) {
+      const patternRows = PATTERNS.map(p => {
+        const n = counts[p.id] || 0;
+        return `
+          <div class="legend-item">
+            <div class="legend-color" style="background:${p.color}"></div>
+            <div class="legend-text"><strong>${p.id}</strong> ${esc(p.name)} (${n})</div>
+          </div>
+        `;
+      }).join('');
+
+      const tCounts = {};
+      state.visibleEntries.forEach(e => e.tensions.forEach(t => { tCounts[t] = (tCounts[t] || 0) + 1; }));
+      const tensionRows = TENSIONS.map(t => `<div class="legend-text" style="margin-bottom:4px;">${t.id} ${esc(t.name)} (${tCounts[t.id] || 0})</div>`).join('');
+
+      return `
+        <div class="legend-title">Patterns (Named)</div>
+        ${patternRows}
+        <div class="legend-title" style="margin-top:8px;">Tensions (Named)</div>
+        ${tensionRows}
+      `;
+    }
+
+    function renderLanes() {
+      const lanes = $('lanes');
+      const visible = getVisibleEntries();
+      const counts = countPattern(visible);
+
+      const trailIds = new Set(state.trailPath.map(t => `${t.index}|${t.pattern}`));
+
+      const laneHtml = PATTERNS.map(p => {
+        const laneEntries = visible
+          .filter(e => e.patterns.includes(p.id))
+          .sort((a, b) => compareEntries(a, b, state.sortMode));
+
+        const blocks = laneEntries.map(entry => {
+          const sharedCount = entry.patterns.length;
+          const isShared = sharedCount > 1;
+          const evidenceLine = evidenceForPattern(entry, p.id);
+          const trailClass = state.viewMode === 'trail'
+            ? (trailIds.size ? (trailIds.has(`${entry.index}|${p.id}`) ? 'trail' : 'trail-dim') : '')
+            : '';
+
+          return `
+            <div class="block ${isShared ? 'shared' : ''} ${trailClass}"
+                 style="background:${p.color};"
+                 data-index="${entry.index}"
+                 data-pattern="${p.id}"
+                 data-title="${esc(entry.video_title)}"
+                 data-core="${esc(short(entry.core, 180))}">
+              ${entry.thumbnail_url ? `
+                <div class="block-thumb-wrap">
+                  <img class="block-thumb" loading="lazy" src="${esc(entry.thumbnail_url)}" alt="${esc(entry.video_title)}" />
+                </div>
+              ` : ''}
+              <div class="block-title">${esc(short(entry.video_title, 52))}</div>
+              <div class="block-sub">#${entry.index} • ${entry.video_id || 'no-video'}</div>
+              <div class="block-evidence">"${esc(short(evidenceLine, 128))}"</div>
+              ${isShared ? `<div class="block-count">${sharedCount}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="lane">
+            <div class="lane-header ${state.activePathPatterns.has(p.id) ? 'active' : ''}" data-lane="${p.id}">
+              <div class="lane-id"><span>${p.id}</span><span>${counts[p.id] || 0}</span></div>
+              <div class="lane-name">${esc(p.name)}</div>
+              <div class="lane-anchor">${esc(short(p.logline, 140))}</div>
+              <div class="lane-count">${counts[p.id] || 0} visible entries</div>
+            </div>
+            <div class="lane-content">${blocks || '<div class="block empty"></div>'}</div>
+          </div>
+        `;
+      }).join('');
+
+      lanes.innerHTML = laneHtml;
+      $('legend').innerHTML = legendHtml(counts);
+      bindLaneEvents();
+      renderAnalysisPanel();
+      updateCounts();
+    }
+
+    function bindLaneEvents() {
+      const tooltip = $('tooltip');
+
+      document.querySelectorAll('.lane-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const id = header.dataset.lane;
+          if (state.activePathPatterns.has(id)) state.activePathPatterns.delete(id);
+          else state.activePathPatterns.add(id);
+          renderLanes();
+        });
+      });
+
+      document.querySelectorAll('.block:not(.empty)').forEach(block => {
+        block.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const index = Number(block.dataset.index);
+          const pattern = block.dataset.pattern;
+          const entry = state.entries.find(x => x.index === index);
+          if (!entry) return;
+
+          if (state.viewMode === 'trail') {
+            addToTrail(index, pattern, block);
+          } else {
+            showMatchPanel(entry, pattern);
+          }
+        });
+
+        block.addEventListener('mouseenter', (e) => {
+          if (window.innerWidth <= 768) return;
+          const index = Number(block.dataset.index);
+          const pattern = block.dataset.pattern;
+          const entry = state.entries.find(x => x.index === index);
+          if (!entry) return;
+
+          $('tooltipTitle').textContent = entry.video_title;
+          $('tooltipMeta').textContent = `#${entry.index} • ${pattern} ${patternMap.get(pattern)?.name || ''} • ${entry.video_id || 'no-video'}`;
+          $('tooltipCore').textContent = `Logline: ${short(entry.logline, 120)}\nThesis: ${short(entry.thesis, 120)}`;
+
+          tooltip.classList.add('active');
+          tooltip.style.left = `${e.clientX + 14}px`;
+          tooltip.style.top = `${e.clientY + 14}px`;
+        });
+
+        block.addEventListener('mouseleave', () => tooltip.classList.remove('active'));
+      });
+    }
+
+    function addToTrail(index, pattern, blockEl) {
+      const key = `${index}|${pattern}`;
+      if (!state.trailPath.some(x => `${x.index}|${x.pattern}` === key)) {
+        state.trailPath.push({ index, pattern });
+      }
+
+      document.querySelectorAll('.block:not(.empty)').forEach(b => {
+        b.classList.remove('trail', 'trail-dim', 'highlighted');
+        b.classList.add('trail-dim');
+      });
+
+      state.trailPath.forEach(item => {
+        const b = document.querySelector(`.block[data-index="${item.index}"][data-pattern="${item.pattern}"]`);
+        if (b) {
+          b.classList.remove('trail-dim');
+          b.classList.add('trail');
+        }
+      });
+
+      blockEl.classList.add('highlighted');
+      setTimeout(() => blockEl.classList.remove('highlighted'), 1200);
+    }
+
+    function relatedEntries(entry, clickedPattern) {
+      const related = [];
+
+      entry.patterns
+        .filter(p => p !== clickedPattern)
+        .forEach(p => {
+          related.push({
+            kind: 'Same Entry / Other Pattern',
+            pattern: p,
+            entry,
+            score: 100
+          });
+        });
+
+      state.visibleEntries.forEach(other => {
+        if (other.index === entry.index) return;
+        const shared = other.patterns.filter(p => entry.patterns.includes(p));
+        if (!shared.length) return;
+        related.push({
+          kind: `Shared: ${shared.join(', ')}`,
+          pattern: shared[0],
+          entry: other,
+          score: shared.length * 10
+        });
+      });
+
+      return related
+        .sort((a, b) => b.score - a.score || a.entry.index - b.entry.index)
+        .slice(0, 9);
+    }
+
+    function listItemsHtml(items = []) {
+      const rows = (Array.isArray(items) ? items : []).filter(Boolean);
+      if (!rows.length) return '<div class="report-line">None</div>';
+      return `<div class="report-list">${rows.map((txt, i) => `<div class="report-list-item">${i + 1}. ${esc(String(txt))}</div>`).join('')}</div>`;
+    }
+
+    function openReport(entry, clickedPattern = '') {
+      if (!entry) return;
+      const patternEvidenceRows = (entry.patterns || []).map(p => {
+        const name = patternMap.get(p)?.name || p;
+        return `${p} ${name}: ${evidenceForPattern(entry, p)}`;
+      });
+
+      $('reportTitle').textContent = `Full Report — #${entry.index} ${entry.video_title}`;
+      $('reportBody').innerHTML = `
+        <section class="report-section">
+          <div class="report-section-head">Identity</div>
+          <div class="report-line"><strong>Video ID:</strong> ${esc(entry.video_id || 'N/A')}</div>
+          <div class="report-line"><strong>Watch URL:</strong> ${esc(entry.watch_url || 'N/A')}</div>
+          <div class="report-line"><strong>Canonical URL:</strong> ${esc(entry.canonical_url || 'N/A')}</div>
+          <div class="report-line"><strong>Source URL:</strong> ${esc(entry.source_url || 'N/A')}</div>
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Theme Framing</div>
+          <div class="report-line"><strong>Logline:</strong> ${esc(entry.logline || '')}</div>
+          <div class="report-line"><strong>Theme Description:</strong> ${esc(entry.theme_description || '')}</div>
+          <div class="report-line"><strong>Thesis:</strong> ${esc(entry.thesis || '')}</div>
+          <div class="report-line"><strong>Clicked Pattern:</strong> ${esc(clickedPattern || 'N/A')}</div>
+          <div class="report-line"><strong>Evidence For Clicked Pattern:</strong> ${esc(clickedPattern ? evidenceForPattern(entry, clickedPattern) : 'N/A')}</div>
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Classifications</div>
+          <div class="report-line"><strong>Patterns:</strong> ${(entry.patterns || []).map(p => `${p} ${patternMap.get(p)?.name || ''}`).join(' | ') || 'N/A'}</div>
+          <div class="report-line"><strong>Tensions:</strong> ${(entry.tensions || []).map(t => `${t} ${tensionMap.get(t)?.name || ''}`).join(' | ') || 'N/A'}</div>
+          <div class="report-line"><strong>Higher-Level:</strong> ${(entry.higher_patterns || []).map(h => higherPatternMap.get(h)?.name || h).join(' | ') || 'N/A'}</div>
+          <div class="report-line"><strong>Lower-Level:</strong> ${(entry.lower_signals || []).map(l => lowerSignalMap.get(l)?.name || l).join(' | ') || 'N/A'}</div>
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Pattern Evidence Matrix</div>
+          ${listItemsHtml(patternEvidenceRows)}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Non-Obvious Insights</div>
+          ${listItemsHtml(entry.insights)}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Tensions & Contradictions</div>
+          ${listItemsHtml(entry.tensionsText)}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">So What</div>
+          <div class="report-line"><strong>Core Implication:</strong> ${esc(entry.core || '')}</div>
+          <div class="report-line"><strong>Why It Matters:</strong> ${esc(entry.why || '')}</div>
+          <div class="report-line"><strong>Additional Lines:</strong></div>
+          ${listItemsHtml(entry.so_bullets || [])}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">What's Missing</div>
+          <div class="report-line"><strong>Missing Question:</strong> ${esc(entry.missing?.question || '')}</div>
+          <div class="report-line"><strong>Critical Assumption:</strong> ${esc(entry.missing?.assumption || '')}</div>
+          <div class="report-line"><strong>Next Inquiry:</strong> ${esc(entry.missing?.next || '')}</div>
+          <div class="report-line"><strong>Additional Lines:</strong></div>
+          ${listItemsHtml(entry.missing?.bullets || [])}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Evidence Pool</div>
+          ${listItemsHtml(entry.evidence_pool || [])}
+        </section>
+
+        <section class="report-section">
+          <div class="report-section-head">Raw Record (Full Data)</div>
+          <pre class="report-pre">${esc(JSON.stringify(entry.raw_record || {}, null, 2))}</pre>
+        </section>
+      `;
+
+      $('reportOverlay').classList.add('active');
+    }
+
+    function closeReport() {
+      $('reportOverlay').classList.remove('active');
+    }
+
+    function showMatchPanel(entry, clickedPattern) {
+      state.activeEntry = entry;
+      $('matchTitle').textContent = `${entry.video_title} (#${entry.index})`;
+      $('matchCore').textContent = short(entry.core, 300);
+      $('matchLogline').textContent = `Logline: ${short(entry.logline, 220)}`;
+      $('matchTheme').textContent = `Theme: ${short(entry.theme_description, 220)}`;
+      $('matchThesis').textContent = `Thesis: ${short(entry.thesis, 220)}`;
+      $('matchEvidence').textContent = `Evidence for ${clickedPattern}: ${short(evidenceForPattern(entry, clickedPattern), 220)}`;
+      const thumbWrap = $('matchThumbWrap');
+      const thumb = $('matchThumb');
+      if (entry.thumbnail_url) {
+        thumb.src = entry.thumbnail_url;
+        thumb.alt = entry.video_title;
+        thumbWrap.style.display = 'block';
+      } else {
+        thumb.src = '';
+        thumbWrap.style.display = 'none';
+      }
+
+      const options = relatedEntries(entry, clickedPattern);
+      $('matchGrid').innerHTML = options.map(opt => `
+        <div class="match-option" data-jump="${opt.entry.index}" data-pattern="${opt.pattern}">
+          <div class="match-option-top">${esc(opt.kind)}</div>
+          ${opt.entry.thumbnail_url ? `
+            <div class="match-option-thumb-wrap">
+              <img class="match-option-thumb" loading="lazy" src="${esc(opt.entry.thumbnail_url)}" alt="${esc(opt.entry.video_title)}" />
+            </div>
+          ` : ''}
+          <div class="match-option-title">${esc(short(opt.entry.video_title, 80))}</div>
+          <div class="match-option-core">${esc(short(opt.entry.core, 120))}</div>
+        </div>
+      `).join('') || '<div class="match-option"><div class="match-option-title">No related entries in current filter.</div></div>';
+
+      $('matchWatchBtn').onclick = () => openVideo(entry);
+      $('matchOpenYTBtn').onclick = () => {
+        if (!entry.watch_url) return toast('No URL');
+        window.open(entry.watch_url, '_blank', 'noopener,noreferrer');
+      };
+      $('matchCoreBtn').onclick = () => addOne(entry, 'Core_Implication', entry.core);
+      $('matchTensionBtn').onclick = () => addOne(entry, 'Top_Tension', entry.tensionsText[0] || '');
+      $('matchMissingBtn').onclick = () => addOne(entry, 'Missing_Question', entry.missing.question || entry.missing.bullets[0] || '');
+      $('matchReportBtn').onclick = () => openReport(entry, clickedPattern);
+
+      document.querySelectorAll('.match-option[data-jump]').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const idx = Number(opt.dataset.jump);
+          const pat = opt.dataset.pattern;
+          jumpToBlock(idx, pat);
+        });
+      });
+
+      $('matchPanel').classList.add('active');
+    }
+
+    function jumpToBlock(index, pattern) {
+      const target = document.querySelector(`.block[data-index="${index}"][data-pattern="${pattern}"]`) || document.querySelector(`.block[data-index="${index}"]`);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      target.classList.add('highlighted');
+      setTimeout(() => target.classList.remove('highlighted'), 1600);
+      $('matchPanel').classList.remove('active');
+    }
+
+    function boardId(entry, type, text) {
+      const seed = `${entry.index}|${type}|${text}`;
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+      return `${entry.index}:${type}:${Math.abs(h)}`;
+    }
+
+    function addOne(entry, type, text) {
+      const clean = String(text || '').trim();
+      if (!clean) return toast('No text');
+      const id = boardId(entry, type, clean);
+      if (state.board.some(x => x.id === id)) return toast('Already added');
+
+      state.board.push({
+        id,
+        index: entry.index,
+        video_title: entry.video_title,
+        watch_url: entry.watch_url,
+        type,
+        text: clean,
+        note: '',
+        patterns: entry.patterns,
+        tensions: entry.tensions
+      });
+
+      saveBoard();
+      updateCounts();
+      toast('Added to board');
+    }
+
+    function saveBoard() {
+      localStorage.setItem(BOARD_KEY, JSON.stringify(state.board));
+    }
+
+    function loadBoard() {
+      try {
+        const raw = localStorage.getItem(BOARD_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) state.board = parsed;
+      } catch (_) {
+        state.board = [];
+      }
+    }
+
+    function clearBoard() {
+      if (state.board.length && !confirm('Clear board?')) return;
+      state.board = [];
+      saveBoard();
+      updateCounts();
+    }
+
+    function boardMarkdown() {
+      const lines = ['# Verification Premium Corpus Board', ''];
+      state.board.forEach((item, i) => {
+        lines.push(`## ${i + 1}. #${item.index} ${item.type}`);
+        lines.push(`- Video: ${item.video_title}`);
+        lines.push(`- URL: ${item.watch_url || 'N/A'}`);
+        lines.push(`- Patterns: ${(item.patterns || []).map(p => `${p} ${patternMap.get(p)?.name || ''}`).join(' | ')}`);
+        lines.push(`- Tensions: ${(item.tensions || []).map(t => `${t} ${tensionMap.get(t)?.name || ''}`).join(' | ')}`);
+        lines.push('');
+        lines.push(item.text);
+        lines.push('');
+      });
+      return lines.join('\n');
+    }
+
+    async function copyBoard() {
+      try {
+        await navigator.clipboard.writeText(boardMarkdown());
+        toast('Board copied');
+      } catch (_) {
+        toast('Copy failed');
+      }
+    }
+
+    function openReference(url) {
+      if (!url) return;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    function loadPath(path) {
+      state.activePathPatterns.clear();
+      state.activePathTensions.clear();
+      state.trailPath = [];
+      state.activeHigherPattern = null;
+      state.activeLowerSignal = null;
+      const pathControl = $('pathSelect');
+      if (pathControl && pathControl.value !== path) pathControl.value = path;
+
+      if (path === 'education') ['P-A', 'P-E', 'P-H'].forEach(x => state.activePathPatterns.add(x));
+      if (path === 'governance') ['P-C', 'P-D', 'P-G'].forEach(x => state.activePathPatterns.add(x));
+      if (path === 'humanities') ['P-F', 'P-A'].forEach(x => state.activePathPatterns.add(x));
+      if (path === 'creativity') ['P-I', 'P-H'].forEach(x => state.activePathPatterns.add(x));
+
+      renderLanes();
+    }
+
+    function openVideo(entry) {
+      const src = entry.watch_url || '';
+      if (!src) return toast('No URL');
+      const id = entry.video_id || parseVideoId(src);
+      if (!id) return window.open(src, '_blank', 'noopener,noreferrer');
+
+      const list = state.visibleEntries.length ? state.visibleEntries : state.entries;
+      state.videoList = list;
+      state.videoIndex = list.findIndex(e => e.index === entry.index);
+      if (state.videoIndex < 0) {
+        state.videoList = [entry];
+        state.videoIndex = 0;
+      }
+
+      renderVideoEntry(state.videoList[state.videoIndex]);
+      $('videoOverlay').classList.add('active');
+    }
+
+    function renderVideoEntry(entry) {
+      const id = entry.video_id || parseVideoId(entry.watch_url || '');
+      if (!id) return;
+      $('videoFrame').src = embedUrl(id);
+      $('videoTitle').textContent = `${entry.video_title} (#${entry.index})`;
+      $('videoPrev').disabled = state.videoIndex <= 0;
+      $('videoNext').disabled = state.videoIndex >= state.videoList.length - 1;
+      $('videoYT').onclick = () => {
+        if (!entry.watch_url) return;
+        window.open(entry.watch_url, '_blank', 'noopener,noreferrer');
+      };
+      $('videoCopy').onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(entry.watch_url || '');
+          toast('URL copied');
+        } catch (_) {
+          toast('Copy failed');
+        }
+      };
+    }
+
+    function stepVideo(delta) {
+      const next = state.videoIndex + delta;
+      if (next < 0 || next >= state.videoList.length) return;
+      state.videoIndex = next;
+      renderVideoEntry(state.videoList[state.videoIndex]);
+    }
+
+    function closeVideo() {
+      $('videoOverlay').classList.remove('active');
+      $('videoFrame').src = 'about:blank';
+    }
+
+    async function loadData() {
+      try {
+        setStatus('Loading…', false);
+        const [dataRes, tagsRes, evidenceRes] = await Promise.all([
+          fetch(DATASET_URL, { cache: 'no-store' }),
+          fetch(TAGS_URL, { cache: 'no-store' }).catch(() => null),
+          fetch(EVIDENCE_URL, { cache: 'no-store' }).catch(() => null)
+        ]);
+
+        if (!dataRes.ok) throw new Error(`Dataset HTTP ${dataRes.status}`);
+        const data = await dataRes.json();
+        if (!Array.isArray(data)) throw new Error('Dataset must be array');
+
+        state.tagsByIndex = new Map();
+        if (tagsRes && tagsRes.ok) {
+          const tags = await tagsRes.json();
+          if (Array.isArray(tags)) {
+            state.tagsByIndex = new Map(tags.map(t => [t.index, t]));
+          }
+        }
+
+        state.evidenceOverrides = new Map();
+        if (evidenceRes && evidenceRes.ok) {
+          const evidence = await evidenceRes.json();
+          if (Array.isArray(evidence)) {
+            evidence.forEach(row => {
+              const idx = Number(row.index);
+              const pat = String(row.pattern || '').trim().toUpperCase();
+              const txt = String(row.evidence || row.line || '').trim();
+              if (!idx || !pat || !txt) return;
+              state.evidenceOverrides.set(`${idx}|${pat}`, txt);
+            });
+          }
+        }
+
+        state.entries = data.map(normalizeEntry).sort((a, b) => a.index - b.index);
+        renderLanes();
+        setStatus(`Loaded ${state.entries.length} entries`, true);
+        hydrateVideoTitles();
+      } catch (err) {
+        setStatus('Load blocked (click status to import)', false);
+        toast(err.message || 'Load failed');
+      }
+    }
+
+    function importDataset() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const arr = JSON.parse(String(reader.result || '[]'));
+            if (!Array.isArray(arr)) throw new Error('Expected array');
+            state.entries = arr.map(normalizeEntry).sort((a, b) => a.index - b.index);
+            renderLanes();
+            setStatus(`Imported ${state.entries.length} entries`, true);
+            hydrateVideoTitles();
+          } catch (err) {
+            alert(`Import failed: ${err.message}`);
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function bindControls() {
+      $('trayToggleBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        setControlTray(!state.controlsOpen);
+      });
+
+      document.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.filterMode = btn.dataset.filter;
+          setControlActive('filter', state.filterMode);
+          renderLanes();
+        });
+      });
+
+      document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.viewMode = btn.dataset.mode;
+          if (state.viewMode === 'explore') state.trailPath = [];
+          setControlActive('mode', state.viewMode);
+          renderLanes();
+        });
+      });
+
+      $('pathSelect').addEventListener('change', (e) => {
+        loadPath(e.target.value);
+      });
+
+      $('sortSelect').addEventListener('change', (e) => {
+        state.sortMode = e.target.value;
+        renderLanes();
+      });
+
+      $('searchInput').addEventListener('input', (e) => {
+        state.query = String(e.target.value || '').trim().toLowerCase();
+        renderLanes();
+      });
+
+      $('reloadBtn').addEventListener('click', loadData);
+      $('importDatasetBtn').addEventListener('click', importDataset);
+      $('openIndexBtn').addEventListener('click', () => openReference(INDEX_JSON_URL));
+      $('openWriteupBtn').addEventListener('click', () => openReference(WRITEUP_URL));
+      $('status').addEventListener('click', importDataset);
+      $('copyBoardBtn').addEventListener('click', copyBoard);
+      $('clearBoardBtn').addEventListener('click', clearBoard);
+      $('utilitiesToggleBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        setControlTray(!state.controlsOpen);
+        const menu = document.querySelector('.actions-menu');
+        if (menu) menu.open = state.controlsOpen;
+      });
+      $('themeToggleBtn').addEventListener('click', () => {
+        setTheme(state.theme === 'light' ? 'dark' : 'light');
+      });
+      $('analysisToggleBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        setAnalysisPanel(!state.analysisOpen);
+      });
+      $('analysisCloseBtn').addEventListener('click', () => setAnalysisPanel(false));
+
+      document.addEventListener('click', (e) => {
+        const header = document.querySelector('.header');
+        if (state.controlsOpen && header && !header.contains(e.target)) {
+          setControlTray(false);
+        }
+
+        const panel = $('analysisPanel');
+        const toggle = $('analysisToggleBtn');
+        if (
+          state.analysisOpen &&
+          panel &&
+          toggle &&
+          !panel.contains(e.target) &&
+          !toggle.contains(e.target)
+        ) {
+          setAnalysisPanel(false);
+        }
+
+        const menu = document.querySelector('.actions-menu');
+        if (!menu || !menu.open) return;
+        if (menu.contains(e.target)) return;
+        menu.open = false;
+      });
+
+      $('matchClose').addEventListener('click', () => $('matchPanel').classList.remove('active'));
+
+      $('videoClose').addEventListener('click', closeVideo);
+      $('videoOverlay').addEventListener('click', (e) => {
+        if (e.target === $('videoOverlay')) closeVideo();
+      });
+      $('videoPrev').addEventListener('click', () => stepVideo(-1));
+      $('videoNext').addEventListener('click', () => stepVideo(1));
+      $('reportCloseBtn').addEventListener('click', closeReport);
+      $('reportOverlay').addEventListener('click', (e) => {
+        if (e.target === $('reportOverlay')) closeReport();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if ($('videoOverlay').classList.contains('active')) closeVideo();
+          if (state.controlsOpen) setControlTray(false);
+          if (state.analysisOpen) setAnalysisPanel(false);
+          if ($('reportOverlay').classList.contains('active')) closeReport();
+        }
+
+        if (!$('videoOverlay').classList.contains('active')) return;
+        if (e.key === 'ArrowLeft') stepVideo(-1);
+        if (e.key === 'ArrowRight') stepVideo(1);
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768 && state.controlsOpen) setControlTray(false);
+        if (window.innerWidth <= 768 && state.analysisOpen) setAnalysisPanel(false);
+      });
+    }
+
+    function setControlActive(group, value) {
+      document.querySelectorAll(`[data-${group}]`).forEach(el => {
+        el.classList.toggle('active', el.dataset[group] === value);
+      });
+    }
+
+    function setLegendVisibility(open) {
+      state.legendOpen = !!open;
+    }
+
+    function setControlTray(open) {
+      const tray = $('controlTray');
+      const btn = $('trayToggleBtn');
+      if (!tray || !btn) return;
+
+      state.controlsOpen = !!open;
+      tray.classList.toggle('open', state.controlsOpen);
+      btn.setAttribute('aria-expanded', state.controlsOpen ? 'true' : 'false');
+      btn.textContent = state.controlsOpen ? 'Close' : 'Controls';
+
+      if (!state.controlsOpen) {
+        const menu = document.querySelector('.actions-menu');
+        if (menu) menu.open = false;
+      }
+    }
+
+    function setAnalysisPanel(open) {
+      const panel = $('analysisPanel');
+      const btn = $('analysisToggleBtn');
+      if (!panel || !btn) return;
+
+      state.analysisOpen = !!open;
+      panel.classList.toggle('open', state.analysisOpen);
+      btn.classList.toggle('active', state.analysisOpen);
+      btn.textContent = 'Atlas';
+
+      if (state.analysisOpen) {
+        renderAnalysisPanel();
+      }
+    }
+
+    function boot() {
+      loadBoard();
+      loadVideoMetaCache();
+      loadTheme();
+      bindControls();
+      setControlTray(false);
+      setAnalysisPanel(false);
+      updateCounts();
+      loadData();
+    }
+
+    boot();
+  </script>
+</body>
+</html>
