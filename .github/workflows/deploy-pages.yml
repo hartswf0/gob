@@ -34,6 +34,7 @@ jobs:
           cp worldtext-completions-mobile.html site/
           cp worldtext-prompt-operator.html site/
           cp worldtext-zen-reader.html site/
+          cp WORLD-TEXT-DOUBLE.parsed.json site/
           cp WORLD-TEXT-DOUBLE.templates.json site/
           cp WORLD-TEXT-DOUBLE.canonical-source.md site/
           cp WORLD-TEXT-DOUBLE.MD site/

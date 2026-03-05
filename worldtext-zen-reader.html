@@ -616,7 +616,12 @@
 
   <script>
     const STORAGE_KEY = "worldtext-grades-v1";
-    const DEFAULT_PATH = "WORLD-TEXT-DOUBLE.parsed.json";
+    const DEFAULT_PATHS = [
+      "WORLD-TEXT-DOUBLE.parsed.json",
+      "WORLD-TEXT-DOUBLE.aprses.json",
+      "world-text-double.parsed.json",
+      "world-text-double-aprses.json"
+    ];
 
     const state = {
       parsed: null,
@@ -1149,11 +1154,20 @@
     }
 
     async function loadDefaultDataset() {
-      const res = await fetch(DEFAULT_PATH, { cache: "no-store" });
-      if (!res.ok) throw new Error(`Failed to load ${DEFAULT_PATH}`);
-      const parsed = await res.json();
-      state.parsed = parsed;
-      applyFilters();
+      const tried = [];
+      for (const path of DEFAULT_PATHS) {
+        tried.push(path);
+        try {
+          const res = await fetch(path, { cache: "no-store" });
+          if (!res.ok) continue;
+          const parsed = await res.json();
+          state.parsed = parsed;
+          applyFilters();
+          return;
+        } catch {
+        }
+      }
+      throw new Error(`Failed to load parsed JSON. Tried: ${tried.join(", ")}`);
     }
 
     function initWithParsed(parsed) {

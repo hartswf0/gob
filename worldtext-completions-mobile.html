@@ -451,7 +451,12 @@
   </aside>
 
   <script>
-    const DEFAULT_FILE = "WORLD-TEXT-DOUBLE.parsed.json";
+    const DEFAULT_FILES = [
+      "WORLD-TEXT-DOUBLE.parsed.json",
+      "WORLD-TEXT-DOUBLE.aprses.json",
+      "world-text-double.parsed.json",
+      "world-text-double-aprses.json"
+    ];
     const COMMENT_KEY = "worldtext-comments-v1";
     const THEME_KEY = "worldtext-completions-theme-v1";
 
@@ -773,10 +778,23 @@
       renderList();
     }
 
+    async function loadJsonCandidates(paths) {
+      const tried = [];
+      for (const path of paths) {
+        tried.push(path);
+        try {
+          const res = await fetch(path, { cache: "no-store" });
+          if (!res.ok) continue;
+          const data = await res.json();
+          return { data, path };
+        } catch {
+        }
+      }
+      throw new Error(`Could not load parsed JSON. Tried: ${tried.join(", ")}`);
+    }
+
     async function loadDefault() {
-      const res = await fetch(DEFAULT_FILE, { cache: "no-store" });
-      if (!res.ok) throw new Error("Could not load parsed JSON");
-      const data = await res.json();
+      const { data } = await loadJsonCandidates(DEFAULT_FILES);
       state.data = data;
       state.entries = (data.entries || []).map((e) => ({
         ...e,
@@ -1064,7 +1082,7 @@
       bindEvents();
       fillVoices();
       loadDefault().catch(() => {
-        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">WORLD-TEXT-DOUBLE.parsed.json</span> or import a file.</p></div></article>`;
+        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">WORLD-TEXT-DOUBLE.parsed.json</span> (or import a file).</p></div></article>`;
       });
     }
 
