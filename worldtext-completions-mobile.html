@@ -6,6 +6,7 @@
   <title>WorldText Completions Reader</title>
   <style>
     :root {
+      --top-height: 190px;
       --bg: #07080d;
       --panel: #0f1119;
       --ink: #e8eaf3;
@@ -44,8 +45,10 @@
     }
 
     .top {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 50;
       background: var(--top-bg);
       backdrop-filter: blur(8px);
@@ -84,37 +87,17 @@
       text-transform: uppercase;
     }
 
-    .quick-links {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .quick-link {
-      min-height: 34px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--panel);
-    }
-
-    .quick-link:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
     .controls {
       display: grid;
       gap: 6px;
-      grid-template-columns: 1fr auto auto;
+    }
+
+    .controls-main {
+      grid-template-columns: 1fr 1fr auto auto;
+    }
+
+    .controls-note {
+      grid-template-columns: 1fr 1.6fr auto;
     }
 
     .search,
@@ -149,31 +132,76 @@
     .btn.primary { border-color: var(--accent); color: var(--accent); }
     .btn.warn { border-color: var(--danger); color: var(--danger); }
 
-    .modes {
+    .command-bar {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 6px;
+      align-items: center;
     }
 
-    .mode.active {
+    .icon-btn {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn.active {
       background: var(--accent);
-      color: #09100d;
+      color: #08110c;
       border-color: var(--accent);
       font-weight: 700;
     }
 
-    .sub-controls {
-      display: grid;
-      gap: 6px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .icon-btn.warn {
+      border-color: var(--danger);
+      color: var(--danger);
     }
 
-    .sub-controls .full { grid-column: 1 / -1; }
+    .command-help {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 6px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .speak-status {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.35;
+      padding: 8px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
 
     .shell {
       max-width: 960px;
       margin: 0 auto;
-      padding: 10px 10px 120px;
+      padding: calc(var(--top-height) + 10px) 10px 32px;
     }
 
     .list {
@@ -220,67 +248,22 @@
     }
 
     .entry-body {
+      position: relative;
       padding: 10px;
-    }
-
-    .line-tools {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-      margin-bottom: 8px;
-      align-items: center;
-    }
-
-    .line-tools .tiny {
-      min-height: 32px;
-      font-size: 10px;
-      padding: 0 6px;
-      letter-spacing: 0.05em;
-    }
-
-    .line-info {
-      grid-column: 1 / -1;
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .auto-copy {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      min-height: 32px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      padding: 0 6px;
-      background: var(--panel);
-    }
-
-    .auto-copy input {
-      width: 14px;
-      height: 14px;
-      margin: 0;
-      accent-color: var(--accent);
     }
 
     .completion-lines {
       border: 1px solid var(--line);
       border-radius: 8px;
-      overflow: auto;
-      max-height: none;
+      overflow: visible;
+      min-height: 64vh;
       background: color-mix(in oklab, var(--panel), #fff 8%);
     }
 
     .completion-line {
       margin: 0;
       display: grid;
-      grid-template-columns: 34px 1fr;
+      grid-template-columns: 18px 34px 1fr;
       gap: 8px;
       padding: 6px 8px;
       border-bottom: 1px solid color-mix(in oklab, var(--line), transparent 55%);
@@ -306,6 +289,20 @@
       box-shadow: inset 2px 0 0 var(--accent);
     }
 
+    .completion-line.cursor {
+      outline: 1px solid color-mix(in oklab, var(--accent-2), transparent 35%);
+      outline-offset: -1px;
+    }
+
+    .line-pick {
+      width: 14px;
+      height: 14px;
+      margin: 2px 0 0;
+      accent-color: var(--accent-2);
+      cursor: pointer;
+      align-self: start;
+    }
+
     .line-no {
       font-family: var(--mono);
       font-size: 10px;
@@ -325,78 +322,104 @@
       word-break: break-word;
     }
 
-    .comment-wrap,
-    .tts-wrap {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--line);
-      display: none;
-    }
-
-    .comment-wrap.active,
-    .tts-wrap.active {
-      display: grid;
-      gap: 8px;
-    }
-
-    .tts-grid {
-      display: grid;
-      gap: 6px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .tts-label {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .sticky-tts {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--top-bg);
-      border-top: 1px solid var(--line);
-      padding: 8px 10px;
-      display: none;
-      z-index: 60;
-    }
-
-    .sticky-tts.active {
-      display: block;
-    }
-
-    .tts-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: grid;
-      gap: 6px;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
     .mono { font-family: var(--mono); }
 
+    .footer-nav {
+      margin: 10px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .footer-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 1px;
+    }
+
+    .minimap {
+      position: fixed;
+      right: 4px;
+      top: calc(var(--entry-stick-top, 138px) + 2px);
+      bottom: 10px;
+      width: 14px;
+      z-index: 45;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .mini-track {
+      position: relative;
+      width: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in oklab, var(--panel), var(--bg) 30%);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    .mini-dot {
+      position: absolute;
+      left: 1px;
+      width: 8px;
+      height: 8px;
+      border: 1px solid color-mix(in oklab, var(--line), #000 20%);
+      border-radius: 2px;
+      background: color-mix(in oklab, var(--line), var(--panel) 35%);
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .mini-dot.has-note {
+      background: color-mix(in oklab, var(--accent-2), #fff 35%);
+    }
+
+    .mini-dot.cursor {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2), transparent 30%);
+    }
+
+    .mini-dot.reading {
+      background: color-mix(in oklab, var(--accent), #fff 28%);
+      border-color: var(--accent);
+    }
+
     @media (max-width: 720px) {
-      .controls {
+      .controls-main {
         grid-template-columns: 1fr 1fr;
       }
-      .controls .search {
+      .controls-main .search {
         grid-column: 1 / -1;
       }
-      .sub-controls {
+      .controls-note {
         grid-template-columns: 1fr;
       }
-      .tts-grid,
-      .tts-inner {
-        grid-template-columns: 1fr 1fr;
-      }
-      .line-tools {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .command-bar {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
       .line-txt {
         font-size: 16px;
+      }
+      .completion-lines {
+        min-height: 70vh;
+      }
+      .minimap {
+        right: 2px;
+        width: 12px;
+      }
+      .mini-track {
+        width: 8px;
+      }
+      .mini-dot {
+        left: 0;
+        width: 7px;
       }
     }
   </style>
@@ -411,43 +434,46 @@
       </div>
     </div>
 
-    <nav class="quick-links" aria-label="Quick navigation">
-      <a class="quick-link" href="index.html">Index</a>
-      <a class="quick-link" href="worldtext-zen-reader.html">Zen Reader</a>
-      <a class="quick-link" href="worldtext-completions-mobile.html">Completions</a>
-      <a class="quick-link" href="worldtext-prompt-operator.html">Operator</a>
-    </nav>
-
-    <div class="controls">
-      <input id="search" class="search" type="text" placeholder="Search completions, prompts, titles">
+    <div class="controls controls-main">
+      <input id="search" class="search" type="text" list="completionNames" placeholder="Search or pick completion title">
+      <datalist id="completionNames"></datalist>
+      <select id="entryJump" class="search" aria-label="Jump to completion"></select>
       <button id="loadDefault" class="btn primary">Load</button>
       <label class="btn">Import<input id="fileInput" type="file" accept=".json,.md,.txt" hidden></label>
     </div>
 
-    <div class="modes">
-      <button class="btn mode active" data-mode="read">Read</button>
-      <button class="btn mode" data-mode="comment">Comment</button>
-      <button class="btn mode" data-mode="tts">TTS</button>
+    <div class="command-bar" aria-label="Command bar">
+      <button id="speakVisible" class="icon-btn" title="Play from cursor (tap a line first)" aria-label="Play from cursor">▶</button>
+      <button id="pauseTTS" class="icon-btn" title="Pause or resume speech" aria-label="Pause or resume speech">‖</button>
+      <button id="stopTTS" class="icon-btn warn" title="Stop speech" aria-label="Stop speech">■</button>
+      <button id="followTTS" class="icon-btn" title="Follow reading scroll" aria-label="Follow reading scroll">F+</button>
+      <button id="copySelectedActive" class="icon-btn" title="Copy selected lines from active completion" aria-label="Copy selected lines from active completion">CS</button>
+      <button id="copyEntryActive" class="icon-btn" title="Copy active completion" aria-label="Copy active completion">CE</button>
+      <button id="clearSelectedActive" class="icon-btn" title="Clear selected lines in active completion" aria-label="Clear selected lines in active completion">CL</button>
+      <button id="exportNoteActive" class="icon-btn" title="Export note for active completion" aria-label="Export note for active completion">N↓</button>
+      <button id="downloadComments" class="icon-btn" title="Export all notes" aria-label="Export all notes">↓</button>
     </div>
-
-    <div class="sub-controls">
-      <button id="expandAll" class="btn">Expand</button>
-      <button id="collapseAll" class="btn">Collapse</button>
-      <button id="downloadComments" class="btn full">Download Comments JSON</button>
+    <div class="command-help">▶ PLAY FROM CURSOR · ‖ PAUSE/RESUME · ■ STOP · F FOLLOW · CS COPY SEL · CE COPY ENTRY · CL CLEAR · N↓ NOTE · ↓ ALL</div>
+    <div class="controls controls-note">
+      <div id="activeEntryLabel" class="speak-status">Active #---</div>
+      <input id="activeNote" class="search" type="text" placeholder="Note for active completion">
+      <button id="saveActiveNote" class="btn">Save Note</button>
     </div>
+    <div id="speakStatus" class="speak-status" aria-live="polite">Idle</div>
   </header>
 
   <main class="shell">
     <section id="list" class="list"></section>
+    <nav class="footer-nav" aria-label="Quick navigation">
+      <a href="index.html">Index</a>
+      <a href="worldtext-zen-reader.html">Zen Reader</a>
+      <a href="worldtext-completions-mobile.html">Completions</a>
+      <a href="worldtext-prompt-operator.html">Operator</a>
+    </nav>
   </main>
 
-  <aside id="stickyTTS" class="sticky-tts" aria-label="TTS controls">
-    <div class="tts-inner">
-      <button id="speakVisible" class="btn primary">Speak Visible</button>
-      <button id="stopTTS" class="btn warn">Stop</button>
-      <select id="voiceSelect" title="Voice"></select>
-      <label class="btn mono" for="rate">Rate <input id="rate" type="range" min="0.7" max="1.4" step="0.05" value="1"></label>
-    </div>
+  <aside id="minimap" class="minimap" aria-label="Entry map">
+    <div id="miniTrack" class="mini-track"></div>
   </aside>
 
   <script>
@@ -464,32 +490,52 @@
       data: null,
       entries: [],
       filtered: [],
-      mode: "read",
       comments: {},
-      voices: [],
       lineSelections: {},
-      autoCopyByEntry: {},
       lineMetaByEntry: {},
+      activeEntryId: null,
+      playAnchor: null,
+      cursor: { entryId: null, lineIndex: 0 },
       reading: { entryId: null, lineIndex: -1 },
-      speaking: { queue: [], cancelled: false },
+      speaking: { queue: [], cancelled: false, paused: false, startLines: {} },
+      followTTS: true,
     };
 
     const el = {
       list: document.getElementById("list"),
       count: document.getElementById("count"),
       search: document.getElementById("search"),
+      entryJump: document.getElementById("entryJump"),
+      completionNames: document.getElementById("completionNames"),
       themeToggle: document.getElementById("themeToggle"),
       loadDefault: document.getElementById("loadDefault"),
       fileInput: document.getElementById("fileInput"),
-      stickyTTS: document.getElementById("stickyTTS"),
-      voiceSelect: document.getElementById("voiceSelect"),
-      rate: document.getElementById("rate"),
       speakVisible: document.getElementById("speakVisible"),
+      pauseTTS: document.getElementById("pauseTTS"),
       stopTTS: document.getElementById("stopTTS"),
+      followTTS: document.getElementById("followTTS"),
+      copySelectedActive: document.getElementById("copySelectedActive"),
+      copyEntryActive: document.getElementById("copyEntryActive"),
+      clearSelectedActive: document.getElementById("clearSelectedActive"),
+      exportNoteActive: document.getElementById("exportNoteActive"),
       downloadComments: document.getElementById("downloadComments"),
-      expandAll: document.getElementById("expandAll"),
-      collapseAll: document.getElementById("collapseAll"),
+      activeEntryLabel: document.getElementById("activeEntryLabel"),
+      activeNote: document.getElementById("activeNote"),
+      saveActiveNote: document.getElementById("saveActiveNote"),
+      speakStatus: document.getElementById("speakStatus"),
+      minimap: document.getElementById("minimap"),
+      miniTrack: document.getElementById("miniTrack"),
     };
+
+    function setSpeakStatus(text) {
+      el.speakStatus.textContent = text || "Idle";
+    }
+
+    function updateStickyOffset() {
+      const h = document.querySelector(".top")?.getBoundingClientRect().height || 120;
+      document.documentElement.style.setProperty("--top-height", `${Math.round(h)}px`);
+      document.documentElement.style.setProperty("--entry-stick-top", `${Math.round(h) + 6}px`);
+    }
 
     function applyTheme(theme) {
       document.body.dataset.theme = theme === "light" ? "light" : "";
@@ -525,6 +571,45 @@
 
     function entryById(entryId) {
       return state.entries.find((e) => e.id === entryId) || null;
+    }
+
+    function activeEntryId() {
+      if (state.cursor.entryId && state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        return state.cursor.entryId;
+      }
+      const vis = findTopVisibleLine();
+      if (vis?.entryId) return vis.entryId;
+      return state.filtered[0]?.id || null;
+    }
+
+    function activeEntry() {
+      const id = activeEntryId();
+      return id ? entryById(id) : null;
+    }
+
+    function updateActiveControls() {
+      const entry = activeEntry();
+      if (!entry) {
+        state.activeEntryId = null;
+        el.activeEntryLabel.textContent = "Active #---";
+        el.activeNote.value = "";
+        return;
+      }
+      const changed = state.activeEntryId !== entry.id;
+      state.activeEntryId = entry.id;
+      el.activeEntryLabel.textContent = `Active #${entry.id} ${entry.title || "Untitled"}`;
+      if (changed) {
+        el.activeNote.value = state.comments?.[entry.id] || "";
+      }
+      el.entryJump.value = entry.id;
+    }
+
+    function renderSearchMenus() {
+      const opts = state.filtered.map((e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(`#${e.id} ${e.title || "Untitled"}`)}</option>`).join("");
+      el.entryJump.innerHTML = opts;
+      const names = state.entries.map((e) => `<option value="${escapeHtml(e.title || "")}"></option>`).join("");
+      el.completionNames.innerHTML = names;
+      updateActiveControls();
     }
 
     function entryLines(entryId) {
@@ -571,31 +656,108 @@
       return out;
     }
 
-    function lineInfoText(entryId) {
-      const count = selectedLines(entryId).length;
-      const readInfo = state.reading.entryId === entryId && state.reading.lineIndex >= 0
-        ? ` · reading line ${state.reading.lineIndex + 1}`
-        : "";
-      return `${count} selected${readInfo} · tap lines to select`;
+    function topBoundary() {
+      const top = document.querySelector(".top");
+      return top ? top.getBoundingClientRect().bottom + 6 : 6;
+    }
+
+    function bottomBoundary() {
+      return window.innerHeight - 18;
+    }
+
+    function keepReadingInView(node) {
+      if (!state.followTTS || !node) return;
+      const r = node.getBoundingClientRect();
+      const top = topBoundary();
+      const bottom = bottomBoundary();
+      if (r.top < top || r.bottom > bottom) {
+        node.scrollIntoView({ block: "nearest", behavior: "auto" });
+      }
+    }
+
+    function findTopVisibleLine() {
+      const lines = Array.from(el.list.querySelectorAll(".completion-line"));
+      if (!lines.length) return null;
+      const top = topBoundary();
+      const bottom = bottomBoundary();
+      let best = null;
+      let bestDist = Number.POSITIVE_INFINITY;
+
+      lines.forEach((node) => {
+        const r = node.getBoundingClientRect();
+        if (r.bottom < top || r.top > bottom) return;
+        const entryId = node.getAttribute("data-entry-id");
+        const lineIndex = Number(node.getAttribute("data-line-index"));
+        const dist = Math.abs(r.top - top);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = { entryId, lineIndex };
+        }
+      });
+      return best;
+    }
+
+    function setCursor(entryId, lineIndex, quiet = false, setAnchor = true) {
+      if (!entryId || !Number.isFinite(lineIndex)) return;
+      const prev = state.cursor;
+      const safeLine = Math.max(0, lineIndex);
+      state.cursor = { entryId, lineIndex: safeLine };
+      if (setAnchor) {
+        state.playAnchor = { entryId, lineIndex: safeLine };
+      }
+      if (prev.entryId && prev.entryId !== entryId) updateEntrySelectionUI(prev.entryId);
+      updateEntrySelectionUI(entryId);
+      syncMinimapState();
+      updateActiveControls();
+      if (!quiet) setSpeakStatus(`Start point #${entryId} L${safeLine + 1}`);
+    }
+
+    function resolveStartLineForEntry(entryId) {
+      if (state.cursor.entryId === entryId) return Math.max(0, state.cursor.lineIndex || 0);
+      const selected = selectedLines(entryId);
+      if (selected.length) return Math.max(0, Math.min(...selected));
+
+      const vis = findTopVisibleLine();
+      if (vis && vis.entryId === entryId) return Math.max(0, vis.lineIndex || 0);
+      return 0;
+    }
+
+    function resolveVisibleStartPoint() {
+      if (state.playAnchor?.entryId && state.filtered.some((e) => e.id === state.playAnchor.entryId)) {
+        const maxLine = Math.max(0, entryLines(state.playAnchor.entryId).length - 1);
+        return {
+          entryId: state.playAnchor.entryId,
+          lineIndex: Math.max(0, Math.min(Number(state.playAnchor.lineIndex || 0), maxLine)),
+        };
+      }
+      if (state.cursor.entryId && state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        return { entryId: state.cursor.entryId, lineIndex: Math.max(0, state.cursor.lineIndex || 0) };
+      }
+      const activeId = activeEntryId();
+      if (activeId && state.filtered.some((e) => e.id === activeId)) {
+        const selected = selectedLines(activeId);
+        if (selected.length) {
+          return { entryId: activeId, lineIndex: Math.max(0, Math.min(...selected)) };
+        }
+      }
+      const vis = findTopVisibleLine();
+      if (vis && state.filtered.some((e) => e.id === vis.entryId)) return vis;
+      const first = state.filtered[0];
+      return first ? { entryId: first.id, lineIndex: 0 } : null;
     }
 
     function completionLinesHtml(entryId) {
       const lines = entryLines(entryId);
       const selected = new Set(selectedLines(entryId));
       const readingLine = state.reading.entryId === entryId ? state.reading.lineIndex : -1;
+      const cursorLine = state.cursor.entryId === entryId ? state.cursor.lineIndex : -1;
       return lines.map((line, i) => `
-        <div class="completion-line${selected.has(i) ? " selected" : ""}${readingLine === i ? " reading" : ""}" data-entry-id="${entryId}" data-line-index="${i}">
+        <div class="completion-line${selected.has(i) ? " selected" : ""}${readingLine === i ? " reading" : ""}${cursorLine === i ? " cursor" : ""}" data-entry-id="${entryId}" data-line-index="${i}">
+          <input class="line-pick" type="checkbox" title="Select line" aria-label="Select line ${i + 1}" data-line-check="${entryId}:${i}" ${selected.has(i) ? "checked" : ""}>
           <span class="line-no">${i + 1}</span>
           <span class="line-txt">${line ? escapeHtml(line) : "&nbsp;"}</span>
         </div>
       `).join("");
-    }
-
-    function selectedText(entryId) {
-      const lines = entryLines(entryId);
-      const idx = [...selectedLines(entryId)].sort((a, b) => a - b);
-      if (!idx.length) return "";
-      return idx.map((i) => lines[i] ?? "").join("\n");
     }
 
     async function copyToClipboard(text) {
@@ -620,19 +782,39 @@
       const selected = new Set(selectedLines(entryId));
       root.querySelectorAll(".completion-line").forEach((node) => {
         const idx = Number(node.getAttribute("data-line-index"));
-        node.classList.toggle("selected", selected.has(idx));
+        const isSelected = selected.has(idx);
+        node.classList.toggle("selected", isSelected);
+        node.classList.toggle("cursor", state.cursor.entryId === entryId && state.cursor.lineIndex === idx);
+        node.classList.toggle("reading", state.reading.entryId === entryId && state.reading.lineIndex === idx);
+        const checkbox = node.querySelector(`[data-line-check="${entryId}:${idx}"]`);
+        if (checkbox instanceof HTMLInputElement) checkbox.checked = isSelected;
       });
-      const info = root.querySelector(`[data-line-info-id="${entryId}"]`);
-      if (info) info.textContent = lineInfoText(entryId);
+    }
+
+    function provenancePrefix(entry, lineLabel) {
+      const source = entry?.link ? ` | source: ${entry.link}` : "";
+      return `[worldtext fragment | #${entry?.id || "?"} | ${entry?.title || "Untitled"} | lines: ${lineLabel}${source}]`;
+    }
+
+    function composeProvenanceFragment(entryId, lineIndexes) {
+      const entry = entryById(entryId);
+      if (!entry || !lineIndexes.length) return "";
+      const lines = entryLines(entryId);
+      const safeIdx = [...lineIndexes].sort((a, b) => a - b).filter((i) => i >= 0 && i < lines.length);
+      if (!safeIdx.length) return "";
+      const lineLabel = safeIdx.map((i) => i + 1).join(",");
+      const text = safeIdx.map((i) => lines[i] ?? "").join("\n");
+      return `${provenancePrefix(entry, lineLabel)}\n${text}\n`;
     }
 
     async function copySelectedLines(entryId, withFeedback = true) {
-      const text = selectedText(entryId);
+      const idx = selectedLines(entryId);
+      const text = composeProvenanceFragment(entryId, idx);
       if (!text) {
         if (withFeedback) alert("No lines selected.");
         return;
       }
-      await copyToClipboard(text + "\n");
+      await copyToClipboard(text);
     }
 
     function splitJsonStream(raw) {
@@ -720,7 +902,6 @@
     }
 
     function rowTemplate(entry) {
-      const comment = state.comments[entry.id] || "";
       return `
         <article class="entry" data-id="${entry.id}">
           <div class="entry-head">
@@ -729,29 +910,7 @@
             <div class="entry-meta">${escapeHtml((entry.response.raw || "").split(/\s+/).length + "w")}</div>
           </div>
           <div class="entry-body">
-            <div class="line-tools">
-              <button class="btn tiny" data-select-all-lines="${entry.id}">Select All</button>
-              <button class="btn tiny" data-clear-lines="${entry.id}">Clear</button>
-              <button class="btn tiny" data-copy-selected="${entry.id}">Copy Selected</button>
-              <label class="auto-copy">
-                <input type="checkbox" data-auto-copy-id="${entry.id}" ${state.autoCopyByEntry[entry.id] ? "checked" : ""}>
-                Auto Copy
-              </label>
-              <div class="line-info" data-line-info-id="${entry.id}">${lineInfoText(entry.id)}</div>
-            </div>
             <div class="completion-lines">${completionLinesHtml(entry.id)}</div>
-            <section class="comment-wrap ${state.mode === "comment" ? "active" : ""}">
-              <textarea data-comment-id="${entry.id}" rows="4" placeholder="Comment on this completion">${escapeHtml(comment)}</textarea>
-              <button class="btn" data-save-comment="${entry.id}">Save Comment</button>
-            </section>
-            <section class="tts-wrap ${state.mode === "tts" ? "active" : ""}">
-              <div class="tts-grid">
-                <button class="btn primary" data-speak-id="${entry.id}">Speak</button>
-                <button class="btn" data-copy-id="${entry.id}">Copy</button>
-                <button class="btn warn" data-stop-id="${entry.id}">Stop</button>
-              </div>
-              <div class="tts-label">Mobile: tap <strong>Speak</strong>. Active line highlights as TTS reads.</div>
-            </section>
           </div>
         </article>
       `;
@@ -766,16 +925,43 @@
         .replace(/'/g, "&#39;");
     }
 
-    function renderList() {
-      el.count.textContent = `${state.filtered.length} entries`;
-      el.list.innerHTML = state.filtered.map(rowTemplate).join("");
-      el.stickyTTS.classList.toggle("active", state.mode === "tts");
+    function renderMinimap() {
+      if (!state.filtered.length) {
+        el.miniTrack.innerHTML = "";
+        el.minimap.style.display = "none";
+        return;
+      }
+      el.minimap.style.display = "flex";
+      const n = state.filtered.length;
+      const html = state.filtered.map((entry, i) => {
+        const topPct = n === 1 ? 1 : (i / (n - 1)) * 100;
+        const hasNote = Boolean((state.comments?.[entry.id] || "").trim());
+        return `<button class="mini-dot${hasNote ? " has-note" : ""}" data-mini-id="${entry.id}" style="top: calc(${topPct}% - 4px)" title="#${entry.id} ${escapeHtml(entry.title || "Untitled")}"></button>`;
+      }).join("");
+      el.miniTrack.innerHTML = html;
+      syncMinimapState();
     }
 
-    function setMode(mode) {
-      state.mode = mode;
-      document.querySelectorAll(".mode").forEach((b) => b.classList.toggle("active", b.dataset.mode === mode));
-      renderList();
+    function syncMinimapState() {
+      el.miniTrack.querySelectorAll(".mini-dot").forEach((dot) => {
+        const id = dot.getAttribute("data-mini-id");
+        dot.classList.toggle("reading", id === state.reading.entryId);
+        dot.classList.toggle("cursor", id === state.cursor.entryId);
+      });
+    }
+
+    function renderList() {
+      if (state.cursor.entryId && !state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        state.cursor = { entryId: null, lineIndex: 0 };
+      }
+      if (state.reading.entryId && !state.filtered.some((e) => e.id === state.reading.entryId)) {
+        state.reading = { entryId: null, lineIndex: -1 };
+      }
+      el.count.textContent = `${state.filtered.length} entries`;
+      el.list.innerHTML = state.filtered.map(rowTemplate).join("");
+      renderMinimap();
+      renderSearchMenus();
+      updateStickyOffset();
     }
 
     async function loadJsonCandidates(paths) {
@@ -803,9 +989,10 @@
       }));
       state.lineMetaByEntry = {};
       state.lineSelections = {};
-      state.autoCopyByEntry = {};
+      state.playAnchor = null;
+      state.cursor = { entryId: null, lineIndex: 0 };
       state.reading = { entryId: null, lineIndex: -1 };
-      state.speaking = { queue: [], cancelled: false };
+      state.speaking = { queue: [], cancelled: false, paused: false, startLines: {} };
       applyFilter();
     }
 
@@ -825,20 +1012,16 @@
           }
           state.lineMetaByEntry = {};
           state.lineSelections = {};
-          state.autoCopyByEntry = {};
+          state.playAnchor = null;
+          state.cursor = { entryId: null, lineIndex: 0 };
           state.reading = { entryId: null, lineIndex: -1 };
-          state.speaking = { queue: [], cancelled: false };
+          state.speaking = { queue: [], cancelled: false, paused: false, startLines: {} };
           applyFilter();
         } catch (err) {
           alert("Import failed: " + err.message);
         }
       };
       reader.readAsText(file);
-    }
-
-    function getVoice() {
-      const idx = Number(el.voiceSelect.value);
-      return state.voices[idx] || null;
     }
 
     function setReadingLine(entryId, lineIndex) {
@@ -853,12 +1036,17 @@
       }
 
       state.reading = { entryId, lineIndex };
+      setCursor(entryId, lineIndex, true, false);
       const node = el.list.querySelector(`.completion-line[data-entry-id="${entryId}"][data-line-index="${lineIndex}"]`);
       if (node) {
         node.classList.add("reading");
-        node.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        keepReadingInView(node);
       }
+      const lines = entryLines(entryId);
+      const snippet = (lines[lineIndex] || "").replace(/\s+/g, " ").trim().slice(0, 96);
+      setSpeakStatus(`#${entryId} L${lineIndex + 1}${snippet ? ` · ${snippet}` : ""}`);
       updateEntrySelectionUI(entryId);
+      syncMinimapState();
     }
 
     function clearReadingLine() {
@@ -870,61 +1058,87 @@
         updateEntrySelectionUI(prevEntryId);
       }
       state.reading = { entryId: null, lineIndex: -1 };
+      if (!state.speaking.queue.length) setSpeakStatus("Idle");
+      syncMinimapState();
     }
 
     function stopTTSPlayback() {
+      if (state.reading.entryId && Number.isFinite(state.reading.lineIndex) && state.reading.lineIndex >= 0) {
+        state.playAnchor = { entryId: state.reading.entryId, lineIndex: state.reading.lineIndex };
+      }
       state.speaking.cancelled = true;
       state.speaking.queue = [];
+      state.speaking.paused = false;
+      state.speaking.startLines = {};
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       clearReadingLine();
+      setSpeakStatus("Stopped");
     }
 
-    function speakEntry(entry, onDone) {
+    function pauseResumeTTS() {
+      if (!("speechSynthesis" in window)) return;
+      const synth = window.speechSynthesis;
+      if (synth.paused) {
+        synth.resume();
+        state.speaking.paused = false;
+        setSpeakStatus("Resumed");
+        return;
+      }
+      if (synth.speaking) {
+        synth.pause();
+        state.speaking.paused = true;
+        setSpeakStatus("Paused");
+      }
+    }
+
+    function speakEntry(entry, onDone, startLine = 0) {
       if (!("speechSynthesis" in window)) {
         alert("TTS is not supported in this browser.");
         return;
       }
       window.speechSynthesis.cancel();
-      const text = entry?.response?.raw || "";
       const entryId = entry?.id;
-      if (!text.trim() || !entryId) {
+      const lines = entryLines(entryId);
+      const safeStart = Math.max(0, Math.min(startLine, Math.max(0, lines.length - 1)));
+      const spokenText = lines.slice(safeStart).join("\n");
+      if (!spokenText.trim() || !entryId) {
         if (onDone) onDone();
         return;
       }
 
-      setReadingLine(entryId, 0);
-      const utter = new SpeechSynthesisUtterance(text);
-      const v = getVoice();
-      if (v) utter.voice = v;
-      utter.rate = Number(el.rate.value || 1);
+      const baseStartChar = getLineMeta(entryId).starts[safeStart] || 0;
+      setSpeakStatus(`#${entryId} · starting L${safeStart + 1}`);
+      setReadingLine(entryId, safeStart);
+      const utter = new SpeechSynthesisUtterance(spokenText);
+      utter.rate = 1;
       utter.pitch = 1;
 
       utter.onboundary = (ev) => {
         if (typeof ev.charIndex !== "number") return;
-        const line = charIndexToLine(entryId, ev.charIndex);
+        const line = charIndexToLine(entryId, baseStartChar + ev.charIndex);
         setReadingLine(entryId, line);
       };
 
       utter.onend = () => {
         if (state.speaking.cancelled) return;
+        state.speaking.paused = false;
         if (onDone) onDone();
-        else clearReadingLine();
+        else {
+          clearReadingLine();
+          setSpeakStatus("Idle");
+        }
       };
 
       utter.onerror = () => {
+        state.speaking.paused = false;
         if (onDone) onDone();
-        else clearReadingLine();
+        else {
+          clearReadingLine();
+          setSpeakStatus("Error");
+        }
       };
 
       window.speechSynthesis.speak(utter);
-    }
-
-    function speakSingle(entryId) {
-      const entry = entryById(entryId);
-      if (!entry) return;
-      state.speaking.cancelled = false;
-      state.speaking.queue = [];
-      speakEntry(entry);
     }
 
     function speakNextFromQueue() {
@@ -932,6 +1146,7 @@
       const nextId = state.speaking.queue.shift();
       if (!nextId) {
         clearReadingLine();
+        setSpeakStatus("Done");
         return;
       }
       const entry = entryById(nextId);
@@ -939,37 +1154,122 @@
         speakNextFromQueue();
         return;
       }
-      speakEntry(entry, speakNextFromQueue);
+      const startLine = Number(state.speaking.startLines[nextId] || 0);
+      speakEntry(entry, speakNextFromQueue, startLine);
     }
 
     function speakVisible() {
       if (!state.filtered.length) return;
+      if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        state.speaking.paused = false;
+        setSpeakStatus("Resumed");
+        return;
+      }
+      const start = resolveVisibleStartPoint();
+      if (!start) return;
+      const startEntryIndex = state.filtered.findIndex((e) => e.id === start.entryId);
+      const safeStartEntry = startEntryIndex >= 0 ? startEntryIndex : 0;
       state.speaking.cancelled = false;
-      state.speaking.queue = state.filtered.map((e) => e.id);
+      state.speaking.paused = false;
+      state.speaking.queue = state.filtered.slice(safeStartEntry).map((e) => e.id);
+      state.speaking.startLines = {};
+      if (state.speaking.queue.length) {
+        state.speaking.startLines[state.speaking.queue[0]] = Math.max(0, start.lineIndex || 0);
+      }
+      setSpeakStatus(`Queue ${state.speaking.queue.length} from #${start.entryId} L${(start.lineIndex || 0) + 1}`);
       speakNextFromQueue();
     }
 
-    function fillVoices() {
-      if (!("speechSynthesis" in window)) return;
-      const voices = window.speechSynthesis.getVoices() || [];
-      state.voices = voices;
-      el.voiceSelect.innerHTML = voices
-        .map((v, i) => `<option value="${i}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`)
-        .join("");
-    }
-
-    function downloadComments() {
-      const blob = new Blob([JSON.stringify(state.comments, null, 2)], { type: "application/json" });
+    function downloadBlob(filename, content, mime = "application/json") {
+      const blob = new Blob([content], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "worldtext-comments.json";
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
     }
 
+    function downloadComments() {
+      const payload = {
+        exported_at: new Date().toISOString(),
+        count: Object.keys(state.comments || {}).length,
+        notes: state.comments || {}
+      };
+      downloadBlob("worldtext-comments-all.json", JSON.stringify(payload, null, 2));
+    }
+
+    function exportSingleNote(entryId) {
+      const entry = entryById(entryId);
+      if (!entry) return;
+      const note = state.comments?.[entryId] || "";
+      const payload = {
+        exported_at: new Date().toISOString(),
+        id: entry.id,
+        title: entry.title || "Untitled",
+        link: entry.link || "",
+        note,
+        selected_lines: [...selectedLines(entryId)].sort((a, b) => a - b).map((i) => i + 1)
+      };
+      downloadBlob(`worldtext-note-${entryId}.json`, JSON.stringify(payload, null, 2));
+    }
+
+    function saveActiveNote() {
+      const id = activeEntryId();
+      if (!id) return;
+      state.comments[id] = el.activeNote.value || "";
+      saveComments();
+      setSpeakStatus(`Note saved #${id}`);
+      renderMinimap();
+      updateActiveControls();
+    }
+
+    function clearActiveSelection() {
+      const id = activeEntryId();
+      if (!id) return;
+      state.lineSelections[id] = [];
+      updateEntrySelectionUI(id);
+      setSpeakStatus(`Cleared #${id}`);
+    }
+
+    function copyActiveEntry() {
+      const id = activeEntryId();
+      if (!id) return;
+      const row = entryById(id);
+      if (!row) return;
+      copyToClipboard(`${provenancePrefix(row, "all")}\n${row.response.raw || ""}\n`).catch(() => {});
+      setSpeakStatus(`Copied entry #${id}`);
+    }
+
+    function copyActiveSelected() {
+      const id = activeEntryId();
+      if (!id) return;
+      copySelectedLines(id, true).catch(() => {
+        alert("Copy failed.");
+      });
+      setSpeakStatus(`Copied selection #${id}`);
+    }
+
+    function jumpToEntry(id) {
+      if (!id) return;
+      const card = el.list.querySelector(`article[data-id="${id}"]`);
+      if (!card) return;
+      card.scrollIntoView({ block: "start", behavior: "smooth" });
+      setCursor(id, 0, false);
+      updateActiveControls();
+    }
+
     function bindEvents() {
       el.search.addEventListener("input", applyFilter);
+      el.search.addEventListener("change", () => {
+        const q = (el.search.value || "").trim().toLowerCase();
+        if (!q) return;
+        const hit = state.entries.find((e) => (e.title || "").toLowerCase() === q || String(e.id) === q.replace(/^#/, ""));
+        if (hit) {
+          jumpToEntry(hit.id);
+        }
+      });
       el.themeToggle.addEventListener("click", () => {
         const next = document.body.dataset.theme === "light" ? "dark" : "light";
         applyTheme(next);
@@ -980,107 +1280,90 @@
         if (f) handleImport(f);
         e.target.value = "";
       });
-
-      document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+      el.entryJump.addEventListener("change", () => jumpToEntry(el.entryJump.value));
+      el.activeNote.addEventListener("change", saveActiveNote);
+      el.activeNote.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          saveActiveNote();
+        }
+      });
+      el.saveActiveNote.addEventListener("click", saveActiveNote);
 
       el.list.addEventListener("click", (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
 
         const lineNode = t.closest(".completion-line");
+
+        if (t.closest("[data-line-check]")) {
+          return;
+        }
+
         if (lineNode) {
           const entryId = lineNode.getAttribute("data-entry-id");
           const lineIndex = Number(lineNode.getAttribute("data-line-index"));
+          setCursor(entryId, lineIndex);
           const sel = new Set(selectedLines(entryId));
           if (sel.has(lineIndex)) sel.delete(lineIndex);
           else sel.add(lineIndex);
           state.lineSelections[entryId] = [...sel].sort((a, b) => a - b);
           updateEntrySelectionUI(entryId);
-          if (state.autoCopyByEntry[entryId]) {
-            copySelectedLines(entryId, false).catch(() => {});
-          }
           return;
-        }
-
-        const selectAllId = t.getAttribute("data-select-all-lines");
-        const clearLinesId = t.getAttribute("data-clear-lines");
-        const copySelectedId = t.getAttribute("data-copy-selected");
-        const speakId = t.getAttribute("data-speak-id");
-        const stopId = t.getAttribute("data-stop-id");
-        const copyId = t.getAttribute("data-copy-id");
-        const saveCommentId = t.getAttribute("data-save-comment");
-
-        if (selectAllId) {
-          state.lineSelections[selectAllId] = entryLines(selectAllId).map((_, i) => i);
-          updateEntrySelectionUI(selectAllId);
-          if (state.autoCopyByEntry[selectAllId]) {
-            copySelectedLines(selectAllId, false).catch(() => {});
-          }
-        }
-
-        if (clearLinesId) {
-          state.lineSelections[clearLinesId] = [];
-          updateEntrySelectionUI(clearLinesId);
-        }
-
-        if (copySelectedId) {
-          copySelectedLines(copySelectedId, true).catch(() => {
-            alert("Copy failed.");
-          });
-        }
-
-        if (speakId) {
-          speakSingle(speakId);
-        }
-
-        if (stopId) {
-          stopTTSPlayback();
-        }
-
-        if (copyId) {
-          const row = entryById(copyId);
-          if (row) copyToClipboard(row.response.raw || "").catch(() => {});
-        }
-
-        if (saveCommentId) {
-          const area = el.list.querySelector(`textarea[data-comment-id=\"${saveCommentId}\"]`);
-          state.comments[saveCommentId] = area ? area.value : "";
-          saveComments();
         }
       });
 
       el.list.addEventListener("change", (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
-        const autoCopyId = t.getAttribute("data-auto-copy-id");
-        if (!autoCopyId) return;
-        if (t instanceof HTMLInputElement) {
-          state.autoCopyByEntry[autoCopyId] = !!t.checked;
-          updateEntrySelectionUI(autoCopyId);
-        }
+        const lineCheck = t.getAttribute("data-line-check");
+        if (!lineCheck) return;
+        if (!(t instanceof HTMLInputElement)) return;
+        const [entryId, idx] = String(lineCheck).split(":");
+        const lineIndex = Number(idx);
+        setCursor(entryId, lineIndex);
+        const sel = new Set(selectedLines(entryId));
+        if (t.checked) sel.add(lineIndex);
+        else sel.delete(lineIndex);
+        state.lineSelections[entryId] = [...sel].sort((a, b) => a - b);
+        updateEntrySelectionUI(entryId);
       });
 
       el.speakVisible.addEventListener("click", speakVisible);
+      el.pauseTTS.addEventListener("click", pauseResumeTTS);
       el.stopTTS.addEventListener("click", stopTTSPlayback);
+      el.followTTS.addEventListener("click", () => {
+        state.followTTS = !state.followTTS;
+        el.followTTS.textContent = state.followTTS ? "F+" : "F-";
+        setSpeakStatus(state.followTTS ? "Follow On" : "Follow Off");
+      });
+      el.copySelectedActive.addEventListener("click", copyActiveSelected);
+      el.copyEntryActive.addEventListener("click", copyActiveEntry);
+      el.clearSelectedActive.addEventListener("click", clearActiveSelection);
+      el.exportNoteActive.addEventListener("click", () => {
+        const id = activeEntryId();
+        if (!id) return;
+        exportSingleNote(id);
+      });
       el.downloadComments.addEventListener("click", downloadComments);
 
-      el.expandAll.addEventListener("click", () => {
-        document.querySelectorAll(".completion-lines").forEach((x) => x.style.maxHeight = "none");
-      });
-      el.collapseAll.addEventListener("click", () => {
-        document.querySelectorAll(".completion-lines").forEach((x) => x.style.maxHeight = "240px");
+      el.miniTrack.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const id = t.getAttribute("data-mini-id");
+        if (!id) return;
+        jumpToEntry(id);
       });
 
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.onvoiceschanged = fillVoices;
-      }
+      window.addEventListener("resize", () => updateStickyOffset());
     }
 
     function boot() {
       loadTheme();
       loadComments();
       bindEvents();
-      fillVoices();
+      updateStickyOffset();
+      setSpeakStatus("Idle");
       loadDefault().catch(() => {
         el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">WORLD-TEXT-DOUBLE.parsed.json</span> (or import a file).</p></div></article>`;
       });
