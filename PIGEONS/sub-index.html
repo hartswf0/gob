@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORCON Manuscript Review Sub-Index</title>
+  <style>
+    :root {
+      --bg: #f4f6fb; --panel: #ffffff; --ink: #17212b; --muted: #5a6776; --line: #d8dee8;
+      --accent: #2346d8; --shadow: 0 10px 24px rgba(19, 30, 48, 0.08); --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .app { display:grid; grid-template-columns:340px 1fr; min-height:100vh; }
+    .sidebar { border-right:1px solid var(--line); background:#eef2f8; padding:16px; position:sticky; top:0; height:100vh; overflow:auto; }
+    .main { padding:16px; overflow:auto; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .stack > * + * { margin-top:12px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; margin-bottom:12px; }
+    .titleBlock h1 { margin:0; font-size:18px; line-height:1.2; }
+    .titleBlock p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+    .real-links { display:flex; gap:8px; flex-wrap:wrap; }
+    .pill-link { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 10px; font-size:12px; }
+    .controls { padding:12px; }
+    .controls label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .controls input,.controls select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+    .controls .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .list { padding:8px; }
+    .file-item { display:block; width:100%; text-align:left; background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; cursor:pointer; margin-bottom:8px; }
+    .file-item.active { border-color:var(--accent); box-shadow:0 0 0 2px rgba(35,70,216,.15); }
+    .file-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .file-name { font-size:13px; font-weight:700; line-height:1.2; }
+    .score { font-weight:700; font-size:12px; padding:4px 8px; border-radius:999px; background:#edf2ff; color:#213fbe; border:1px solid #cfd8ff; white-space:nowrap; }
+    .meta-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+    .tag { font-size:11px; border-radius:999px; padding:3px 8px; border:1px solid var(--line); background:#f8fafc; color:var(--muted); }
+    .status-tag { color:#fff; border:none; }
+    .summary-line { margin-top:6px; font-size:11px; color:var(--muted); line-height:1.35; }
+    .doc-header { padding:16px; }
+    .doc-header h2 { margin:0 0 6px; font-size:20px; line-height:1.25; }
+    .doc-header .subtitle { color:var(--muted); font-size:13px; margin-bottom:10px; }
+    .doc-meta-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+    .metric { border:1px solid var(--line); border-radius:10px; padding:8px; background:#fafcff; }
+    .metric .k { font-size:11px; color:var(--muted); }
+    .metric .v { font-weight:700; font-size:13px; margin-top:2px; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 16px; }
+    .btn { border:1px solid var(--line); background:#fff; color:var(--ink); padding:9px 12px; border-radius:10px; cursor:pointer; font-weight:600; font-size:12px; }
+    .btn:hover { border-color:#b9c6db; }
+    .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr); gap:12px; margin-top:12px; }
+    .viewer,.review { min-height:620px; display:flex; flex-direction:column; }
+    .tabs { display:flex; border-bottom:1px solid var(--line); padding:8px 8px 0; gap:6px; }
+    .tab { border:1px solid var(--line); border-bottom:none; background:#f7f9fd; padding:8px 10px; border-radius:10px 10px 0 0; cursor:pointer; font-size:12px; color:var(--muted); }
+    .tab.active { background:#fff; color:var(--ink); font-weight:700; }
+    .pane { padding:14px; overflow:auto; flex:1; }
+    .hidden { display:none !important; }
+    .render-root { max-width:900px; margin:0 auto; }
+    .paper-title { font-size:26px; line-height:1.2; margin:0 0 6px; font-weight:800; }
+    .paper-meta { color:var(--muted); font-size:13px; margin-bottom:12px; }
+    .abstract { border:1px solid var(--line); background:#fafcff; border-radius:12px; padding:12px 14px; margin-bottom:14px; }
+    .abstract h3 { margin:0 0 8px; font-size:13px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); }
+    .render-root h2 { font-size:22px; margin:18px 0 8px; border-top:1px solid #ecf0f6; padding-top:14px; }
+    .render-root h3 { font-size:18px; margin:14px 0 6px; }
+    .render-root h4 { font-size:15px; margin:12px 0 4px; color:#273243; }
+    .render-root p { margin:8px 0; line-height:1.6; }
+    .render-root ul,.render-root ol { margin:8px 0 8px 20px; line-height:1.55; }
+    .render-root li { margin:4px 0; }
+    .cite { color:#5b2bbf; font-size:.95em; white-space:nowrap; }
+    .latex-block { border:1px dashed var(--line); background:#fafbfd; border-radius:10px; padding:10px; margin:8px 0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; white-space:pre-wrap; color:#49566a; }
+    .bibliography { border-top:1px solid var(--line); margin-top:16px; padding-top:12px; }
+    .source-pre { margin:0; background:#0f1720; color:#d7e1ee; border-radius:12px; border:1px solid #223247; padding:12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; line-height:1.45; overflow:auto; }
+    .line { display:block; white-space:pre; }
+    .ln { display:inline-block; width:46px; color:#7f93ab; user-select:none; }
+    .review-head { padding:14px 14px 0; }
+    .review-head h3 { margin:0; font-size:15px; }
+    .review-head p { margin:4px 0 0; font-size:12px; color:var(--muted); }
+    .review-scroll { padding:14px; overflow:auto; flex:1; }
+    .review-scroll section { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; margin-bottom:10px; }
+    .review-scroll h4 { margin:0 0 8px; font-size:13px; }
+    .review-scroll ul { margin:0 0 0 18px; padding:0; line-height:1.45; }
+    .review-scroll li { margin:5px 0; font-size:13px; }
+    .review-scroll p { margin:0; font-size:13px; line-height:1.5; }
+    .scorebar { height:10px; border-radius:999px; background:#edf1f7; overflow:hidden; border:1px solid var(--line); }
+    .scorefill { height:100%; background:linear-gradient(90deg,#b42318 0%,#e67e22 45%,#2f6fed 70%,#1f7a4f 100%); }
+    .warning-list { color:#8c2017; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .kicker { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+    .toast { position:fixed; right:14px; bottom:14px; background:#17212b; color:#fff; border-radius:10px; padding:10px 12px; font-size:12px; box-shadow:var(--shadow); opacity:0; transform:translateY(8px); transition:.15s; pointer-events:none; z-index:1000; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:1200px){ .doc-meta-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+    @media (max-width:980px){ .app{grid-template-columns:1fr;} .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);} .workspace{grid-template-columns:1fr;} .doc-meta-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media (max-width:600px){ .doc-meta-grid{grid-template-columns:1fr 1fr;} .btn{width:calc(50% - 4px);} }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="card topbar"><div class="titleBlock"><h1>ORCON Sub-Index</h1><p>Embedded review workspace for all PIGEONS/*.tex variants.</p></div></div>
+    <div class="card controls stack">
+      <div><label for="searchInput">Search files / notes</label><input id="searchInput" type="search" placeholder="v7, audit, RLHF, broken citations…"></div>
+      <div class="grid2">
+        <div><label for="statusFilter">Status</label><select id="statusFilter"><option value="all">All</option></select></div>
+        <div><label for="sortMode">Sort</label><select id="sortMode"><option value="score_desc">Score ↓</option><option value="score_asc">Score ↑</option><option value="name_asc">Name A→Z</option><option value="name_desc">Name Z→A</option><option value="lines_desc">Lines ↓</option><option value="lines_asc">Lines ↑</option></select></div>
+      </div>
+      <div class="grid2">
+        <div><label for="flagFilter">Flags</label><select id="flagFilter"><option value="all">All</option><option value="integrity">Integrity flags only</option><option value="ready">Primary / strong / compact</option></select></div>
+        <div><label>&nbsp;</label><button id="copyPortfolioTriage" class="btn" style="width:100%">Copy Triage Table</button></div>
+      </div>
+    </div>
+    <div class="card list" id="fileList"></div>
+  </aside>
+  <main class="main">
+    <div class="card topbar">
+      <div class="titleBlock"><h1>Review + Reader Tool</h1><p>Read each LaTeX file as HTML, inspect source, compare metadata, export/copy notes.</p></div>
+      <div class="real-links" id="realHtmlLinks"></div>
+    </div>
+    <section class="card" id="docHeaderCard">
+      <div class="doc-header">
+        <h2 id="docTitle">Select a manuscript</h2>
+        <div class="subtitle" id="docSubtitle">-</div>
+        <div class="meta-row" id="docTags"></div>
+        <div class="doc-meta-grid" id="docMetaGrid"></div>
+      </div>
+      <div class="actions" id="docActions">
+        <button class="btn primary" id="copyNotesBtn">Copy Notes</button>
+        <button class="btn" id="copyLatexBtn">Copy LaTeX</button>
+        <button class="btn" id="copyPacketBtn">Copy Review Packet</button>
+        <button class="btn" id="downloadTexBtn">Download .tex</button>
+        <button class="btn" id="exportHtmlBtn">Export HTML Preview</button>
+        <button class="btn" id="downloadJsonBtn">Save JSON Packet</button>
+        <button class="btn" id="printBtn">Print</button>
+      </div>
+    </section>
+    <section class="workspace">
+      <article class="card viewer">
+        <div class="tabs">
+          <button class="tab active" data-tab="rendered">Rendered HTML</button>
+          <button class="tab" data-tab="source">LaTeX Source</button>
+          <button class="tab" data-tab="outline">Outline</button>
+        </div>
+        <div class="pane" id="paneRendered"></div>
+        <div class="pane hidden" id="paneSource"></div>
+        <div class="pane hidden" id="paneOutline"></div>
+      </article>
+      <aside class="card review">
+        <div class="review-head"><h3>Guardian Review Notes</h3><p>Portfolio triage score + file-specific recommendations and risks.</p></div>
+        <div class="review-scroll" id="reviewPane"></div>
+      </aside>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="sub-index.js"></script>
+</body>
+</html>

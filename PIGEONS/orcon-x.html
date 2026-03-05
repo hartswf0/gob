@@ -1,0 +1,1325 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Treating Workers Like Guided Missile Pigeons: Cybernetics, Behaviorism, and Symbolic Systems of Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tiempos+Headline:wght@400;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #475569;
+            --accent: #dc2626;
+            --neutral: #f8fafc;
+            --base-100: #ffffff;
+        }
+        
+        .font-display { font-family: 'Tiempos Headline', serif; }
+        .font-body { font-family: 'Inter', sans-serif; }
+        
+        .toc-fixed {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            width: 280px;
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+            z-index: 50;
+            background: rgba(248, 250, 252, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 320px;
+            padding: 2rem;
+        }
+        
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-title {
+            grid-column: 1 / -1;
+            position: relative;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .hero-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="20" cy="20" r="2" fill="url(%23a)"/><circle cx="80" cy="40" r="1.5" fill="url(%23a)"/><circle cx="40" cy="80" r="1" fill="url(%23a)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
+        .hero-visual {
+            position: relative;
+            background: #f1f5f9;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 200px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            margin: 4rem 0;
+        }
+        
+        .pull-quote {
+            border-left: 4px solid var(--accent);
+            padding-left: 2rem;
+            margin: 2rem 0;
+            font-style: italic;
+            font-size: 1.125rem;
+            color: var(--secondary);
+        }
+        
+        .citation-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .citation-link:hover {
+            color: #991b1b;
+            text-decoration: underline;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .bento-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mermaid diagram styling */
+        .mermaid-container {
+            display: flex;
+            justify-content: center;
+            min-height: 300px;
+            max-height: 800px;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mermaid-container .mermaid {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none; /* 防止触摸设备上的默认行为 */
+            -webkit-user-select: none; /* 防止文本选择 */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .mermaid-container .mermaid svg {
+            max-width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .mermaid-container .mermaid:active {
+            cursor: grabbing;
+        }
+
+        .mermaid-container.zoomed .mermaid {
+            height: 100%;
+            width: 100%;
+            cursor: grab;
+        }
+
+        .mermaid-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mermaid-control-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #374151;
+            font-size: 14px;
+            min-width: 36px;
+            height: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mermaid-control-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .mermaid-control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 1024px) {
+            .toc-fixed {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .mermaid-control-btn:not(.reset-zoom) {
+                display: none;
+            }
+            .mermaid-controls {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-grid img {
+                height: auto;
+                max-height: 200px;
+            }
+            
+            .hero-title h1 {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+            
+            .hero-title p {
+                font-size: 1rem;
+            }
+            
+            .hero-title {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+  <base target="_blank">
+</head>
+
+  <body class="bg-slate-50 font-body">
+    <!-- Fixed Table of Contents -->
+    <nav class="toc-fixed">
+      <h3 class="font-display text-lg font-bold text-slate-800 mb-4">Contents</h3>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <a href="#executive-summary" class="citation-link hover:text-red-700">Executive Summary</a>
+        </li>
+        <li>
+          <a href="#introduction" class="citation-link hover:text-red-700">Introduction</a>
+        </li>
+        <li>
+          <a href="#project-pigeon" class="citation-link hover:text-red-700">1. Project Pigeon</a>
+        </li>
+        <li>
+          <a href="#behaviorism" class="citation-link hover:text-red-700">2. Behaviorism</a>
+        </li>
+        <li>
+          <a href="#cybernetics" class="citation-link hover:text-red-700">3. Cybernetics</a>
+        </li>
+        <li>
+          <a href="#symbolic-systems" class="citation-link hover:text-red-700">4. Symbolic Systems</a>
+        </li>
+        <li>
+          <a href="#scientific-management" class="citation-link hover:text-red-700">5. Scientific Management</a>
+        </li>
+        <li>
+          <a href="#critical-perspectives" class="citation-link hover:text-red-700">6. Critical Perspectives</a>
+        </li>
+        <li>
+          <a href="#conclusion" class="citation-link hover:text-red-700">Conclusion</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero-grid">
+        <div class="hero-title">
+          <h1 class="font-display text-4xl font-bold mb-4 relative z-10">Treating Workers Like Guided Missile Pigeons</h1>
+          <p class="text-xl opacity-90 relative z-10">Cybernetics, Behaviorism, and Symbolic Systems of Control</p>
+        </div>
+
+        <div class="hero-visual">
+          <img src="https://kimi-web-img.moonshot.cn/img/ids.si.edu/8994b8b1dee0805557f16152e2e5254cbea8cfcb" alt="B.F. Skinner&#39;s pigeon-guided missile apparatus" class="w-full h-full object-cover" size="medium" aspect="wide" style="photo" query="B.F. Skinner pigeon missile experiment" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <p class="text-sm font-medium">Project Pigeon (1943-1953)</p>
+            <p class="text-xs opacity-80">B.F. Skinner&#39;s biological missile guidance system</p>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <img src="https://kimi-web-img.moonshot.cn/img/preview.qiantucdn.com/c47b0bea93559a0174a0df98d2acd563107b2608.jpg!qt_w320_webp" alt="Modern workplace surveillance system" class="w-full h-full object-cover" size="medium" aspect="wide" style="photo" query="workplace surveillance system" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <p class="text-sm font-medium">Algorithmic Management</p>
+            <p class="text-xs opacity-80">Contemporary behavioral control systems</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executive Summary -->
+      <section id="executive-summary" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">Executive Summary</h2>
+        <div class="bento-card">
+          <p class="text-lg leading-relaxed mb-4">
+            The &#34;guided missile pigeon&#34; metaphor, drawn from B.F. Skinner&#39;s WWII-era attempt to train pigeons to steer missiles, illuminates how contemporary organizations treat workers as behaviorally conditioned components in technical systems. This analysis traces the historical convergence of behaviorism and cybernetics, examining how their shared logic of feedback-controlled behavior shapes modern management through algorithmic surveillance, performance metrics, and cultural control.
+          </p>
+          <div class="grid md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <h3 class="font-semibold text-slate-800 mb-2">Key Insights</h3>
+              <ul class="space-y-2 text-sm text-slate-600">
+                <li>• Project Pigeon established precedent for reducing organisms to functional components</li>
+                <li>• Behaviorism&#39;s &#34;black box&#34; model parallels cybernetic feedback systems</li>
+                <li>• Symbolic control internalizes organizational values as self-surveillance</li>
+                <li>• Algorithmic management intensifies Taylorist principles with digital precision</li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-800 mb-2">Critical Implications</h3>
+              <ul class="space-y-2 text-sm text-slate-600">
+                <li>• Worker autonomy systematically eliminated through &#34;human-centered&#34; rhetoric</li>
+                <li>• Performance metrics create self-destructive behavioral optimization</li>
+                <li>• Democratic alternatives require reimagining organizational cybernetics</li>
+                <li>• Cross-species analogies reveal ethical blind spots in management theory</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Introduction -->
+      <section id="introduction" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">Introduction</h2>
+        <div class="prose prose-slate max-w-none">
+          <p class="text-lg leading-relaxed mb-6">
+            In 1943, behavioral psychologist B.F. Skinner embarked on one of the most audacious military research programs of World War II: <strong>Project Pigeon</strong>, an attempt to create biological missile guidance systems using operantly conditioned birds <a href="#ref-238" class="citation-link">[238]</a>. This project, though ultimately cancelled, established a profound metaphor for understanding contemporary workplace control systems—what Ana Teixeira Pinto calls <strong>&#34;the pigeon in the machine&#34;</strong>
+            <a href="#ref-253" class="citation-link">[253]</a>.
+          </p>
+
+          <div class="pull-quote">
+            &#34;The pigeon was placed in the machine and remained there until the mission was completed (and the bird dead).&#34;
+          </div>
+
+          <p>
+            The metaphor&#39;s power lies in making visible what normalized management practices obscure: the structural violence inherent in treating organisms as functional components, with their agency systematically redirected toward external purposes they neither comprehend nor share. This article traces how the convergence of behaviorism and cybernetics has produced sophisticated systems of worker control that combine algorithmic surveillance, performance metrics, and symbolic cultural engineering.
+          </p>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 1: Project Pigeon -->
+      <section id="project-pigeon" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">1. The Guided Missile Pigeon Metaphor</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">1.1 Project Pigeon: A Historical Precedent</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Skinner&#39;s observation of pigeons &#34;lifting and wheeling in formation&#34; from a train window led him to reconceptualize these birds not as living creatures but as <strong>&#34;&#39;devices&#39; with excellent vision and extraordinary maneuverability&#34;</strong>
+            <a href="#ref-283" class="citation-link">[283]</a>. The National Defense Research Committee provided $25,000 in 1943 after successful early demonstrations <a href="#ref-238" class="citation-link">[238]</a>.
+          </p>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Project Pigeon Development Timeline</h4>
+            <div class="relative overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3">Year</th>
+                    <th class="px-4 py-3">Milestone</th>
+                    <th class="px-4 py-3">Outcome</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">1943</td>
+                    <td class="px-4 py-3">Initial funding from NDRC</td>
+                    <td class="px-4 py-3">$25,000 grant for research</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">1944</td>
+                    <td class="px-4 py-3">Successful demonstrations</td>
+                    <td class="px-4 py-3">Military officials react with &#34;laughter and disbelief&#34;</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">1948</td>
+                    <td class="px-4 py-3">Revival as Project Orcon</td>
+                    <td class="px-4 py-3">55.3% success rates in simulated tests at 400 mph</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3 font-medium">1953</td>
+                    <td class="px-4 py-3">Final termination</td>
+                    <td class="px-4 py-3">Electronic guidance systems mature</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="bg-slate-100 p-6 rounded-lg mb-6">
+            <h4 class="font-semibold mb-3">Technical Architecture</h4>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <h5 class="font-medium mb-2">Sensor System</h5>
+                <p>Pigeon&#39;s visual system as image acquisition hardware</p>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Processing Unit</h5>
+                <p>Conditioned pecking response as signal generation</p>
+              </div>
+              <div>
+                <h5 class="font-medium mb-2">Control Interface</h5>
+                <p>Pneumatic pickup systems linked to control fins</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">1.2 From Pigeons to Workers</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            The metaphor operates through structural homology rather than simple equation. It illuminates how contemporary management practices reproduce the same fundamental operations Skinner applied to his pigeons: <strong>behavioral reduction, environmental constraint, motivational manipulation, and systemic integration</strong>.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Behavioral Reduction Mechanisms</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Performance metrics:</strong> Sales targets, call handling rates</li>
+                <li>• <strong>Competency frameworks:</strong> Rated dimensions of capability</li>
+                <li>• <strong>Talent analytics:</strong> Predictive scoring for development</li>
+                <li>• <strong>Cultural assessment:</strong> Engagement scores, values alignment</li>
+              </ul>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Environmental Constraints</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Spatial control:</strong> Open-plan offices, monitored computer use</li>
+                <li>• <strong>Temporal constraint:</strong> Fixed schedules, algorithmic task assignment</li>
+                <li>• <strong>Digital enclosure:</strong> GPS tracking, keystroke logging</li>
+                <li>• <strong>Social engineering:</strong> Cultural control, peer pressure</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 2: Behaviorism -->
+      <section id="behaviorism" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">2. Behaviorism: The Psychological Architecture</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">2.1 Radical Behaviorism&#39;s Core Tenets</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Radical behaviorism established <strong>observable behavior</strong> as the exclusive legitimate object of psychological science. Skinner argued that psychology could claim objective status only by abandoning &#34;speculation&#34; about internal states in favor of &#34;the experimental method&#34; <a href="#ref-286" class="citation-link">[286]</a>.
+          </p>
+
+          <div class="pull-quote">
+            &#34;The organism is a black box characterized by transfer function—input-output relations without internal mechanism.&#34;
+          </div>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Reinforcement Schedules and Behavioral Effects</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Schedule Type</th>
+                    <th class="px-4 py-3 text-left">Description</th>
+                    <th class="px-4 py-3 text-left">Behavioral Effect</th>
+                    <th class="px-4 py-3 text-left">Workplace Application</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">Continuous</td>
+                    <td class="px-4 py-3">Every response reinforced</td>
+                    <td class="px-4 py-3">Rapid acquisition, rapid extinction</td>
+                    <td class="px-4 py-3">Immediate bonuses per sale</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">Fixed Ratio</td>
+                    <td class="px-4 py-3">After set number of responses</td>
+                    <td class="px-4 py-3">High steady rate, post-reinforcement pause</td>
+                    <td class="px-4 py-3">Piece-rate payment systems</td>
+                  </tr>
+                  <tr class="border-b bg-red-50">
+                    <td class="px-4 py-3 font-medium">Variable Ratio</td>
+                    <td class="px-4 py-3">Unpredictable response requirements</td>
+                    <td class="px-4 py-3"><strong>Highest persistence, gambling-like responding</strong></td>
+                    <td class="px-4 py-3"><strong>Sales commissions, performance lotteries</strong></td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3 font-medium">Fixed Interval</td>
+                    <td class="px-4 py-3">After set time period</td>
+                    <td class="px-4 py-3">Scalloped pattern, acceleration toward deadline</td>
+                    <td class="px-4 py-3">Quarterly performance reviews</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3 font-medium">Variable Interval</td>
+                    <td class="px-4 py-3">Unpredictable time intervals</td>
+                    <td class="px-4 py-3">Moderate steady rate, resistance to extinction</td>
+                    <td class="px-4 py-3">Unannounced quality audits, spot bonuses</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">2.2 Operant Conditioning in Organizations</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Organizational applications deploy both positive and negative reinforcement, though with cultural preference for positive rhetoric. <strong>Negative reinforcement</strong>—strengthening behavior through removal of aversive conditions—operates more pervasively than typically acknowledged.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Positive Reinforcement Examples</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Financial:</strong> Bonuses, commissions, profit-sharing</li>
+                <li>• <strong>Social:</strong> Recognition, praise, promotion</li>
+                <li>• <strong>Developmental:</strong> Training opportunities, challenging assignments</li>
+                <li>• <strong>Intrinsic:</strong> Autonomy, meaningful work</li>
+              </ul>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Negative Reinforcement Examples</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Supervision reduction:</strong> Reduced monitoring for reliable performers</li>
+                <li>• <strong>Assignment preference:</strong> Access to preferred work after task completion</li>
+                <li>• <strong>Job security:</strong> Continued employment for adequate performance</li>
+                <li>• <strong>Bureaucratic relief:</strong> Streamlined processes for high achievers</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 3: Cybernetics -->
+      <section id="cybernetics" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">3. Cybernetics: Systems, Feedback, and Control</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">3.1 Norbert Wiener&#39;s Foundational Framework</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Norbert Wiener&#39;s <em>Cybernetics: Or Control and Communication in the Animal and the Machine</em> (1948) established a unified theoretical framework for understanding regulatory processes across biological and mechanical systems <a href="#ref-198" class="citation-link">[198]</a>.
+          </p>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Cybernetic System Components</h4>
+            <div class="mermaid-container">
+              <div class="mermaid-controls">
+                <button class="mermaid-control-btn zoom-in" title="放大">
+                  <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="mermaid-control-btn zoom-out" title="缩小">
+                  <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="mermaid-control-btn reset-zoom" title="重置">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+              <div class="mermaid">
+                graph TD
+                A[&#34;Sensors&#34;] --&gt; B[&#34;Comparators&#34;]
+                B --&gt; C[&#34;Effectors&#34;]
+                C --&gt; D[&#34;System Output&#34;]
+                D --&gt; E[&#34;Feedback Loop&#34;]
+                E --&gt; B
+                B --&gt; F[&#34;Reference Value&#34;]
+              </div>
+            </div>
+          </div>
+
+          <div class="pull-quote">
+            &#34;Control and communication share common formal properties, enabling systematic transfer of concepts across traditional disciplinary boundaries.&#34;
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">3.2 Convergence of Behaviorism and Cybernetics</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            The deep structural affinity between behaviorism and cybernetics lies in shared recursive models of behavioral regulation. Both involve circular causality where current state influences subsequent state, enabling self-regulation and adaptation <a href="#ref-83" class="citation-link">[83]</a>.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Behaviorist Framework</h4>
+              <div class="text-sm space-y-2">
+                <p><strong>Recursive Element:</strong> Reinforcement history modifies response probability</p>
+                <p><strong>Structure:</strong> Response → Consequence → Modified response probability</p>
+                <p><strong>Application:</strong> Performance management, incentive systems</p>
+              </div>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Cybernetic Framework</h4>
+              <div class="text-sm space-y-2">
+                <p><strong>Recursive Element:</strong> Feedback information modifies system state</p>
+                <p><strong>Structure:</strong> Output → Feedback → Modified input → Modified output</p>
+                <p><strong>Application:</strong> Quality control, adaptive systems</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 4: Symbolic Systems -->
+      <section id="symbolic-systems" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">4. Symbolic Systems of Control</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">4.1 Symbolic Action in Organizations</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Organizational culture operates substantially through symbolic mechanisms that shape behavior by shaping meaning <a href="#ref-62" class="citation-link">[62]</a>. These mechanisms function as &#34;control systems&#34; by establishing what is important, how things are done, and who matters—without appearance of external constraint.
+          </p>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Symbolic Control Mechanisms</h4>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-slate-50 p-4 rounded-lg">
+                <h5 class="font-medium mb-2">Rituals</h5>
+                <ul class="text-xs space-y-1">
+                  <li>• Onboarding ceremonies</li>
+                  <li>• Annual meetings</li>
+                  <li>• Performance reviews</li>
+                  <li>• Retirement events</li>
+                </ul>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg">
+                <h5 class="font-medium mb-2">Myths</h5>
+                <ul class="text-xs space-y-1">
+                  <li>• Founding stories</li>
+                  <li>• Turnaround narratives</li>
+                  <li>• Innovation legends</li>
+                  <li>• Success myths</li>
+                </ul>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg">
+                <h5 class="font-medium mb-2">Artifacts</h5>
+                <ul class="text-xs space-y-1">
+                  <li>• Office design</li>
+                  <li>• Technology choices</li>
+                  <li>• Dress codes</li>
+                  <li>• Branding materials</li>
+                </ul>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg">
+                <h5 class="font-medium mb-2">Language</h5>
+                <ul class="text-xs space-y-1">
+                  <li>• Specialized vocabulary</li>
+                  <li>• Metaphor systems</li>
+                  <li>• Jargon and acronyms</li>
+                  <li>• Discourse patterns</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">4.2 Normative Control and Internalization</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Normative control operates through internalization of organizational values, transforming external constraint into self-direction <a href="#ref-61" class="citation-link">[61]</a>. Workers who genuinely embrace organizational goals regulate their own behavior without continuous external monitoring.
+          </p>
+
+          <div class="pull-quote">
+            &#34;Control from within is more intensive and pervasive than external supervision, operating continuously and intrusively in ways organizational monitoring cannot replicate.&#34;
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-2">Socialization</h4>
+              <p class="text-sm">Selection, training, mentoring, and peer interaction gradually align identity with organizational requirements.</p>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-2">Identification</h4>
+              <p class="text-sm">Desire for belonging and recognition motivates value adoption and affective commitment to organizational success.</p>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-2">Meaning-Making</h4>
+              <p class="text-sm">Cognitive need for purposeful work enables organizational framing of experience and contribution.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 5: Scientific Management -->
+      <section id="scientific-management" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">5. Scientific Management and Its Legacy</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">5.1 Taylor&#39;s System of Industrial Rationalization</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Frederick Winslow Taylor&#39;s <em>Principles of Scientific Management</em> (1911) established the foundational framework for systematic worker control that prefigures and enables subsequent cybernetic-behavioral approaches <a href="#ref-103" class="citation-link">[103]</a>.
+          </p>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Taylorist Principles and Contemporary Equivalents</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Taylorist Concept</th>
+                    <th class="px-4 py-3 text-left">Cybernetic-Behavioral Equivalent</th>
+                    <th class="px-4 py-3 text-left">Contemporary Expression</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b">
+                    <td class="px-4 py-3">Time-and-motion study</td>
+                    <td class="px-4 py-3">Performance metrics, algorithmic monitoring</td>
+                    <td class="px-4 py-3">Real-time productivity tracking, keystroke logging</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3">Task fragmentation</td>
+                    <td class="px-4 py-3">Modular work design, micro-tasking</td>
+                    <td class="px-4 py-3">Gig platform task assignment, call center scripting</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3">Planning-performance separation</td>
+                    <td class="px-4 py-3">Algorithmic management, decision support</td>
+                    <td class="px-4 py-3">AI scheduling, automated quality control</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="px-4 py-3">Incentive differential pay</td>
+                    <td class="px-4 py-3">Variable reinforcement schedules</td>
+                    <td class="px-4 py-3">Performance-based bonuses, gamified rewards</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3">Elimination of soldiering</td>
+                    <td class="px-4 py-3">Behavioral extinction of undesired responses</td>
+                    <td class="px-4 py-3">Zero-tolerance policies, automated discipline</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">5.2 Neo-Taylorism in Contemporary Organizations</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Algorithmic management represents Taylorism&#39;s technological intensification: real-time monitoring, predictive analytics, automated decision-making, and dynamic optimization achieving control precision impossible with human supervisors <a href="#ref-99" class="citation-link">[99]</a>.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Platform Capabilities</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Continuous monitoring:</strong> GPS tracking, app logging</li>
+                <li>• <strong>Predictive intervention:</strong> ML models anticipating problems</li>
+                <li>• <strong>Dynamic optimization:</strong> Real-time task adjustment</li>
+                <li>• <strong>Automated evaluation:</strong> Algorithmic scoring</li>
+                <li>• <strong>Behavioral nudging:</strong> Personalized prompts</li>
+              </ul>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Worker Experience</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• <strong>Total visibility:</strong> No private space or time</li>
+                <li>• <strong>Preemptive correction:</strong> No appeal possible</li>
+                <li>• <strong>Constant adaptation:</strong> No stability or routine</li>
+                <li>• <strong>Opaque judgment:</strong> No explanation provided</li>
+                <li>• <strong>Manipulated choice:</strong> No genuine autonomy</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- Section 6: Critical Perspectives -->
+      <section id="critical-perspectives" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">6. Critical Perspectives: Resistance and Alternatives</h2>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">6.1 Posthumanist and Animal Studies Critiques</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            The guided missile pigeon metaphor raises profound ethical questions about cross-species analogies in critical analysis. Justyna Włodarczyk&#39;s analysis notes the asymmetry in cultural reception: mine-detection dogs celebrated as &#34;courageous, dedicated, and sacrificing&#34; while Skinner&#39;s pigeons ridiculed—despite functional equivalence of trained behaviors <a href="#ref-161" class="citation-link">[161]</a>.
+          </p>
+
+          <div class="pull-quote">
+            &#34;The metaphor&#39;s critical deployment risks reinforcing rather than challenging anthropocentric frameworks: workers are dehumanized by comparison to pigeons, with pigeons serving as negative reference point rather than beings with genuine moral standing.&#34;
+          </div>
+
+          <div class="bento-card">
+            <h4 class="font-semibold mb-3">Ethical Considerations in Cross-Species Analogies</h4>
+            <div class="space-y-3 text-sm">
+              <div>
+                <h5 class="font-medium mb-1">Recognition Asymmetry</h5>
+                <p>Some animals receive moral consideration based on cultural proximity rather than ethical consideration of capabilities or suffering.</p>
+              </div>
+              <div>
+                <h5 class="font-medium mb-1">Speciesist Hierarchy</h5>
+                <p>Metaphors may reinforce rather than challenge frameworks that devalue both non-human animals and dehumanized workers.</p>
+              </div>
+              <div>
+                <h5 class="font-medium mb-1">Critical Effectiveness</h5>
+                <p>Analogy&#39;s shock value may obscure its potential to perpetuate the very dehumanization it seeks to critique.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-display text-xl font-semibold text-slate-700 mb-4">6.2 Democratic Alternatives to Cybernetic Control</h3>
+
+        <div class="mb-8">
+          <p class="leading-relaxed mb-4">
+            Stafford Beer&#39;s later &#34;participative cybernetics&#34; attempted to address worker subordination in viable system models, exploring worker self-organization within cybernetic architecture <a href="#ref-246" class="citation-link">[246]</a>. Whether this development overcomes or obscures structural tension between cybernetic requirements and democratic aspirations remains contested.
+          </p>
+
+          <div class="chart-container">
+            <h4 class="font-semibold mb-4">Democratic Cybernetics: Viable System Model Reimagined</h4>
+            <div class="mermaid-container">
+              <div class="mermaid-controls">
+                <button class="mermaid-control-btn zoom-in" title="放大">
+                  <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="mermaid-control-btn zoom-out" title="缩小">
+                  <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="mermaid-control-btn reset-zoom" title="重置">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+              <div class="mermaid">
+                graph TB
+                S1[&#34;System 1: Operations
+                <br/>WORKER SELF-MANAGEMENT&#34;]
+                S2[&#34;System 2: Coordination
+                <br/>DEMOCRATIC CONFLICT RESOLUTION&#34;]
+                S3[&#34;System 3: Control
+                <br/>PARTICIPATORY MONITORING&#34;]
+                S4[&#34;System 4: Intelligence
+                <br/>COLLECTIVE ENVIRONMENTAL SCANNING&#34;]
+                S5[&#34;System 5: Policy
+                <br/>DEMOCRATIC GOVERNANCE&#34;]
+
+                S1 --&gt; S2
+                S2 --&gt; S3
+                S3 --&gt; S4
+                S4 --&gt; S5
+                S5 --&gt; S1
+
+                style S1 fill:#f0f9ff,stroke:#0369a1,stroke-width:2px,color:#0c4a6e
+                style S2 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#14532d
+                style S3 fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e
+                style S4 fill:#fdf2f8,stroke:#c026d3,stroke-width:2px,color:#a21caf
+                style S5 fill:#f3e8ff,stroke:#7c3aed,stroke-width:2px,color:#6d28d9
+              </div>
+            </div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Traditional VSM Limitations</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• Workers primarily as System 1 components</li>
+                <li>• Hierarchical information flows</li>
+                <li>• Management-centered control</li>
+                <li>• Limited worker participation</li>
+                <li>• Technical neutrality masking power</li>
+              </ul>
+            </div>
+            <div class="bento-card">
+              <h4 class="font-semibold mb-3">Democratic Alternatives</h4>
+              <ul class="space-y-2 text-sm">
+                <li>• Worker self-management across all systems</li>
+                <li>• Participatory environmental scanning</li>
+                <li>• Democratic policy formation</li>
+                <li>• Reciprocal accountability structures</li>
+                <li>• Transparent decision-making processes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Conclusion -->
+      <section id="conclusion" class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">Conclusion: Beyond the Pigeon in the Machine</h2>
+
+        <div class="bento-card">
+          <p class="text-lg leading-relaxed mb-6">
+            The guided missile pigeon metaphor illuminates the structural violence inherent in treating organisms—human or otherwise—as functional components within technical systems. From Skinner&#39;s wartime experiments to contemporary algorithmic management, the reduction of complex beings to controllable variables has enabled remarkable technical achievements while generating profound ethical costs.
+          </p>
+
+          <div class="grid md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-slate-50 p-4 rounded-lg">
+              <h4 class="font-semibold mb-2">Historical Continuity</h4>
+              <p class="text-sm">From Project Pigeon to platform capitalism, the same fundamental operations—reduction, measurement, optimization, control—persist with increasing technological sophistication.</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-lg">
+              <h4 class="font-semibold mb-2">Ethical Challenge</h4>
+              <p class="text-sm">Cross-species analogies reveal anthropocentric blind spots in management theory, challenging us to recognize agency and worth beyond human exceptionalism.</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-lg">
+              <h4 class="font-semibold mb-2">Democratic Imperative</h4>
+              <p class="text-sm">The question whether viable systems can be genuinely democratic remains open, with implications extending to the political economy of workplace governance.</p>
+            </div>
+          </div>
+
+          <div class="pull-quote">
+            &#34;Understanding the historical and theoretical origins of control architectures is essential for critical engagement and democratic alternatives that preserve organizational effectiveness while respecting human dignity and agency.&#34;
+          </div>
+
+          <p class="leading-relaxed">
+            The convergence of behaviorism and cybernetics has produced powerful tools for organizational control, but these tools need not dictate our future. By making visible the mechanisms through which workers become &#34;pigeons in the machine,&#34; we open possibilities for designing systems that serve human flourishing rather than exploiting it—systems where feedback loops enhance rather than diminish autonomy, where symbolic cultures empower rather than manipulate, and where organizational viability includes rather than excludes worker dignity.
+          </p>
+        </div>
+      </section>
+
+      <!-- References -->
+      <section class="mb-12">
+        <h2 class="font-display text-2xl font-bold text-slate-800 mb-6">References</h2>
+        <div class="grid gap-4 text-sm">
+          <div id="ref-238" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[238]</strong> LinkedIn. &#34;Project Pigeon: B.F. Skinner&#39;s Unlikely WWII Experiment.&#34; <a href="https://www.linkedin.com/pulse/project-pigeon-bf-skinners-unlikely-wwii-experiment-tobias-flint-7ki8c" class="citation-link">https://www.linkedin.com/pulse/project-pigeon-bf-skinners-unlikely-wwii-experiment-tobias-flint-7ki8c</a>
+          </div>
+          <div id="ref-253" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[253]</strong> Włodarczyk, J. &#34;The Pigeon in the Machine.&#34; Polish Academy of Sciences. <a href="https://paas.org.pl/wp-content/uploads/2021/02/wlodarczyk.pdf" class="citation-link">https://paas.org.pl/wp-content/uploads/2021/02/wlodarczyk.pdf</a>
+          </div>
+          <div id="ref-283" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[283]</strong> Coffee or Die. &#34;Project Pigeon.&#34; <a href="https://www.coffeeordie.com/article/project-pigeon" class="citation-link">https://www.coffeeordie.com/article/project-pigeon</a>
+          </div>
+          <div id="ref-286" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[286]</strong> Skinner, B.F. &#34;The Operational Analysis of Psychological Terms.&#34; <a href="https://d-nb.info/1234470411/34" class="citation-link">https://d-nb.info/1234470411/34</a>
+          </div>
+          <div id="ref-294" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[294]</strong> LinkedIn. &#34;Project Pigeon: B.F. Skinner&#39;s Unlikely WWII Experiment.&#34; <a href="https://www.linkedin.com/pulse/project-pigeon-bf-skinners-unlikely-wwii-experiment-tobias-flint-7ki8c" class="citation-link">https://www.linkedin.com/pulse/project-pigeon-bf-skinners-unlikely-wwii-experiment-tobias-flint-7ki8c</a>
+          </div>
+          <div id="ref-62" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[62]</strong> SAGE Knowledge. &#34;Management Symbolism and Symbolic Action.&#34; <a href="https://sk.sagepub.com/ency/edvol/encyclopedia-of-management-theory/chpt/management-symbolism-symbolic-action" class="citation-link">https://sk.sagepub.com/ency/edvol/encyclopedia-of-management-theory/chpt/management-symbolism-symbolic-action</a>
+          </div>
+          <div id="ref-61" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[61]</strong> PMC. &#34;Normative Control in Organizations.&#34; <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5834078/" class="citation-link">https://pmc.ncbi.nlm.nih.gov/articles/PMC5834078/</a>
+          </div>
+          <div id="ref-198" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[198]</strong> Britannica. &#34;Cybernetics.&#34; <a href="https://www.britannica.com/science/cybernetics" class="citation-link">https://www.britannica.com/science/cybernetics</a>
+          </div>
+          <div id="ref-246" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[246]</strong> Emerald Insight. &#34;Cybernetics: A Systems Approach to Management.&#34; <a href="https://www.emerald.com/pr/article/1/2/28/323608/Cybernetics-A-Systems-Approach-to-Management" class="citation-link">https://www.emerald.com/pr/article/1/2/28/323608/Cybernetics-A-Systems-Approach-to-Management</a>
+          </div>
+          <div id="ref-103" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[103]</strong> University of Alberta. &#34;Taylorism.&#34; <a href="https://sites.ualberta.ca/~yreshef/orga417/taylor.htm" class="citation-link">https://sites.ualberta.ca/~yreshef/orga417/taylor.htm</a>
+          </div>
+          <div id="ref-99" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[99]</strong> Indeed. &#34;Operant Conditioning in the Workplace.&#34; <a href="https://www.indeed.com/career-advice/career-development/operant-conditioning-examples" class="citation-link">https://www.indeed.com/career-advice/career-development/operant-conditioning-examples</a>
+          </div>
+          <div id="ref-161" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[161]</strong> Polish Academy of Sciences. &#34;Cross-Species Analogies in Critical Analysis.&#34; <a href="https://paas.org.pl/wp-content/uploads/2021/02/wlodarczyk.pdf" class="citation-link">https://paas.org.pl/wp-content/uploads/2021/02/wlodarczyk.pdf</a>
+          </div>
+          <div id="ref-83" class="p-4 bg-slate-50 rounded-lg">
+            <strong>[83]</strong> Academia.edu. &#34;The Pigeon in the Machine: Concept of Control in Behaviorism and Cybernetics.&#34; <a href="https://www.academia.edu/111641363/The_Pigeon_in_the_Machine_The_Concept_of_Control_in_Behaviorism_and_Cybernetics" class="citation-link">https://www.academia.edu/111641363/The_Pigeon_in_the_Machine_The_Concept_of_Control_in_Behaviorism_and_Cybernetics</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#0ea5e9',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#64748b',
+                lineColor: '#64748b',
+                secondaryColor: '#f0f9ff',
+                tertiaryColor: '#f8fafc',
+                background: '#ffffff',
+                mainBkg: '#ffffff',
+                secondBkg: '#f0f9ff',
+                tertiaryColor: '#f8fafc'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+
+        // Initialize Mermaid Controls for zoom and pan
+        function initializeMermaidControls() {
+            const containers = document.querySelectorAll('.mermaid-container');
+
+            containers.forEach(container => {
+                const mermaidElement = container.querySelector('.mermaid');
+                let scale = 1;
+                let isDragging = false;
+                let startX, startY, translateX = 0, translateY = 0;
+
+                // 触摸相关状态
+                let isTouch = false;
+                let touchStartTime = 0;
+                let initialDistance = 0;
+                let initialScale = 1;
+                let isPinching = false;
+
+                // Zoom controls
+                const zoomInBtn = container.querySelector('.zoom-in');
+                const zoomOutBtn = container.querySelector('.zoom-out');
+                const resetBtn = container.querySelector('.reset-zoom');
+                const fullscreenBtn = container.querySelector('.fullscreen');
+
+                function updateTransform() {
+                    mermaidElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+                    if (scale > 1) {
+                        container.classList.add('zoomed');
+                    } else {
+                        container.classList.remove('zoomed');
+                    }
+
+                    mermaidElement.style.cursor = isDragging ? 'grabbing' : 'grab';
+                }
+
+                if (zoomInBtn) {
+                    zoomInBtn.addEventListener('click', () => {
+                        scale = Math.min(scale * 1.25, 4);
+                        updateTransform();
+                    });
+                }
+
+                if (zoomOutBtn) {
+                    zoomOutBtn.addEventListener('click', () => {
+                        scale = Math.max(scale / 1.25, 0.3);
+                        if (scale <= 1) {
+                            translateX = 0;
+                            translateY = 0;
+                        }
+                        updateTransform();
+                    });
+                }
+
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        scale = 1;
+                        translateX = 0;
+                        translateY = 0;
+                        updateTransform();
+                    });
+                }
+
+                if (fullscreenBtn) {
+                    fullscreenBtn.addEventListener('click', () => {
+                        if (container.requestFullscreen) {
+                            container.requestFullscreen();
+                        } else if (container.webkitRequestFullscreen) {
+                            container.webkitRequestFullscreen();
+                        } else if (container.msRequestFullscreen) {
+                            container.msRequestFullscreen();
+                        }
+                    });
+                }
+
+                // Mouse Events
+                mermaidElement.addEventListener('mousedown', (e) => {
+                    if (isTouch) return; // 如果是触摸设备，忽略鼠标事件
+
+                    isDragging = true;
+                    startX = e.clientX - translateX;
+                    startY = e.clientY - translateY;
+                    mermaidElement.style.cursor = 'grabbing';
+                    updateTransform();
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging && !isTouch) {
+                        translateX = e.clientX - startX;
+                        translateY = e.clientY - startY;
+                        updateTransform();
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging && !isTouch) {
+                        isDragging = false;
+                        mermaidElement.style.cursor = 'grab';
+                        updateTransform();
+                    }
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    if (isDragging && !isTouch) {
+                        isDragging = false;
+                        mermaidElement.style.cursor = 'grab';
+                        updateTransform();
+                    }
+                });
+
+                // 获取两点之间的距离
+                function getTouchDistance(touch1, touch2) {
+                    return Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                }
+
+                // Touch Events - 触摸事件处理
+                mermaidElement.addEventListener('touchstart', (e) => {
+                    isTouch = true;
+                    touchStartTime = Date.now();
+
+                    if (e.touches.length === 1) {
+                        // 单指拖动
+                        isPinching = false;
+                        isDragging = true;
+
+                        const touch = e.touches[0];
+                        startX = touch.clientX - translateX;
+                        startY = touch.clientY - translateY;
+
+                    } else if (e.touches.length === 2) {
+                        // 双指缩放
+                        isPinching = true;
+                        isDragging = false;
+
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        initialDistance = getTouchDistance(touch1, touch2);
+                        initialScale = scale;
+                    }
+
+                    e.preventDefault();
+                }, { passive: false });
+
+                mermaidElement.addEventListener('touchmove', (e) => {
+                    if (e.touches.length === 1 && isDragging && !isPinching) {
+                        // 单指拖动
+                        const touch = e.touches[0];
+                        translateX = touch.clientX - startX;
+                        translateY = touch.clientY - startY;
+                        updateTransform();
+
+                    } else if (e.touches.length === 2 && isPinching) {
+                        // 双指缩放
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const currentDistance = getTouchDistance(touch1, touch2);
+
+                        if (initialDistance > 0) {
+                            const newScale = Math.min(Math.max(
+                                initialScale * (currentDistance / initialDistance),
+                                0.3
+                            ), 4);
+                            scale = newScale;
+                            updateTransform();
+                        }
+                    }
+
+                    e.preventDefault();
+                }, { passive: false });
+
+                mermaidElement.addEventListener('touchend', (e) => {
+                    // 重置状态
+                    if (e.touches.length === 0) {
+                        isDragging = false;
+                        isPinching = false;
+                        initialDistance = 0;
+
+                        // 延迟重置isTouch，避免鼠标事件立即触发
+                        setTimeout(() => {
+                            isTouch = false;
+                        }, 100);
+                    } else if (e.touches.length === 1 && isPinching) {
+                        // 从双指变为单指，切换为拖动模式
+                        isPinching = false;
+                        isDragging = true;
+
+                        const touch = e.touches[0];
+                        startX = touch.clientX - translateX;
+                        startY = touch.clientY - translateY;
+                    }
+
+                    updateTransform();
+                });
+
+                mermaidElement.addEventListener('touchcancel', (e) => {
+                    isDragging = false;
+                    isPinching = false;
+                    initialDistance = 0;
+
+                    setTimeout(() => {
+                        isTouch = false;
+                    }, 100);
+
+                    updateTransform();
+                });
+
+                // Enhanced wheel zoom with better center point handling
+                container.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const rect = container.getBoundingClientRect();
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    const newScale = Math.min(Math.max(scale * delta, 0.3), 4);
+
+                    // Adjust translation to zoom towards center
+                    if (newScale !== scale) {
+                        const scaleDiff = newScale / scale;
+                        translateX = translateX * scaleDiff;
+                        translateY = translateY * scaleDiff;
+                        scale = newScale;
+
+                        if (scale <= 1) {
+                            translateX = 0;
+                            translateY = 0;
+                        }
+
+                        updateTransform();
+                    }
+                });
+
+                // Initialize display
+                updateTransform();
+            });
+        }
+
+        // Initialize Mermaid Controls on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMermaidControls();
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in TOC
+        function updateActiveTOC() {
+            const sections = document.querySelectorAll('section[id]');
+            const tocLinks = document.querySelectorAll('.toc-fixed a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 100) {
+                    current = section.id;
+                }
+            });
+            
+            tocLinks.forEach(link => {
+                link.classList.remove('text-red-600', 'font-semibold');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('text-red-600', 'font-semibold');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveTOC);
+        updateActiveTOC(); // Initial call
+    </script>
+  
+
+</body></html>

@@ -1,0 +1,174 @@
+# Canonical Source Block
+
+- Generated: 2026-03-05T00:42:22.803793+00:00
+- Occurrences: 23
+
+{# From Imagetext to Worldtext: Generative AI as Operative Ekphrasis
+
+
+By Watson Hartsoe & Jay David Bolter
+
+
+Abstract
+
+
+Generative AI platforms utilize natural language prompts to create images, videos, and interactive media. The act of prompting can be understood as a new form of ekphrasis—the ancient literary practice of vivid visual description. The crucial difference is that unlike traditional ekphrasis in poetry and prose, the ekphrasis of prompting is, as Hannes Bajohr argues, “operative”: the text not only describes an image but computationally generates it, collapsing the traditional distinction between the verbal and the visual. Prompt and image together constitute an imagetext, which W.J.T. Mitchell suggested was always the unstated and unattainable goal of ekphrasis. Furthermore, a growing community of amateur and professional prompters has developed "promptcraft"—practices for improving resulting media artifacts through elaborate, iterative interactions. We characterize these techniques as “thick prompting,” contrasting them with the one-shot, “thin” prompts of casual users, deliberately recalling Clifford Geertz’s anthropological concept of “thick description.” Thick prompting is an iterative, multimodal process of refinement that describes and defines the context of a desired artifact. Because these prompts draw from and operate through probabilistic world models, they act as fragments of a larger world. As generative systems evolve to create entire immersive 3D environments, the imagetext becomes a worldtext: a probabilistic, visual, and interactive simulation. To provide an emblematic example of operative ekphrasis and the creation of worldtext, we examine Homer’s Shield of Achilles. We demonstrate how thick prompting techniques can produce first the shield as an image, and then as an immersive 3D world. Finally, we juxtapose this classical ekphrasis with W.H. Auden’s mid-twentieth-century reimagining of the shield, using operative ekphrasis as a lens to read Auden’s poem through, and against, Homer’s original generative world-building.
+
+
+
+1. Introduction
+
+
+Generative AI systems are increasingly used to create a diverse array of media forms, including text, images, videos, program code, and interactive environments. For systems focused on visual artifacts—such as those offered by OpenAI, Google, Meta, and Midjourney—the primary interface remains a natural language prompt provided by a human agent. Prompting has become a ubiquitous practice for millions of users, and the art of effective prompting has crystallized into the discipline of "promptcraft." This practice is actively studied (Oppenlaender et al. 2024; Oppenlaender 2024; Liu and Chilton 2023), leading to the development of systems that embody or enhance these emerging techniques (Almeda 2024; Brade et al. 2023).
+
+
+As recent scholarship has noted (Bajohr 2024; Meyer 2023), this movement from text to image corresponds in an uncanny way to ekphrasis, the traditional literary practice of vivid description. The architecture of image generation requires training probabilistic models on billions of captioned images. By tokenizing both text and images and mapping them into a unified system of weighted matrices, text prompts became the most logical interface for generation. While the computer scientists developing these systems likely did not intend to reinvent a literary practice that predates modern computing by millennia, this structural coincidence invites us to apply literary history and aesthetic theory to one of the most remarkable developments in the history of digital media. Building on Hannes Bajohr’s insights, we propose a theoretical framework for understanding how promptcraft relates to the history of visual representation, moving from the generation of images to the simulation of worlds.
+
+
+2. Operative Ekphrasis and the Imagetext
+
+
+For the ancient Greeks, ekphrasis was a rhetorical practice of describing a vivid visual scene. As noted by classical scholars like George Kennedy, rhetoricians in the Greek-speaking Roman empire utilized ekphrasis as both a pedagogical exercise and a foundational element of public artistic performance. The term became intrinsically linked to famous literary passages, beginning with Homer’s description of Achilles’ shield in the Iliad.
+
+
+Modern interest in ekphrasis as a literary device expanded throughout the nineteenth and twentieth centuries, yielding compelling theoretical analyses from critics such as Murray Krieger (1992), James Heffernan (2004), and W.J.T. Mitchell (1994). While subsequent literature has addressed the impact of digital media on this practice (Brosch 2018b; Lindhé 2013), this foundational work largely predates generative AI.
+
+
+Hannes Bajohr (2024) recently bridged this gap by identifying AI prompting as a new paradigm, coining the term “operative ekphrasis.” He distinguishes prompting generative models from traditional computer image manipulation; generative models are performative because they embed textual encodings—derived from captions and metadata scraped from the web—directly into their architecture.  The process of training these models collapses the boundary between text and image, a phenomenon that resonates deeply with W.J.T. Mitchell’s essay "Ekphrasis and the Other" (1994). Mitchell argued that merging text and image was both the audacious aspiration and the ultimate nightmare of ekphrasis. Such a merger would confirm the power of verbal description to control the evoked image, while simultaneously threatening to render the word obsolete by dissolving it into the visual. This merging, which Mitchell termed the imagetext, realizes both "ekphrastic hope and ekphrastic fear."
+
+
+In generative AI, the latent space of the model effectively functions as this imagetext (or videotext). As Lev Manovich suggests, prompting is the act of probing this latent space. Recognizing this, scholars and practitioners increasingly argue that the prompt itself—or the prompt template—functions as art (Chang et al. 2023). This claim confirms the operational reality of the AI imagetext: the prompt cannot be judged purely as traditional ekphrastic literature, but must be evaluated holistically alongside the image it successfully, or unsuccessfully, retrieves from the latent space.
+
+
+3. Thick Description and the Worldtext
+
+
+To characterize the contemporary, elaborate practices of promptcraft, we turn to cultural anthropologist Clifford Geertz and his concept of "thick description" (Geertz 1993). Geertz used the term to describe the process of unearthing and explaining the layered, pre-existing cultural codes that motivate human behavior.
+
+
+We propose "thick prompting" as the generative corollary to thick description. There is, however, an essential directional difference. Thick description analyzes an existing cultural practice; the practice predates the text. Operative ekphrasis reverses this: the act of describing calls the artifact into existence. Yet, both practices seek to engage deep layers of cultural coding. In thick prompting, these codes are the semantic weights absorbed by the model's neural network. Because these models are probabilistic rather than explicitly coded expert systems, interrogating them is an approximate, incomplete, and potentially endless endeavor. There is no final, perfect prompt.
+
+
+This concept of thick prompting aligns with the emergence of AI "world models," such as Google's Genie and World Labs' Marble. Ha and Schmidhuber (2018) describe world models as generative environments that learn compressed spatiotemporal representations, enabling agents to act within simulated physics and parameters. While their foundational work focused on reinforcement learning rather than literature, it clarifies a shared orientation: these models build an internal space in which possible worlds can be explored.
+
+
+We propose extending Mitchell’s notion of the imagetext to the worldtext. In generative AI, every imagetext is implicitly a fragment of a worldtext. Operative ekphrasis collapses the boundary between image and text, much like every traditional painting is a fragment of a larger depicted reality. World generators, however, take us from a static image to a fully realized, navigable world model.
+
+
+Language thus functions as a direct handle on world generation. The worldtext is not a new medium category, but a condition of practice: language becomes the operative interface for producing scenes, objects, and physics at scale. To return to William Gibson's foundational 1984 definition of cyberspace as a "consensual hallucination," generative AI systems are, in a technical sense, constantly hallucinating. The modern psychiatric definition of hallucination—perceiving something in the absence of external stimuli—applies perfectly to a model generating a world picture from pure mathematical weights. In this sense, all operative ekphrasis is a structured, directed hallucination.
+
+
+4. The Qualities of Thick Prompting
+
+
+Thick prompting encompasses a heterogeneous set of practices that move far beyond the single-shot text prompt. As prompting develops into a sophisticated community of practice, several key qualities have emerged:
+
+
+Iterative: While it is possible to produce a compelling image with a short prompt, thick prompting relies on systematic refinement. Prompters often begin with a short seed and repeatedly add constraints to navigate the latent space (He et al. 2024). Techniques like "prompt differential" (changing one variable at a time) and structured taxonomy grids, as seen in systems like Dreamsheets (Almeda et al. 2024) and Promptify (Brade et al. 2023), support this iterative probing.
+
+Multimodal: To probe the latent space effectively, prompts are no longer strictly textual. They are multimodal, utilizing images, video, and audio as inputs. Practitioners engage in "holistic promptcraft," fluidly moving between text and pixel prompting to control lighting and camera angles (Lindley and Whitham 2025), reflecting the intermediality of digital ekphrasis.
+
+Heterogeneous: The syntax of the prompt is highly varied. Natural language, structured data formats (like JSON), and executable code (Python, JavaScript) can all serve as prompts simultaneously (Siddaqui 2026).
+
+Itinerant: Thick prompting frequently migrates across platforms. A core thick description may be adapted from a text-to-image model and ported into a text-to-3D or text-to-video environment. The prompt, acting as a flexible operative logic, travels across media boundaries.
+
+Performative and Interactive: Thick prompting is an ongoing dialogue. The system feeds back to the prompter, creating a loop of human-AI co-creation (Oppenlaender 2024). This mirrors N. Katherine Hayles' concept of cognitive assemblages, where agency is distributed between the human writer and the generative system.
+
+
+5. The Shield(s) of Achilles: From Image to World
+
+
+To illustrate the theoretical trajectory from text to imagetext to worldtext, we turn to the most famous ekphrasis in Western literature: Homer’s Shield of Achilles.  The shield is an obvious choice for its historical primacy, but more importantly, it explicitly describes a world—a holistic representation of Homeric cosmology, agriculture, conflict, and society that sits behind the immediate narrative of the Iliad.
+
+
+We propose that Homeric oral poetry functions as a nascent generative system. The multiplicity of the "thousand shields"—the variations inherently produced by oral composition and performance over centuries—mirrors the probabilistic variations of AI generation. The shield functions not just as an allegory for the craft of metallurgy, but for the generative making of the world through language.
+
+
+By applying thick prompting to Homer's text, we can trace a distinct workflow: translating the ancient Greek text into an imagetext using 2D image generators, and subsequently using those outputs as itinerant, multimodal prompts within a 3D world model. This sequence literalizes the ekphrastic world-building Homer performed verbally.
+
+
+Furthermore, the importance of cultural context in thick prompting is starkly revealed when we juxtapose the Homeric generation with W.H. Auden’s mid-twentieth-century poem, The Shield of Achilles. Auden’s ekphrasis overwrites Homer’s vibrant world with a bleak, bureaucratic landscape reflecting the anxieties of the Cold War. Operative ekphrasis allows us to stage a collision between these two texts and their respective worlds, demonstrating how the weights of a generative model negotiate competing literary and historical contexts to output a synthesized worldtext.
+
+
+6. Conclusion
+
+
+Operative ekphrasis, enacted through thick prompting, simultaneously vindicates and vitiates the traditional literary goals of ekphrasis. It fulfills Mitchell’s ekphrastic hope by granting language the power to instantly manifest the visual, yet it realizes his fear by threatening to dissolve the necessity of human artistic rendering. It literalizes the act of description in a way that traditional aesthetic theorists often find illegitimate, echoing the debates surrounding hypertext literature in the 1990s—where traditionalists feared that automating literary association would destroy the art form itself.
+
+
+There is a risk, particularly within empirical HCI research, of validating prompting strictly through metrics of accuracy or task completion (Liu and Chilton 2023). However, a more nuanced perspective recognizes that the latent space contains undiscovered stylistic and structural possibilities. Probing this space iteratively does not just retrieve data; it creates new combinations.
+
+
+As generative AI transitions from producing static imagetexts to interactive worldtexts, we must ask who defines the prevailing community of practice. Is it the traditional art community, or a newly defined community of prompters establishing their own criteria for "pop modernism" and originality? By understanding prompting not merely as a technical input, but as an evolution of ekphrasis, we can better critique and shape the worlds these systems generate.
+
+
+
+5.1 Documenting the Operative Workflow: The "Thickness" in Practice
+
+
+To understand how thick prompting operates within this system, we must document the precise algorithmic workflow of the ACHILLES // OPTICAL_GRID_v7 artifact. The system functions as a visual poem architecture, where the spatial navigation of the text structurally and probabilistically determines the generated visual output.
+
+
+The "thickness" here is not achieved by a user typing a long paragraph into a chat window; rather, the thickness is hardcoded into the javascript logic, creating a distributed, multi-layered prompting engine that executes in real-time.
+
+
+When a user interacts with the 3D shield, the system executes the following operative ekphrasis:
+
+
+Step 1: Semantic Anchoring (Zonal Selection): The 3D sphere is divided into five topological UV zones (CORE, INNER, MIDDLE, OUTER, RIM). Each zone acts as a semantic container holding a specific stanza of Homer’s text. When the user’s cursor intersects a zone via the Three.js raycaster, the system anchors the prompt to that specific literary coordinate.
+
+Step 2: Algorithmic Extraction (The Poetic Snippet): The system does not feed the entire stanza to the generative model. Instead, it performs a dynamic, randomized extraction. It strips the punctuation from the anchored text, filters it into an array of words, and randomly selects a contiguous chunk of five to eight words (e.g., "youths wove tunics of spun"). This introduces a necessary element of probabilistic chaos, mimicking the fluidity of oral poetic performance.
+
+Step 3: Stylistic Appending (The Ekphrastic Wrapper): To ensure the resulting imagetext adheres to the material reality of a shield, the script wraps the poetic snippet in a highly structured, rigid prompt template:
+
+Depict this specific concept deeply engraved in ancient metal: "[POETIC_SNIPPET]". [RANDOM_STYLE]
+  The [RANDOM_STYLE] is dynamically injected from a predefined array of aesthetic constraints (e.g., "Surreal artifact," "Deep metallic patina," "Cinematic epic lighting").
+
+Step 4: Operative Execution: The synthesized prompt—now thick with spatial context, algorithmic randomness, and hardcoded stylistic constraints—is sent via POST request to a generative vision model (in this case, imagen-3.0).
+
+Step 5: Multimodal Reintegration (The Worldtext): The generative model returns a base64 encoded image. The script intercepts this imagetext and dynamically stamps it back onto the 3D spatial grid at the exact coordinates of the user's initial click. Crucially, it applies interactive blending modes (Multiply, Screen, Hard Edge) and feathered radial gradients to seamlessly fuse the new AI-hallucinated pixels with the underlying typographic text atlas.
+
+
+Through this documented process, the traditional ekphrasis of reading Homer is transformed. The prompt is not a static string of text; it is an active, iterative compilation of geometry, literature, and code. The resulting 3D environment is a worldtext dynamically accumulated through hundreds of these thick, operative micro-prompts.
+
+
+5.3 Accentuated Interfaces: Exposing the Generative Machinery
+
+
+If the Photoreal stream (such as the Waymo World Model) strives for a seamless "Holodeck" where the generative process is entirely hidden behind the illusion of reality, our ACHILLES HTML artifact operates on the exact opposite principle. It resides in the Composite stream precisely because it refuses to hide its own process. Instead of concealing the mechanics of operative ekphrasis, the user interface (UI) and the code architecture actively accentuate them. The interface is designed to make the user hyper-aware of the generative process—making us conscious of the artifact's becoming rather than just its final being.
+
+
+We achieve this through several deliberate architectural and aesthetic choices within the code:
+
+
+The Mediated Lens (CRT and Shutter Mechanics): The CSS layers explicitly impose a mediated viewing experience. The continuous crt-overlay animation and the blinding shutter-flash upon image capture constantly remind the viewer that they are not looking at a natural world, but through a computational apparatus.
+
+The Ekphrastic Targeting HUD: The hud-canvas overlay does not hide the prompt extraction; it dramatizes it. When a user hovers over a semantic zone, the JavaScript draws a targeting reticle, casts dynamic connecting lines, and visually fractures the underlying Homeric text into floating arrays of words. The UI explicitly announces TARGET ACQUIRED. CLICK TO STAMP POETRY. The user is forced to visually witness the AI slicing the text to construct its operative prompt.
+
+Exposed Compositing Logic: The system grants the user manual control over the mathematical blending of the imagetext. By exposing keybind commands to toggle between NORMAL (FEATHERED), MULTIPLY (BURNED), and SCREEN (ETHEREAL) blend modes, the UI forces the user to participate in the algorithmic compositing of the worldtext.
+
+Deconstructing the Illusion: The most aggressive exposure of the process occurs through the export tools. By pressing a key, the user can instantly extract the raw, flattened polar and planar UV maps (mosaicCanvas and coreCanvas). This shatters the 3D illusion entirely, revealing the distorted, 2D imagetext that undergirds the spherical world model.
+
+
+By accentuating these mechanics, the ACHILLES artifact functions as a piece of critical media. It demands that we recognize operative ekphrasis not as magic, but as a heavily mediated, algorithmic process of slicing, compiling, and stamping cultural data. It keeps the "word" fiercely visible, ensuring that the act of world-building remains a visible negotiation between human text and machine weights.
+
+
+6. Conclusion: The Future of the Worldtext
+
+
+Operative ekphrasis, enacted through the rigorous, iterative practices of thick prompting, simultaneously vindicates and vitiates the traditional literary goals of ekphrasis. It fulfills W.J.T. Mitchell’s "ekphrastic hope" by granting language the computational power to instantly manifest the visual, allowing the word to definitively govern the image. Yet, as generative systems evolve from 2D imagetexts to 3D interactive worldtexts, they increasingly realize his "ekphrastic fear": the threat that the image will entirely consume the word, rendering human literary description obsolete.
+
+
+This tension is formalized in the divergence of the two generative streams we have identified.  The Photoreal Stream, exemplified by enterprise world models like Genie 3, drives toward the ultimate disappearance of the text. It seeks a seamless, physics-based Holodeck where the linguistic prompt acts only as a hidden, subterranean trigger for a flawless simulation. In contrast, the Composite Stream, as demonstrated by our interactive ACHILLES artifact, actively resists this erasure. By accentuating the user interface, exposing the code, and revealing the compositional blending of text and generated pixel, it forces the generative machinery to remain visible. It demands that we acknowledge the worldtext not as a natural reality, but as a constructed, probabilistic collage.
+
+
+This literalization of the descriptive act echoes the theoretical anxieties surrounding the hypertext literary movement of the 1990s. Hypertext enthusiasts claimed their medium made the cognitive processes of association and allusion structurally operative; traditionalists feared that automating these connections would destroy the interpretive art of reading. A similar anxiety permeates the reception of generative AI. There is a persistent risk, particularly within empirical Human-Computer Interaction (HCI) research, of validating promptcraft strictly through metrics of accuracy, task completion, or photorealism (Liu and Chilton 2023). However, a more nuanced perspective, aligned with Lev Manovich’s observations on generative style, recognizes that the latent space contains undiscovered aesthetic possibilities. Probing this space iteratively through thick prompting does not merely retrieve a "correct" image; it is an act of active, operative discovery.
+
+
+As these systems mature, the critical question becomes: who defines the prevailing community of practice? Traditional art and literary communities often view the automation of ekphrasis as problematic or illegitimate. In their place, a newly defined, massive community of amateur and professional prompters is establishing its own criteria for success, emphasizing a kind of "pop modernism" characterized by the continuous remixing of historical styles and cultural weights (Chang et al. 2023).
+
+
+If we allow the Photoreal stream to become the default mode of generative media, we risk moving into seamless, immersive environments where the biases, weights, and algorithmic decisions of the world model are entirely hidden from the user. We lose sight of the prompt. To critically engage with generative AI, we must champion the Composite stream. We must build and theorize interfaces that expose the thickness of the prompt, ensuring that the act of computational world-building remains a visible, negotiated dialogue between human language and machine logic.
+
+
+STANDING RESERVE}

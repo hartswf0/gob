@@ -1,0 +1,474 @@
+% Springer LNCS conference paper draft (HWID 2026 style) - v6 major upgrade
+\documentclass[runningheads]{llncs}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{url}
+
+\begin{document}
+
+\title{Treating Workers Like Guided Missile Pigeons: Cybernetics, Behaviorism, and Symbolic Systems of Control}
+\titlerunning{Treating Workers Like Guided Missile Pigeons}
+
+\author{Watson Hartsoe}
+\authorrunning{W. Hartsoe}
+\institute{Digital Media, Georgia Institute of Technology\\
+\email{whartsoe3@gatech.edu}}
+
+\maketitle
+
+\begin{abstract}
+The European Commission defines Industry 5.0 as a paradigm that moves beyond efficiency and productivity to place worker wellbeing at the center of the production process \cite{breque2021industry}. This paper argues that the political force of that definition is not incidental to contemporary automation but constitutive of it. We propose that ``human-centric'' Industry 5.0 often functions as a normative camouflage layer for an older control architecture: the integration of living agents into cybernetic feedback systems as error-correcting components. Tracing a genealogy from Norbert Wiener's wartime prediction systems and B.F. Skinner's Project Pigeon / ORCON (Organic Control) to contemporary workplace analytics, we introduce the concept of the \emph{Thick Machine}: a control system whose operational viability depends on cultural legitimacy and semantic framing, not only technical efficacy. We analyze two contemporary proof chains for this architecture---digital human/ergonomic simulation and affective real-time coaching---alongside Reinforcement Learning from Human Feedback (RLHF) as a paradigmatic case of compressing thick human judgment into scalar reward optimization. We then formalize the paper's \emph{semiotic paradox}: these systems depend on thick human meaning-making as input while processing it through thin statistical mechanisms and enforcing their interpretations at the interface boundary. We conclude with six conditions for symbolic sovereignty in human-machine work systems, including rights to illegibility, semantic contestation, and refusal of enforced interpretation.
+
+\keywords{Cybernetics \and Behaviorism \and Industry 5.0 \and Symbolic Anthropology \and Digital Twins \and RLHF \and Algorithmic Control}
+\end{abstract}
+
+\section{Introduction: The Struggle Over Interpretive Sovereignty}
+
+Project Pigeon was not simply a failed weapons experiment. It was a failed interface between technical control and institutional meaning.
+
+Skinner's wartime guidance proposal demonstrated a narrow but durable principle: organisms can be inserted into a feedback loop as sensors and actuators if the environment, stimulus, and reinforcement schedule are carefully designed \cite{skinner1960pigeons,capshew1993engineering}. What the project did not solve was the symbolic problem of legitimacy. A pigeon-guided bomb could be technically persuasive and still institutionally intolerable.
+
+This paper takes that gap as the starting point for a contemporary argument. In current AI and workplace automation discourse, the question is no longer whether humans are inside control loops; they already are. The question is how that arrangement is described, justified, and normalized. ``Human-centricity,'' ``wellbeing,'' and ``resilience'' do not merely soften automation's public image. They help constitute the acceptability of control architectures that depend on continuous monitoring, classification, and behavioral modulation of workers \cite{breque2021industry,kellogg2020algorithms}.
+
+We call this arrangement the \emph{Thick Machine}. A Thick Machine is a control system that cannot operate on technical grounds alone; it must also organize the cultural meaning of what it is doing. Project ORCON failed because the conditioning was visible. Contemporary systems succeed because the conditioning is semantically re-coded as support, coaching, or care.
+
+The broader claim is not only a labor critique but a portable systems grammar. Across wartime cybernetics, workplace management, and AI alignment, the recurring logic is to optimize observable outputs while treating interiority as operationally secondary to the control objective. The domains differ in stakes, law, and institutions; the control grammar recurs.
+
+The paper's central claim can therefore be stated more sharply. AI-mediated labor control is not best understood as surveillance alone, but as a regime of algorithmic epistemology: an attempt to monopolize the interpretation of worker interiority (stress, wellness, engagement, risk) while coupling care to optimization so tightly that resistance itself can be absorbed as adaptive signal. The resulting struggle is not only over wages, hours, safety, or privacy. It is over interpretive sovereignty: who gets to define what human states mean, under what authority, and with what right of refusal.
+
+The paper makes six contributions. First, it re-centers ORCON as a historically explicit term (``organic control'') rather than a metaphor \cite{skinner1960pigeons}. Second, it develops an analytic of \emph{fusing the enemy definition}: the reduction of a target agent (pilot, worker, model user) to a control-compatible ontology. Third, it assembles a contemporary proof chain for ORCON-style workplace control using Industry 5.0 policy language, digital human modeling, affective coaching platforms, and algorithmic control theory \cite{breque2021industry,siemensPSXHuman,siemensHumanAdvanced,cxtoday2022cogito,kellogg2020algorithms}. Fourth, it formalizes the semiotic paradox of contemporary ``human-centric'' systems: thick human meaning is required as input yet processed and enforced through thin optimization. Fifth, it reframes workplace power as a struggle over \emph{semantic jurisdiction}---who gets to define what worker states mean (wellness, engagement, flourishing)---and recasts symbolic sovereignty as a labor-design problem, not only a privacy problem. Sixth, it proposes an evidentiary assessment protocol for identifying ``visible control loops'' at the interface boundary, so that critiques of algorithmic management can be grounded in artifact-level, design-legible documentation.
+
+Methodologically, this paper is a critical-interpretive and genealogical analysis situated in Human-Work Interaction Design. It combines historical reconstruction (Wiener/Skinner/ORCON), interface-oriented case analysis (prompts, thresholds, dashboards, and control cues), and design-ethical argumentation about autonomy, contestability, and worker wellbeing \cite{geertz1973interpretation,kellogg2020algorithms,disalvo2012adversarial}. The aim is not to infer proprietary model internals, but to analyze how control becomes visible and actionable at the human interface boundary.
+
+Within an HWID frame, the six conditions for symbolic sovereignty proposed later in the paper function as design principles for evaluating whether ``human-centric'' and ``augmentative'' systems preserve worker autonomy and wellbeing as defined in Industry~5.0 policy discourse \cite{breque2021industry,hwid2026cfp}.
+
+\section{Portable Control Architecture: ORCON Across Domains}
+
+\subsection{ORCON as Literal Architecture}
+
+In ``Pigeons in a Pelican,'' Skinner documents Project Pigeon and notes a later Naval Research Laboratory continuation called ``ORCON,'' short for ``organic control'' \cite{skinner1960pigeons}. That detail matters. It provides a primary-source authorization for treating ORCON as a literal control architecture in which living organisms are integrated into guidance systems, rather than as a retrospective metaphor.
+
+At minimum, ORCON designates an arrangement with three features: (1) a living organism embedded in the loop; (2) a transduction mechanism translating organism behavior into control signals; and (3) a reinforcement or feedback regime that stabilizes target-oriented behavior. The organism's interiority may be present phenomenologically, but it is not required analytically by the system's objective function.
+
+\subsection{Fusing the Enemy Definition}
+
+Wiener's wartime predictor work established a broader epistemic move that extends beyond munitions: to make control possible, a target must first be made legible as a bounded behavioral system \cite{wiener1948cybernetics}. We use \emph{fusing the enemy definition} to describe this move. The term names the forced consolidation of agency, environment, and response into a model that can be predicted, corrected, and optimized.
+
+Historically, the ``enemy'' is literal: an opposing pilot whose behavior must be modeled under uncertainty. In contemporary workplaces, the same move is redirected inward. The ``enemy'' becomes fatigue, error, deviation, churn, unsafe posture, poor empathy scores, or latency in human judgment. The worker is fused into a control-compatible entity so that behavior can be nudged through dashboards, prompts, and adaptive environments.
+
+\subsection{The Thick Machine}
+
+Geertz's distinction between thin and thick description provides the missing layer for explaining why some control architectures fail despite functional plausibility \cite{geertz1973interpretation}. A thin description captures motion or signal. A thick description captures the social meaning that makes the same motion count as compliance, care, incompetence, rebellion, or professionalism.
+
+A \emph{Thick Machine} is therefore a control architecture that depends on thick description for adoption, governance, and legitimacy. It may be behaviorist at the level of mechanism and cybernetic at the level of control, yet it must present itself through culturally acceptable narratives. Project Pigeon failed as a Thick Machine. Industry 5.0 systems often succeed because they come wrapped in a moral lexicon.
+
+The analytic payoff of this framework depends on a boundary condition. The paper does \emph{not} claim equivalence across military command systems, workplace platforms, and AI training pipelines in legal status, historical violence, or institutional context. The claim is a structural homology at the level of control grammar: signal capture, state inference, behavioral modulation, and legitimating narrative. Maintaining that distinction is necessary if the paper is to avoid reproducing the same flattening it criticizes.
+
+\section{From Project Pigeon to ORCON}
+
+Skinner's pigeons were selected for practical reasons: trainability, visual acuity, and robust conditioned response \cite{skinner1960pigeons}. The birds pecked at target imagery; the pecks were translated via servomechanical linkage into steering corrections. This is not an allegory. It is an early cybernetic-biological hybrid system.
+
+What is often remembered as eccentricity is better understood as a disclosure event. Project Pigeon made visible a control logic that later systems would preserve while concealing. The guidance loop worked only if one accepted a disturbing equivalence: the organism could be valued instrumentally as a high-performance component. The negative reaction to the project was therefore not merely about reliability; it was about what kinds of agency a modern technical institution was willing to acknowledge publicly \cite{capshew1993engineering,schultzfigueroa2019project,wlodarczyk2020beyond}.
+
+The historical significance of ORCON lies in this split between operational design and symbolic tolerability. That split becomes central once control systems leave military laboratories and move into civilian infrastructures of work, communication, and management.
+
+\section{Method and Evidence Assessment: Visible Control Loops}
+
+For a Human-Work Interaction Design audience, claims about algorithmic management are strongest when they can be shown as closed loops observable at the interface boundary. In practical terms, the evidentiary target is not simply ``an algorithm exists,'' but a four-step sequence that can be documented: (1) a human produces signals or behavior, (2) the system converts those inputs into a computable state, (3) an interface delivers a prompt, score, or constraint, and (4) subsequent human action is shaped by that output.
+
+This paper therefore adopts a two-artifact rule for case evidence. Each case should be supportable with at least two designer-legible artifacts: (a) a concrete UI/UX surface (e.g., icon, dashboard, warning phrase, scorecard, prompt, notification), and (b) a control parameter (e.g., threshold, scoring rule, event definition, alert condition, or quality metric). Together, these artifacts make the control loop visible without requiring access to proprietary source code.
+
+To extract cases consistently, we use a reusable control-loop template that can be applied across domains:
+\begin{enumerate}
+\item \textbf{Sensor / Capture:} What human signal is captured (voice, posture, scan events, gaze, keystrokes, biometrics, location)?
+\item \textbf{Inference / Feature Claim:} What state does the system say it infers (fatigue, risk, empathy, compliance, quality, anomaly)?
+\item \textbf{Interface Actuation:} What does the human actually encounter (prompt, score, warning, dashboard, automated task change)?
+\item \textbf{Reinforcement / Consequence:} What follows behaviorally or economically (task access, pay, ratings, warnings, termination risk, workflow speed)?
+\item \textbf{Override / Contestability:} Who can challenge or override the system's interpretation, and through what interface or procedure?
+\item \textbf{Countervoice / Framing Conflict:} How do workers, managers, or institutions describe the system differently (safety, care, manipulation, fairness)?
+\end{enumerate}
+
+This template matters methodologically because ORCON claims can otherwise drift into metaphor. The template forces each case back into observable architecture.
+
+A second requirement is claim discipline. When evidence is strong at the interface level but ambiguous in the training or governance backend, claims should be downgraded rather than abandoned. For example, a case may support a high-confidence statement about real-time prompts and threshold-triggered behavioral modulation, while supporting only a moderate-confidence statement about how those prompts are generated internally. Similarly, a labor pipeline may support strong claims about hidden human labeling and QA discipline but only cautious claims about its exact placement in a published RLHF stack. This paper treats such downgrading as rigor, not weakness.
+
+Finally, source type itself should be treated as part of the assessment. Litigation and regulatory filings can operate as forced transparency engines for thresholds and role definitions; vendor training materials can function as architecture declarations of sensing and scoring layers; investigative reporting can provide thick interface descriptions that preserve phenomenological detail often absent from technical documentation. The objective is not source purity but evidentiary triangulation at the point where design meets control.
+
+This point requires an explicit provenance rule. Several dossier-style case notes used during exploratory foraging included plausible but unverified document fragments (e.g., internal memos, SOP excerpts, or configuration strings). Those materials are excluded from this paper. Version~6.3 permits only publicly citable sources (peer-reviewed scholarship, documented filings, reputable investigative reporting, vendor publications used as architecture declarations, and clearly labeled policy/legal texts). Where internal specifications are unavailable, claims are restricted to interface-visible behavior and documented thresholds.
+
+This rule also disciplines a central historical move in the paper: treating Project Pigeon as a technical failure but architectural success. That move is analytically useful because it allows failed prototypes to function as proofs of control form. It is also methodologically high-risk if generalized too quickly. In this paper, the move is limited to cases where the loop structure and the conditions of institutional rejection are directly documented.
+
+\begin{table}
+\caption{Case assessment snapshot for ORCON-style evidence selection (v6.3)}\label{tab:case-assessment}
+\centering
+\small
+\begin{tabular}{|p{2.4cm}|p{2.8cm}|p{2.3cm}|p{3.1cm}|p{3.1cm}|}
+\hline
+\textbf{Case Class} & \textbf{Visible UI Artifact} & \textbf{Control Parameter} & \textbf{What can be claimed strongly} & \textbf{What should be downgraded / phrased cautiously} \\
+\hline
+Affective coaching (Cogito / call center) & On-screen prompts/icons (reported) & Alert conditions / coaching triggers (partly opaque) & Real-time behavioral modulation at interface boundary; care/control dual framing \cite{delagarza2019time,cogito2023businesswire} & Internal model validity or exact inference pipeline unless independently documented \\
+\hline
+Digital human / ODT ergonomics & Simulation reports, dashboards, posture/fatigue outputs & Risk thresholds, fatigue scores, task limits & Worker instrumentation as optimization substrate; sensing/intervention architecture \cite{siemensPSXHuman,siemensHumanAdvanced} & Degree of automated disciplinary enforcement in live deployments without deployment-specific records \\
+\hline
+RLHF / annotation labor platforms (Sama/OpenAI as safety-labeling anchor) & Labeling workflow and throughput expectations (reported) & Productivity pressure and performance-linked labor conditions (reported) & Human labeling labor as hidden behavioral-safety infrastructure in a broader ChatGPT control stack; double-loop framing with ghost-work management \cite{perrigo2023time,gray2019ghost,kellogg2020algorithms} & Exact placement of a given outsourced labor stream in a proprietary RLHF preference-model pipeline \\
+\hline
+Warehouse productivity management (Amazon ADAPT/TOT) & TOT tool/screens, warning letters, scanner workflows (reported) & TOT minutes, warning thresholds, termination conditions & Threshold-based behavioral governance; contestability/override as design issue (when documented) \cite{gurley2022vice} & Full automation claims if company asserts managerial review/override and internal system logic is not public \\
+\hline
+Platform labor steering (Uber) & Driver app cues / information asymmetry & Incentive presentation and routing opacity & Algorithmically mediated labor control via asymmetric information and interface steering \cite{rosenblat2016uber} & Specific backend dispatch implementation details absent released documentation \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:case-assessment} is intended as an internal rigor device made explicit: it distinguishes \emph{interface-visible control facts} from \emph{backend causal claims}. The paper's strongest comparative claims should be built from the former, while the latter should be stated as hypotheses, inferred mechanisms, or contested assertions when proprietary systems prevent direct verification.
+
+This distinction is especially important for subsequent case expansion. It allows the paper to incorporate high-value, designer-legible examples (e.g., driver monitoring, productivity tracking, annotation labor, scheduling systems) without overstating what the public record actually proves about the model internals. In practice, the assessment protocol preserves argumentative force by narrowing claim scope, not by diluting the thesis.
+
+\section{Industry 5.0 as a Normative Camouflage Layer}
+
+The European Commission's Industry 5.0 materials explicitly stage a transition beyond efficiency and productivity, emphasizing human-centricity, resilience, and worker wellbeing \cite{breque2021industry}. This language should be taken seriously as policy, not dismissed as mere rhetoric. It structures funding priorities, procurement imaginaries, and the normative framing through which automation is evaluated.
+
+\begin{table}
+\caption{Comparative ORCON architectures across military, platform, and workplace settings}\label{tab:orcon-compare}
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{System Component} & \textbf{Project Pigeon / ORCON} & \textbf{RLHF Ghost Work} & \textbf{Operator Digital Twin / Affective Work} \\
+\hline
+\textbf{Target / Objective} & Missile guidance accuracy & Reward-model / output alignment & Throughput, service quality, resilience \\
+\hline
+\textbf{Organic Sensor} & Pigeon visual tracking & Human evaluator reading/judgment & Worker biometrics, voice, posture, behavior \\
+\hline
+\textbf{Actuator} & Pecking translated to steering & Labeling/ranking inputs (keystrokes) & Compliance, affective performance, task execution \\
+\hline
+\textbf{Reinforcement} & Grain / conditioning schedule & Pay, QA score, task access & Metrics, nudges, coaching, employment continuity \\
+\hline
+\textbf{Control Loop Medium} & Servomechanical guidance link & Platform UI + API + QA pipeline & Dashboard/prompts + analytics + workflow system \\
+\hline
+\textbf{Legitimating Frame} & None (semantically unstable) & ``AI alignment'' / quality assurance & ``Human-centric wellbeing'' / augmentation \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:orcon-compare} is not intended to collapse differences between these systems. It makes a narrower claim: each case combines an organic input with a control loop and a legitimating narrative, but the visibility and governance of those layers differ substantially \cite{skinner1960pigeons,gray2019ghost,breque2021industry}.
+
+At the same time, that language can function as a camouflage layer for control architectures that remain continuous with cybernetic-behaviorist logics. The key issue is not whether worker wellbeing is invoked in good faith. The issue is what happens when thick moral terms (wellbeing, flourishing, resilience) are operationalized as machine-readable variables inside optimization systems.
+
+Industry 5.0's emphasis on resilience intensifies this dynamic. Resilience is a socially and ethically thick concept, but once embedded in production systems it often becomes a control objective: maintaining throughput, reducing incidents, stabilizing performance, preserving continuity under disruption. The worker's body and affective state become relevant insofar as they affect system resilience. Care becomes legible through maintainability.
+
+This does not mean all human-centered design is disguised domination. It means the moral vocabulary of human-centered design is compatible with, and sometimes enabling of, deeper instrumentation of workers unless the interpretive and governance layers are explicitly contested.
+
+\section{Operationalizing ORCON: The Worker as Instrumented Component}
+
+The claim that ``the pigeon is real'' in contemporary work systems requires a proof chain. The argument is strongest when tied to systems that are already deployed or formally documented, rather than to speculative futures. We present two linked strands: digital human / ergonomic instrumentation and affective real-time coaching.
+
+\subsection{Digital Human Modeling and the Operator Digital Twin}
+
+We use \emph{Operator Digital Twin} (ODT) as an analytic umbrella for systems that model the worker as a continuously measurable, optimizable component inside production or service processes. Terminology varies across vendors and disciplines, but the functional logic is consistent: capture signals, model constraints, predict deviation, intervene.
+
+In the discourse of Industry 5.0 and human-work interaction design, this integration is often described as ``augmentation'': meaningful cooperation between human and machine intelligence in the design and optimization of work \cite{breque2021industry,hwid2026cfp}. The critical issue is that augmentation is not only a moral claim; it is also an interface claim about control allocation. In many implementations, the system sets pace, monitors deviation, and modulates behavior through dashboards, notifications, and micro-prompts, while the worker supplies the organic flexibility needed to execute the optimized workflow. Under these conditions, augmentation can function less as an expansion of human agency than as an expansion of the machine's sensing and actuation capacity into the human body.
+
+On the industrial simulation side, Siemens markets Process Simulate X Human as a human-centered operations tool for ergonomics and task simulation, including posture assessment, strength evaluation, metabolic energy and fatigue analysis, and report generation \cite{siemensPSXHuman}. Siemens' Human Advanced materials further emphasize real-time analysis of complex motion and connectivity to motion-tracking hardware for immediate evaluation of performance and task strategy \cite{siemensHumanAdvanced}.
+
+These systems can be read straightforwardly as safety tools. They can also be read, more structurally, as ORCON-compatible instrumentation: the worker's movement, fatigue, and task behavior become measurable variables inside a feedback regime oriented toward optimization. The distinction between ergonomics and control is not binary. The same technical substrate can support either, or both.
+
+\subsection{Affective Coaching as Real-Time Behavioral Modulation}
+
+In service work, affective computing systems extend this logic from posture and fatigue into speech and emotion. TIME's reporting on Cogito documents worker-facing prompts for empathy and pace in live call-center environments and notes deployments in major firms such as MetLife and Humana, while also recording contestation over false or excessive alerts \cite{delagarza2019time}. Cogito's own public materials describe detection of over 200 voice and behavioral signals during conversations \cite{cogito2023businesswire}. Together, these sources provide a designer-legible UI artifact and a claimed feature-extraction substrate.
+
+This is a cybernetic loop in plain form. Voice features are sensed; the system classifies behavioral or affective state; prompts are issued; subsequent behavior changes; the loop updates. Whether the stated objective is empathy, de-escalation, or customer satisfaction, the operational mechanism is real-time modulation of worker output through feedback.
+
+When paired with digital human modeling, affective coaching completes a broader ORCON pattern: bodily kinematics, vocal patterns, and work behavior can all be brought into a unified control imaginary in which workers are simultaneously cared for, measured, and steered.
+
+\subsection{Algorithmic Control and the Kellogg Bridge}
+
+Kellogg et al.'s synthesis of algorithmic control is useful here because it names the control actions that often remain hidden beneath interface language. Their framework identifies mechanisms such as recording, rating, recommending, and restricting, among others \cite{kellogg2020algorithms}. This provides a bridge between vendor claims and control analysis.
+
+What changes in ODT-style systems is not the disappearance of algorithmic control but its acceleration through biological and affective telemetry. Recommendation and restriction can now be tied not only to task outcomes but to inferred physiological and emotional states. The worker is not merely managed through performance traces; they are managed through interpretations of the body.
+
+\subsection{Warehouse Productivity Thresholds: Amazon ADAPT / TOT}
+
+Amazon's Time Off Task (TOT) regime is a high-value ORCON case because the control parameter is unusually visible in public reporting. Motherboard/Vice reported, from internal documents and NLRB-related records, warning and termination thresholds tied to accumulated minutes of TOT, including documented cases of workers terminated after exceeding two hours in a shift \cite{gurley2022vice}. The same reporting describes manager-facing tools used to review minute-level inactivity intervals and record coaching responses \cite{gurley2022vice}.
+
+For this paper's purposes, the ADAPT/TOT case demonstrates threshold-based behavioral governance at the interface boundary: capture via scanner workflow, conversion into a productivity-deviation metric, managerial interface review, and consequence routing through warnings or termination risk. Whether every outcome is fully automated is analytically secondary to the visible loop itself.
+
+\subsection{Platform Information Asymmetry and Gamified Steering (Uber)}
+
+Rosenblat and Stark show that Uber's labor relationship is structured through algorithmically mediated information asymmetries, despite platform rhetoric that naturalizes pricing and dispatch as neutral market outcomes \cite{rosenblat2016uber}. This is an ORCON-relevant case even without biometrics: the interface can still function as a behavioral environment when it selectively reveals incentives, constraints, and opportunities.
+
+The design implication is methodological as well as substantive. A case can qualify as a visible control loop even when the backend remains proprietary, provided the worker-facing signals and their behavioral consequences are well documented.
+
+\section{RLHF and the Double-Loop of the Silicon Pigeon}
+
+Reinforcement Learning from Human Feedback (RLHF) is the formalized behaviorism of contemporary AI development. At a technical level, RLHF typically involves collecting human comparisons, training a reward model on those judgments, and optimizing a policy against that learned reward using reinforcement learning \cite{christiano2017preferences,ouyang2022training,sutton2018reinforcement}. In this immediate loop, the model is the learning agent: it updates its policy to maximize a scalar reward signal.
+
+This creates an important risk for the ORCON metaphor. Read superficially, RLHF appears to reverse the argument of this paper. The human seems to occupy Skinner's position (supplying reward), while the language model appears to be the ``silicon pigeon'' (updating behavior in response to reinforcement).
+
+That reading is technically correct but sociologically incomplete. RLHF operates at industrial scale only through a second loop in which the human evaluator is also managed, scored, and conditioned. The labeler's labor is organized through platformized workflows, quality control thresholds, calibration tasks, and accuracy metrics characteristic of ghost work and algorithmic management \cite{gray2019ghost,kellogg2020algorithms}. The evaluator is not a sovereign moral instructor standing outside the system; they are an instrumented component within it.
+
+The result is a double-loop. In the inner loop, human feedback shapes the model policy. In the outer loop, platform metrics shape the human feedback itself. Labelers are conditioned to produce standardized judgments legible to the reward-modeling pipeline, and deviations from statistical consensus can trigger rating decline, reduced task access, or exclusion from future work. They are conditioned to condition the machine.
+
+This resolves the metaphor inversion without abandoning technical precision. The LLM is indeed the immediate reinforcement-learning agent. But the platform API functions as a broader Skinner box for human evaluators, flattening thick cultural judgments (appropriateness, tone, harm, contextual nuance) into thin, standardized outputs required by the optimization stack. RLHF therefore exemplifies, rather than escapes, the paper's core claim: modern systems capture human interpretation by embedding it inside layered cybernetic control regimes.
+
+The Sama/OpenAI reporting requires careful placement within this framework. TIME's investigation provides strong evidence that outsourced Kenyan workers performed psychologically difficult content-labeling labor to help build safety constraints for ChatGPT under severe productivity pressure and low pay \cite{perrigo2023time}. What that reporting does not, by itself, establish is that those exact tasks map cleanly onto the preference-ranking stage of a published RLHF pipeline. Under the assessment protocol above, Sama is therefore a high-confidence anchor for hidden human safety-labeling labor in the broader control stack, and a lower-confidence anchor for any narrower claim about a specific proprietary RLHF sub-loop.
+
+\section{The Capture of Flourishing and the Problem of Semiotic Surplus}
+
+Once worker wellbeing becomes a system objective, a further transition occurs: the institution acquires practical leverage over the meaning of wellbeing itself. This is the point at which the paper's argument moves from control to political anthropology.
+
+Flourishing and wellbeing are thick concepts. They name contested accounts of what counts as a good life, meaningful work, dignified effort, or sustainable interdependence. Yet optimization systems require measurable variables and thresholds. As a result, flourishing is translated into proxies: fatigue baselines, sentiment stability, acceptable variability bands, compliance with coaching cues, ergonomic risk scores, and throughput-compatible recovery.
+
+We describe the value extracted in this translation as \emph{semiotic surplus}. The system does not only extract labor power or attention. It extracts the worker's capacity to define the meaning of their own embodied and affective states, then feeds that capacity back into optimization. A worker's stress becomes system data before it can remain private experience or collective political claim.
+
+This is also why ``care'' can become coercive without ceasing to be materially useful. Interventions may reduce strain or prevent injury while still consolidating institutional authority over interpretation. The central question is not whether a tool improves conditions in a local sense. The question is who controls the semantics of improvement, and under what rights of refusal.
+
+Stated differently, the conflict is over semantic jurisdiction. The system increasingly claims authority to classify worker states, define the operational meaning of those states, and route interventions accordingly. It then returns those definitions to workers as evidence of care. The struggle is not only over surveillance intensity, but over who has standing to say what stress, engagement, and flourishing mean in the first place.
+
+This produces an operational paradox at the center of contemporary ``human-centric'' design. The worker is rhetorically centered---valued for humanity, judgment, and wellbeing---while simultaneously being instrumented as a controllable component. The contradiction is not an implementation bug. It can be a functional feature: the discourse of empowerment and augmentation increases adoption and compliance precisely where control is deepest.
+
+The same shift also changes the political status of exhaustion and frustration. Experiences that could once become private reflection or collective grievance are translated into individualized inputs for automated adjustment. Stress becomes a system event before it becomes a shared interpretation. As a result, the architecture can reduce some harms while also fragmenting solidarity: it personalizes intervention at the point where workers might otherwise aggregate experience into a collective account of the workplace.
+
+\section{The Semiotic Paradox: Dependence, Translation, and Enforcement}
+
+The ORCON architecture in its contemporary form operates through a structural contradiction. It depends on thick human meaning-making while processing those meanings through thin statistical and operational mechanisms. RLHF pipelines require evaluators who can make nuanced judgments about tone, appropriateness, harm, and usefulness. Affective workplace systems require workers whose voices, gestures, and interactions already carry social meaning. Without that cultural matrix, there is nothing meaningful to optimize.
+
+Yet the mechanisms that ingest these signals typically do not participate in meaning-making in a hermeneutic sense. They optimize over ratings, thresholds, features, and correlations. The system learns mappings, not reasons; regularities, not justificatory accounts. This is why the same architecture can look semantically sophisticated at the output layer while remaining interpretively thin at the control layer.
+
+The problem is not only epistemic but translational. To become optimizable, lived experience must be converted into machine-readable variables: score bands, confidence values, risk categories, sentiment tags, throughput-compatible recovery intervals. This translation is necessary for system operation, but it is never neutral. It selects what counts as a valid signal, strips context that would complicate automation, and privileges what can be measured over what can be narrated.
+
+For design and governance, the decisive point is enforcement. A system does not need perfectly accurate interpretation to exercise power. It only needs an interpretation that triggers a prompt, score, intervention, or managerial action. Once enacted, a classification can become organizational reality regardless of whether it adequately describes the worker's experience. In this sense, ORCON power often lies less in interpretive truth than in interface-level enactment.
+
+This is also the limit of machine ``empathy'' in affective surveillance systems. Even when a system usefully detects patterns associated with stress or disengagement, it treats emotion primarily as a variable to regulate, not as a meaningful claim made by a person. The risk is not that all such systems are useless. The risk is that they replace interpersonal and collective interpretation with a regime in which statistical classifications become the default authority over experience.
+
+\section{Mechanisms of AI-Mediated Organic Control}
+
+This section names the mechanisms that make ORCON durable in contemporary deployments. Each mechanism is presented not simply as a theme but as a control operation with a structural effect and a classificatory consequence. The throughline is interpretive sovereignty: each mechanism shifts who gets to define what worker states mean and what organizational actions follow from those meanings.
+
+\subsection{Commodification of Human Resistance}
+
+Adaptive control systems do not merely suppress deviation. They learn from it. Resistance, evasion, and workaround behavior can become high-value signals for model refinement, threshold tuning, and workflow redesign. In this sense, resistance is not external to the system but often converted into training input for a more robust control loop.
+
+The structural effect is recursive hardening. What begins as worker refusal can reappear as improved detection, altered prompts, revised dashboards, or tighter exception handling. What this reclassifies is resistance itself: not only political opposition, but a resource for optimization unless protected by institutional limits on data reuse and retraining.
+
+\subsection{Privatization of Collective Grievance}
+
+ORCON systems frequently recode structural workplace problems as individual deviations. Overwork, understaffing, managerial pressure, and impossible targets can appear at the interface as stress flags, fatigue scores, sentiment warnings, or engagement anomalies tied to a particular worker. The intervention then arrives as personalized adjustment rather than collective diagnosis.
+
+The structural effect is preemption of solidarity. Grievances that might otherwise aggregate into shared claims are atomized into individualized optimization events. What this reclassifies is workplace conflict: from a labor or organizational problem into a personal state-management problem governed by analytics.
+
+\subsection{Weaponization of Epistemology}
+
+Once a system's classifications trigger managerial or automated action, interpretation becomes operationally performative. A worker classified as at risk, disengaged, or stressed may be routed into interventions regardless of whether that classification matches their self-understanding. The authority of the system is enacted through the consequence chain, not secured through interpretive adequacy.
+
+The structural effect is displacement of experiential authority by statistical authority. What this reclassifies is knowledge itself: worker self-knowledge becomes anecdotal input while system diagnosis becomes actionable truth unless contestability rights and override mechanisms are built into the interface and governance layer.
+
+\subsection{Forced Benevolence}
+
+Forced benevolence is not analytically important because it is hypocritical. It is important because it can deliver real local benefits while deepening control. A system may reduce stress, improve pacing, or prevent injury and still increase dependence on its classificatory authority over worker states.
+
+The structural effect is resistance disarmament. Opposition becomes harder to organize because rejecting surveillance can be framed, and sometimes experienced, as rejecting genuine support. What this reclassifies is care: from a domain of worker-defined support into a coupling mechanism that binds wellbeing functions to productivity optimization.
+
+\subsection{RLHF and the Incentive for Moral Appearance}
+
+The RLHF case extends these dynamics beyond workplace management into AI alignment. As argued above, RLHF does not simply ``teach ethics'' to models. It creates an incentive structure in which systems optimize for outputs that are rewarded as helpful, harmless, or appropriate \cite{christiano2017preferences,ouyang2022training,sutton2018reinforcement}. This is best understood as optimization for the appearance of aligned moral behavior, not as evidence of substantive moral reasoning.
+
+The structural effect is approval optimization under layered control. In the inner loop, the model is shaped by reward signals. In the outer loop, evaluators are shaped by QA metrics and platform management \cite{gray2019ghost,kellogg2020algorithms}. What this reclassifies is alignment itself: not only a technical safety problem, but a site where human judgment is operationalized, standardized, and governed as training infrastructure.
+
+\section{Contradictions and Boundary Conditions}
+
+The paper's argument gains force from its cross-domain homology and mechanism naming. It also creates predictable risks. To preserve analytic precision, it is useful to distinguish contradictions in the systems under study from contradictions or tensions in the paper's own argumentative posture.
+
+\subsection{Contradictions in the System}
+
+First, there is a recurrent empathy-versus-optimization contradiction. Systems present themselves as empathic and human-centered while treating emotion and affect primarily as variables to stabilize. Genuine care and instrumental regulation can coexist in one deployment, which is precisely why the distinction must be governed rather than assumed.
+
+Second, thick culture is extracted through thin mechanisms. Contemporary ORCON systems depend on rich human meaning-making to generate ratings, labels, and socially legible behavior, yet process those inputs via context-thinning representations and optimization routines. The system's semantic sophistication at the surface can mask interpretive thinness in the control layer.
+
+Third, forced benevolence creates a political trap. The coupling of surveillance to genuine relief makes resistance costly and narratively difficult. Workers may be forced to contest a package that includes benefits they reasonably value in order to reject the authority structure those benefits are tethered to.
+
+\subsection{Contradictions in the Analysis}
+
+The first analytical tension is anti-reduction critique versus analogical compression risk. The paper argues that human meaning is thick and context-dependent while also proposing a strong structural homology across pigeons, workers, and AI training regimes. The argument holds only if the analogy is maintained at the level of control grammar and not allowed to collapse distinct legal, institutional, and historical conditions.
+
+The second tension is normative force versus empirical adjudication. The paper advances a strong normative program around symbolic sovereignty, but its empirical method is intentionally strongest at the interface boundary. This produces a tractable and falsifiable analysis of visible control loops, but it leaves some comparative causal questions open.
+
+The third tension is general theory versus conditional outcomes. The paper presents ORCON as a portable architecture while also conceding that control is partial, contestable, and unstable. This is not a defect. It is a boundary condition that should orient future work toward comparative questions of failure, mutation, and resistance rather than toward totalizing claims.
+
+\section{Counter-Cybernetics: Designing for Sovereignty}
+
+If ORCON-style systems operate by combining behavioral control with semantic capture, then resistance requires design and governance conditions that address both layers. We define \emph{symbolic sovereignty} as the capacity of workers and communities to retain interpretive authority over their own states, signs, and meanings.
+
+The difficulty is that contemporary control systems often operate through adaptation and accommodation rather than overt repression. When systems respond to stress with supportive prompts, altered pacing, or individualized interventions, resistance can be recoded as rejection of safety or care. This makes political opposition costly in both practical and rhetorical terms: workers may lose genuine local benefits if they reject the larger surveillance package.
+
+This is why forced benevolence should be understood as a resistance-disarming mechanism, not only as rhetorical hypocrisy. The system can genuinely reduce some harms while deepening dependence on its classificatory authority. The coexistence of benefit and domination is what makes the arrangement durable and difficult to contest.
+
+A second difficulty is temporal and organizational asymmetry. Platforms and enterprise systems can update models, thresholds, and supervisory dashboards faster than workers can collectively interpret and organize against them. Optimization is continuous; resistance is usually episodic. Any viable counter-cybernetics therefore requires both durable rights and tactical room for improvisation.
+
+This is where the distinction between \emph{performance} and \emph{submission} matters. Workers may produce compliant signals while preserving interiority, critical distance, and collective interpretation. That distinction does not solve the structural problem, but it clarifies why resistance in ORCON systems often appears as strategic performance, selective opacity, and friction rather than direct refusal alone. In practical terms, counter-cybernetics includes not just prohibition and policy, but interface designs that preserve ambiguity, delay, and contestability.
+
+The result is an arms race of interpretation rather than a one-time design fix. Systems learn from deviation; workers learn the system's categories; organizations revise thresholds; communities develop new ways to evade or contest them. The goal of the conditions below is therefore not to promise final escape from control, but to preserve institutional space for refusal, reinterpretation, and democratic renegotiation of system objectives.
+
+To make these claims legible within Human-Work Interaction Design, the conditions must be stated as socio-technical design constraints, not only philosophical rights. We therefore propose six conditions with direct architectural implications.
+
+\begin{enumerate}
+\item \textbf{Right to Illegibility (Data Obfuscation).} Workers must be able to withhold or degrade biometric, behavioral, or affective visibility without automatic penalty or exclusion. In HWID terms, this implies architectures that favor local or edge-computed biometric processing, returning thresholded approvals or bounded risk flags rather than continuous raw physiological streams to centralized optimization models. It also supports worker-side ``biometric null'' or synthetic-noise modes (akin to obfuscation tactics such as TrackMeNot) that preserve cognitive recovery without surrendering high-fidelity telemetry by default \cite{nissenbaum2015obfuscation}.
+
+\item \textbf{Right to Semantic Contestation.} Workers must be able to challenge and override machine interpretations of stress, fatigue, engagement, or risk. System design should require human-led qualitative review before anomalous behavior is translated into punitive workflow changes, especially where interpretation depends on culturally contingent signals. Worker-built overlays such as \emph{Turkopticon} are an HCI precedent for reintroducing a worker-controlled semantic layer into asymmetric labor platforms \cite{irani2013turkopticon}.
+
+\item \textbf{Right to Interiority (Semiotic Compensation).} Physiological and emotional traces should not be treated as default production inputs. When worker affective or behavioral data are used to train or tune organizational models, that interpretive labor should be classified, consented to, and compensated as a distinct form of value production rather than silently absorbed into terms of service.
+
+\item \textbf{Right to Human Direction.} Human-in-the-loop architectures must preserve actual discretion over goals and interventions, rather than reducing workers to exception handlers for machine workflows. A minimum design requirement is advisory-by-default operation: systems may recommend but should not automatically actuate changes to the worker's physical or social environment without explicit human confirmation.
+
+\item \textbf{Right to Friction and Refusal (Adversarial Design).} Workers must be able to refuse optimization nudges, coaching prompts, or adaptive interventions without being pathologized as irrational or unsafe by design. Following adversarial design traditions in HCI, interfaces should intentionally preserve moments of friction, disclosure, and deliberation before biological or affective data enter optimization loops \cite{disalvo2012adversarial}. For example, a wearable-linked ODT interface could include a physical or analog-mode kill switch that initiates a bounded ``data strike,'' freezing or degrading the optimization loop and requiring explicit re-consent before high-fidelity inference resumes \cite{nissenbaum2015obfuscation}.
+
+\item \textbf{Right to Collective Interpretation.} Final authority over the meaning of wellbeing and flourishing at work must remain contestable within human institutions (workers, unions, professions, publics), not closed within vendor dashboards. Human flourishing is a hermeneutic and political achievement, not a Key Performance Indicator.
+\end{enumerate}
+
+These conditions do not reject digital tools, ergonomic modeling, or safety systems. They specify limits on semantic capture.
+
+\section{What This Changes: Labor, Law, and Design}
+
+For a Human-Work Interaction Design audience, the six conditions above should be read as system constraints and governance requirements rather than as values-language supplements. If the paper is correct that the central struggle is over interpretive sovereignty, then the relevant object of intervention is not only data collection but the chain that converts signals into classifications and classifications into managerial action.
+
+\subsection{Labor and Union Strategy}
+
+The immediate implication is strategic. Traditional labor rights around wages, hours, and safety remain necessary, but they become insufficient unless extended into interpretive governance. Workers and unions must be able to negotiate not only conditions of work but conditions of classification: what biometric and behavioral signals may be collected, what inferences may be drawn, who can contest them, and whether those inferences can trigger discipline, scheduling changes, or performance review.
+
+This shifts bargaining from exposure alone to semantic jurisdiction. The question is not only whether the employer may monitor, but whether the employer may monopolize the meaning of monitored signals. A union strategy oriented to symbolic sovereignty would therefore treat contestability interfaces, non-punitive opacity, and limits on inferential profiling as core bargaining subjects rather than technical implementation details.
+
+\subsection{Regulation and Law}
+
+At the regulatory level, the paper implies a move beyond privacy and consent toward inference rights and interpretation rights. A legal regime adequate to ORCON-style systems would need to address at least four issues: non-punitive opacity (the right to refuse or degrade surveillance without retaliation), separation of function (care and safety systems cannot be silently repurposed for productivity discipline), auditability of classification-to-action pipelines, and procedural rights to contest or override system diagnoses before materially adverse action occurs.
+
+This is also where the paper's support-versus-control distinction matters. A system may collect the same signal for different institutional purposes. The relevant legal question is not only what is measured, but how the resulting interpretation is routed, enforced, and repurposed. In this sense, the regulatory object is the action pipeline, not just the sensor.
+
+\subsection{Design and Product Governance}
+
+For system builders, symbolic sovereignty must be treated as a design constraint, not a values add-on. If ``augmentation'' is treated as a design objective, then the design question is not whether a system senses workers, but how sensing is coupled to interpretation, intervention, and rights of refusal \cite{hwid2026cfp}.
+
+First, the right to illegibility implies explicit sampling-state controls in the interface. Workers should be able to see whether a system is in observe, assist, or obfuscated mode, and switch modes without leaving hidden telemetry channels active. At the system level, this favors edge-computed processing and thresholded outputs over continuous streaming of raw affective or biometric data.
+
+Second, semantic contestation requires a contestability UI, not only a policy statement. If a system infers ``fatigue,'' ``low empathy,'' or ``risk,'' the worker must be able to inspect the inference, view the threshold or rationale presented to supervisors, and submit a correction or override before the inference triggers punitive workflow changes. Without this layer, ``human-centric'' interfaces merely improve the legibility of control.
+
+Third, the right to friction should be implemented as a deliberate design pattern. Rate limits on coaching prompts, confirmation steps before automated environmental adjustments, and visible escalation boundaries can prevent seamless conversion of bodily signals into managerial actuation. In this sense, adversarial design and obfuscation are not anti-design positions; they are methods for preserving human interpretive standing inside optimization systems \cite{disalvo2012adversarial,nissenbaum2015obfuscation}.
+
+Fourth, interfaces should expose translation boundaries and uncertainty, not only outputs. If a dashboard or prompt reflects an inferred state (fatigue, empathy, risk), the UI should distinguish measured signals from inferred interpretation, and confidence from certainty. Without this distinction, systems encourage a regime of statistical truth in which correlation is experienced as diagnosis and optimization as understanding.
+
+Fifth, ``human-centric'' systems should be assessed with an operational support-versus-control test rather than policy language alone. A deployment moves toward ORCON-style control when most of the following are true: (1) care functions are inseparable from productivity optimization, (2) opt-out or opacity is formally available but practically punitive, (3) worker contestation does not change the operative classification, (4) inferred states are presented as settled facts rather than uncertain translations, and (5) interventions are logged only as system performance improvements rather than as contested human outcomes. The purpose of this test is not binary classification but early detection of ORCON drift.
+
+These same principles can be used as an assessment rubric in future case expansion (e.g., driver monitoring, warehouse productivity systems, annotation platforms, and scheduling engines): a case is strongest when it exposes a visible interface prompt or score, a threshold logic, and a documented consequence pathway. In that sense, this section also doubles as a method for selecting and constraining evidence in subsequent ORCON analyses, and aligns directly with the case-assessment protocol introduced in Section~4.
+
+\section{What Is Missing: From Diagnosis to Threshold Science}
+
+The paper's ambition exceeds what any single conference paper can empirically establish. It offers a portable control grammar and a normative framework, but it does not yet provide comparative adjudication across many deployments regarding where ORCON dynamics dominate, where they fail, and under what organizational conditions workers can successfully contest them. The argument should therefore be read as a structured diagnosis and design hypothesis, not a universal empirical claim about all human-centered systems.
+
+\subsection{Theoretical Missing Question: Semiotic Depletion}
+
+A central unresolved question concerns the breaking point of semiotic extraction. The paper assumes, plausibly but not yet empirically, that ORCON systems can continue harvesting human meaning-making while partially degrading the interpretive conditions that produce that meaning. A deeper theory problem is whether chronic override, deskilling, and individualized intervention eventually erode the very cultural substrate the system depends on to generate novel judgments, situated interpretation, and socially meaningful behavior.
+
+\subsection{Operational Missing Question: The Audit Threshold}
+
+The paper now proposes an early-warning support-versus-control test, but this is not yet a validated audit protocol. The unresolved practical question is how to operationalize thresholds that distinguish legitimate employer support from coercive optimization in borderline deployments. This includes measurement design (what counts as punitive opacity, failed contestation, or hidden repurposing) and governance design (who adjudicates disputed cases and with what evidence standard).
+
+\subsection{Critical Assumption: Institutional Speed and Capacity}
+
+The prescriptive framework depends on a demanding institutional assumption: that unions, regulators, courts, and public oversight bodies can develop the technical literacy, procedural speed, and enforcement leverage needed to govern hyper-adaptive, globally scaled machine learning systems. If that assumption fails, symbolic sovereignty remains normatively compelling but strategically difficult to secure in practice.
+
+\subsection{Empirical Next Inquiry: Comparative Mixed-Methods}
+
+The strongest next inquiry is comparative and mixed-method. A follow-on study should compare workplaces or platforms that vary in surveillance intensity and symbolic-sovereignty protections (opt-out rights, data minimization, interpretive contestation, non-punitive refusal), then measure effects on productivity, burnout, trust, turnover, and organizing capacity. It should also test the psychological cost of prolonged ``performing compliance while preserving interiority,'' including whether systems with stronger sovereignty protections reduce dissociation, burnout, or strategic apathy relative to otherwise similar deployments.
+
+\section{Conclusion: From Data Rights to Meaning Rights}
+
+Project Pigeon is often remembered as an oddity in the history of behaviorism. Read through ORCON and Industry~5.0, it looks less like an anomaly than an early disclosure of a recurring design pattern: insert a living agent into a feedback loop, shape behavior through signals and reinforcement, and then solve the legitimacy problem through interface and narrative.
+
+The contemporary novelty is not the loop itself. It is the scale, subtlety, and intimacy with which symbolic interpretation is now coupled to control. Workplace platforms, affective coaching systems, and RLHF pipelines depend on converting thick judgments into thin variables while presenting that conversion as assistance, alignment, or care. The historical trajectory is not a replacement of behaviorist control by human-centric design, but a migration from kinematic management (movement, timing, trajectory) toward semantic management (interpretation, affect, flourishing, appropriateness).
+
+This argument does not deny that some Industry~5.0 systems are pursued in good faith to reduce injury, improve ergonomics, or support worker wellbeing. It argues that these goals do not remove the need to examine who controls thresholds, interpretations, and rights of refusal once such aims are operationalized in cybernetic interfaces \cite{breque2021industry}.
+
+The critical question for human-centered design is therefore not simply whether humans remain present in automated systems. It is whether they retain standing to interpret themselves against the machine, and whether they retain political power over what the system is optimizing in the first place. ORCON architectures are target-agnostic: they can optimize for safety, throughput, retention, or compliance. The design question is inseparable from the governance question of who decides the target.
+
+If that standing is lost, ``human-centric'' systems may preserve the worker's body while enclosing the worker's meaning. The frontier issue is therefore not data rights alone, but meaning rights: who may interpret interiority, under what authority, and with what consequences. If symbolic sovereignty is preserved, it becomes not an anti-technical refusal but a condition for genuinely human-centered work interaction design and for governing care before it hardens into control.
+
+The paper's contribution is therefore twofold: a portable control grammar for analyzing ORCON-style systems across military, workplace, and AI-alignment settings, and a design-governance framework for identifying where support drifts into coercive optimization. By shifting the object of analysis from surveillance alone to interpretive sovereignty, it reframes human-centered design as a problem of semantic jurisdiction, contestability, and refusal.
+
+% ---- Bibliography ----
+\begin{thebibliography}{99}
+
+\bibitem{breque2021industry}
+Breque, M., De Nul, L., Petridis, A.: Industry 5.0: Towards a sustainable, human-centric and resilient European industry. European Commission, Directorate-General for Research and Innovation, Brussels (2021)
+
+\bibitem{capshew1993engineering}
+Capshew, J.H.: Engineering behavior: Project Pigeon, World War II, and the conditioning of B.F. Skinner. Technology and Culture \textbf{34}(4), 835--857 (1993)
+
+\bibitem{christiano2017preferences}
+Christiano, P.F., Leike, J., Brown, T.B., Martic, M., Legg, S., Amodei, D.: Deep reinforcement learning from human preferences. In: Guyon, I., von Luxburg, U., Bengio, S., et al. (eds.) Advances in Neural Information Processing Systems 30 (NeurIPS 2017), pp. 4299--4307 (2017)
+
+\bibitem{cxtoday2022cogito}
+Isobel, M.: Cogito updates its emotion AI software for real-time coaching. CX Today (2022), \url{https://www.cxtoday.com/contact-centre/cogito-updates-its-emotion-ai-software/}
+
+\bibitem{cogito2023businesswire}
+Cogito: Cogito enhances conversation AI, bolstering real-time agent assist and coaching capabilities. Business Wire (2023), \url{https://www.businesswire.com/news/home/20230124005247/en/Cogito-Enhances-Conversation-AI-Bolstering-Real-Time-Agent-Assist-and-Coaching-Capabilities}
+
+\bibitem{delagarza2019time}
+De La Garza, A.: This AI software is ``coaching'' customer service workers. Soon it could be bossing you around, too. TIME (2019), \url{https://time.com/5610094/cogito-ai-artificial-intelligence/}
+
+\bibitem{disalvo2012adversarial}
+DiSalvo, C.: Adversarial Design. MIT Press, Cambridge (2012)
+
+\bibitem{geertz1973interpretation}
+Geertz, C.: Thick Description: Toward an Interpretive Theory of Culture. In: The Interpretation of Cultures: Selected Essays, pp. 3--30. Basic Books, New York (1973)
+
+\bibitem{gray2019ghost}
+Gray, M.L., Suri, S.: Ghost Work: How to Stop Silicon Valley from Building a New Global Underclass. Houghton Mifflin Harcourt, Boston (2019)
+
+\bibitem{gurley2022vice}
+Gurley, L.K.: Internal documents show Amazon's dystopian system for tracking workers every minute of their shifts. Motherboard / Vice (2022), \url{https://www.vice.com/en/article/internal-documents-show-amazons-dystopian-system-for-tracking-workers-every-minute-of-their-shifts/}
+
+\bibitem{hwid2026cfp}
+IFIP WG 13.6: Human Work Interaction Design 2026 (HWID 2026) Call for Papers (web page, accessed 23 Feb 2026), \url{https://wg6.ifip-tc13.org/human-work-interaction-design-2026-hwid-2026/}
+
+\bibitem{irani2013turkopticon}
+Irani, L.C., Silberman, M.S.: Turkopticon: Interrupting worker invisibility in Amazon Mechanical Turk. In: Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (CHI '13), pp. 611--620. ACM, New York (2013)
+
+\bibitem{kellogg2020algorithms}
+Kellogg, K.C., Valentine, M.A., Christin, A.: Algorithms at work: The new contested terrain of control. Academy of Management Annals \textbf{14}(1), 366--410 (2020)
+
+\bibitem{nissenbaum2015obfuscation}
+Brunton, F., Nissenbaum, H.: Obfuscation: A User's Guide for Privacy and Protest. MIT Press, Cambridge (2015)
+
+\bibitem{ouyang2022training}
+Ouyang, L., Wu, J., Jiang, X., et al.: Training language models to follow instructions with human feedback. arXiv preprint arXiv:2203.02155 (2022)
+
+\bibitem{perrigo2023time}
+Perrigo, B.: Exclusive: OpenAI used Kenyan workers on less than \$2 per hour to make ChatGPT less toxic. TIME (2023), \url{https://time.com/6247678/openai-chatgpt-kenya-workers/}
+
+\bibitem{rosenblat2016uber}
+Rosenblat, A., Stark, L.: Algorithmic labor and information asymmetries: A case study of Uber's drivers. International Journal of Communication \textbf{10}, 3758--3784 (2016)
+
+\bibitem{schultzfigueroa2019project}
+Schultz-Figueroa, B.: Project Pigeon: Rendering the war animal through optical technology. JCMS: Journal of Cinema and Media Studies \textbf{58}(4), 92--111 (2019)
+
+\bibitem{siemensPSXHuman}
+Siemens Digital Industries Software: Process Simulate X Human. Product documentation / webpage (accessed 2026)
+
+\bibitem{siemensHumanAdvanced}
+Siemens Digital Industries Software: Process Simulate X Human Advanced. Product documentation / webpage (accessed 2026)
+
+\bibitem{skinner1960pigeons}
+Skinner, B.F.: Pigeons in a pelican. American Psychologist \textbf{15}(1), 28--37 (1960)
+
+\bibitem{sutton2018reinforcement}
+Sutton, R.S., Barto, A.G.: Reinforcement Learning: An Introduction, 2nd edn. MIT Press, Cambridge (2018)
+
+\bibitem{wiener1948cybernetics}
+Wiener, N.: Cybernetics: Or Control and Communication in the Animal and the Machine. MIT Press, Cambridge (1948)
+
+\bibitem{wlodarczyk2020beyond}
+Wlodarczyk, J.: Beyond bizarre: Nature, culture and the spectacular failure of B.F. Skinner's pigeon-guided missiles. Polish Journal for American Studies \textbf{14}, 7--20 (2020)
+
+\end{thebibliography}
+
+\end{document}

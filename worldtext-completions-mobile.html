@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorldText Completions Reader</title>
+  <style>
+    :root {
+      --bg: #07080d;
+      --panel: #0f1119;
+      --ink: #e8eaf3;
+      --muted: #9aa0b7;
+      --line: #22263a;
+      --accent: #70f0c1;
+      --accent-2: #88a6ff;
+      --danger: #ff6f91;
+      --top-bg: rgba(7, 8, 13, 0.95);
+      --completion-ink: #d9deef;
+      --mono: "SF Mono", "Menlo", "Consolas", monospace;
+      --sans: "Inter", "Avenir Next", system-ui, sans-serif;
+    }
+
+    body[data-theme="light"] {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #141927;
+      --muted: #5f677d;
+      --line: #d8deec;
+      --accent: #0b7a57;
+      --accent-2: #3253cf;
+      --danger: #b02d52;
+      --top-bg: rgba(245, 247, 251, 0.95);
+      --completion-ink: #1d2438;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100%;
+    }
+
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--top-bg);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .count {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .quick-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel);
+    }
+
+    .quick-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .controls {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: 1fr auto auto;
+    }
+
+    .search,
+    select,
+    textarea,
+    input[type="range"] {
+      width: 100%;
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .btn {
+      min-height: 40px;
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { border-color: var(--accent); color: var(--accent); }
+    .btn.warn { border-color: var(--danger); color: var(--danger); }
+
+    .modes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .mode.active {
+      background: var(--accent);
+      color: #09100d;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .sub-controls {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sub-controls .full { grid-column: 1 / -1; }
+
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 10px 10px 120px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .entry {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .entry-head {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .entry-id {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent-2);
+    }
+
+    .entry-title {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .entry-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .entry-body {
+      padding: 10px;
+    }
+
+    .line-tools {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .line-tools .tiny {
+      min-height: 32px;
+      font-size: 10px;
+      padding: 0 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .line-info {
+      grid-column: 1 / -1;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .auto-copy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 32px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 0 6px;
+      background: var(--panel);
+    }
+
+    .auto-copy input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .completion-lines {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: auto;
+      max-height: none;
+      background: color-mix(in oklab, var(--panel), #fff 8%);
+    }
+
+    .completion-line {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      padding: 6px 8px;
+      border-bottom: 1px solid color-mix(in oklab, var(--line), transparent 55%);
+      cursor: pointer;
+      user-select: text;
+      -webkit-user-select: text;
+      -webkit-touch-callout: default;
+    }
+
+    .completion-line:last-child { border-bottom: none; }
+
+    .completion-line:hover {
+      background: color-mix(in oklab, var(--accent), transparent 92%);
+    }
+
+    .completion-line.selected {
+      background: color-mix(in oklab, var(--accent-2), transparent 84%);
+      box-shadow: inset 2px 0 0 var(--accent-2);
+    }
+
+    .completion-line.reading {
+      background: color-mix(in oklab, var(--accent), transparent 82%);
+      box-shadow: inset 2px 0 0 var(--accent);
+    }
+
+    .line-no {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 2px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .line-txt {
+      white-space: pre-wrap;
+      font-family: "Iowan Old Style", "Palatino", serif;
+      font-size: 15px;
+      line-height: 1.56;
+      color: var(--completion-ink);
+      word-break: break-word;
+    }
+
+    .comment-wrap,
+    .tts-wrap {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      display: none;
+    }
+
+    .comment-wrap.active,
+    .tts-wrap.active {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tts-grid {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .tts-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .sticky-tts {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--top-bg);
+      border-top: 1px solid var(--line);
+      padding: 8px 10px;
+      display: none;
+      z-index: 60;
+    }
+
+    .sticky-tts.active {
+      display: block;
+    }
+
+    .tts-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .mono { font-family: var(--mono); }
+
+    @media (max-width: 720px) {
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+      .controls .search {
+        grid-column: 1 / -1;
+      }
+      .sub-controls {
+        grid-template-columns: 1fr;
+      }
+      .tts-grid,
+      .tts-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+      .line-tools {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .line-txt {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="title">
+      <h1>WorldText Completions</h1>
+      <div class="title-right">
+        <div class="count" id="count">0 entries</div>
+        <button id="themeToggle" class="btn" type="button">Light</button>
+      </div>
+    </div>
+
+    <nav class="quick-links" aria-label="Quick navigation">
+      <a class="quick-link" href="index.html">Index</a>
+      <a class="quick-link" href="worldtext-zen-reader.html">Zen Reader</a>
+      <a class="quick-link" href="worldtext-completions-mobile.html">Completions</a>
+      <a class="quick-link" href="worldtext-prompt-operator.html">Operator</a>
+    </nav>
+
+    <div class="controls">
+      <input id="search" class="search" type="text" placeholder="Search completions, prompts, titles">
+      <button id="loadDefault" class="btn primary">Load</button>
+      <label class="btn">Import<input id="fileInput" type="file" accept=".json,.md,.txt" hidden></label>
+    </div>
+
+    <div class="modes">
+      <button class="btn mode active" data-mode="read">Read</button>
+      <button class="btn mode" data-mode="comment">Comment</button>
+      <button class="btn mode" data-mode="tts">TTS</button>
+    </div>
+
+    <div class="sub-controls">
+      <button id="expandAll" class="btn">Expand</button>
+      <button id="collapseAll" class="btn">Collapse</button>
+      <button id="downloadComments" class="btn full">Download Comments JSON</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="list" class="list"></section>
+  </main>
+
+  <aside id="stickyTTS" class="sticky-tts" aria-label="TTS controls">
+    <div class="tts-inner">
+      <button id="speakVisible" class="btn primary">Speak Visible</button>
+      <button id="stopTTS" class="btn warn">Stop</button>
+      <select id="voiceSelect" title="Voice"></select>
+      <label class="btn mono" for="rate">Rate <input id="rate" type="range" min="0.7" max="1.4" step="0.05" value="1"></label>
+    </div>
+  </aside>
+
+  <script>
+    const DEFAULT_FILE = "WORLD-TEXT-DOUBLE.parsed.json";
+    const COMMENT_KEY = "worldtext-comments-v1";
+    const THEME_KEY = "worldtext-completions-theme-v1";
+
+    const state = {
+      data: null,
+      entries: [],
+      filtered: [],
+      mode: "read",
+      comments: {},
+      voices: [],
+      lineSelections: {},
+      autoCopyByEntry: {},
+      lineMetaByEntry: {},
+      reading: { entryId: null, lineIndex: -1 },
+      speaking: { queue: [], cancelled: false },
+    };
+
+    const el = {
+      list: document.getElementById("list"),
+      count: document.getElementById("count"),
+      search: document.getElementById("search"),
+      themeToggle: document.getElementById("themeToggle"),
+      loadDefault: document.getElementById("loadDefault"),
+      fileInput: document.getElementById("fileInput"),
+      stickyTTS: document.getElementById("stickyTTS"),
+      voiceSelect: document.getElementById("voiceSelect"),
+      rate: document.getElementById("rate"),
+      speakVisible: document.getElementById("speakVisible"),
+      stopTTS: document.getElementById("stopTTS"),
+      downloadComments: document.getElementById("downloadComments"),
+      expandAll: document.getElementById("expandAll"),
+      collapseAll: document.getElementById("collapseAll"),
+    };
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme === "light" ? "light" : "";
+      el.themeToggle.textContent = theme === "light" ? "Dark" : "Light";
+      localStorage.setItem(THEME_KEY, theme === "light" ? "light" : "dark");
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "light" || saved === "dark") {
+        applyTheme(saved);
+        return;
+      }
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      applyTheme(prefersLight ? "light" : "dark");
+    }
+
+    function saveComments() {
+      localStorage.setItem(COMMENT_KEY, JSON.stringify(state.comments));
+    }
+
+    function loadComments() {
+      try {
+        state.comments = JSON.parse(localStorage.getItem(COMMENT_KEY) || "{}") || {};
+      } catch {
+        state.comments = {};
+      }
+    }
+
+    function normalize(s) {
+      return (s || "").toLowerCase();
+    }
+
+    function entryById(entryId) {
+      return state.entries.find((e) => e.id === entryId) || null;
+    }
+
+    function entryLines(entryId) {
+      const entry = entryById(entryId);
+      const text = (entry?.response?.raw || "").replace(/\r\n/g, "\n");
+      const lines = text.split("\n");
+      return lines.length ? lines : [""];
+    }
+
+    function selectedLines(entryId) {
+      if (!Array.isArray(state.lineSelections[entryId])) {
+        state.lineSelections[entryId] = [];
+      }
+      return state.lineSelections[entryId];
+    }
+
+    function getLineMeta(entryId) {
+      if (state.lineMetaByEntry[entryId]) return state.lineMetaByEntry[entryId];
+      const lines = entryLines(entryId);
+      const starts = [];
+      let pos = 0;
+      lines.forEach((line) => {
+        starts.push(pos);
+        pos += line.length + 1;
+      });
+      state.lineMetaByEntry[entryId] = { lines, starts };
+      return state.lineMetaByEntry[entryId];
+    }
+
+    function charIndexToLine(entryId, charIndex) {
+      const meta = getLineMeta(entryId);
+      let lo = 0;
+      let hi = meta.starts.length - 1;
+      let out = 0;
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (meta.starts[mid] <= charIndex) {
+          out = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      return out;
+    }
+
+    function lineInfoText(entryId) {
+      const count = selectedLines(entryId).length;
+      const readInfo = state.reading.entryId === entryId && state.reading.lineIndex >= 0
+        ? ` · reading line ${state.reading.lineIndex + 1}`
+        : "";
+      return `${count} selected${readInfo} · tap lines to select`;
+    }
+
+    function completionLinesHtml(entryId) {
+      const lines = entryLines(entryId);
+      const selected = new Set(selectedLines(entryId));
+      const readingLine = state.reading.entryId === entryId ? state.reading.lineIndex : -1;
+      return lines.map((line, i) => `
+        <div class="completion-line${selected.has(i) ? " selected" : ""}${readingLine === i ? " reading" : ""}" data-entry-id="${entryId}" data-line-index="${i}">
+          <span class="line-no">${i + 1}</span>
+          <span class="line-txt">${line ? escapeHtml(line) : "&nbsp;"}</span>
+        </div>
+      `).join("");
+    }
+
+    function selectedText(entryId) {
+      const lines = entryLines(entryId);
+      const idx = [...selectedLines(entryId)].sort((a, b) => a - b);
+      if (!idx.length) return "";
+      return idx.map((i) => lines[i] ?? "").join("\n");
+    }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+
+    function updateEntrySelectionUI(entryId) {
+      const root = el.list.querySelector(`article[data-id="${entryId}"]`);
+      if (!root) return;
+      const selected = new Set(selectedLines(entryId));
+      root.querySelectorAll(".completion-line").forEach((node) => {
+        const idx = Number(node.getAttribute("data-line-index"));
+        node.classList.toggle("selected", selected.has(idx));
+      });
+      const info = root.querySelector(`[data-line-info-id="${entryId}"]`);
+      if (info) info.textContent = lineInfoText(entryId);
+    }
+
+    async function copySelectedLines(entryId, withFeedback = true) {
+      const text = selectedText(entryId);
+      if (!text) {
+        if (withFeedback) alert("No lines selected.");
+        return;
+      }
+      await copyToClipboard(text + "\n");
+    }
+
+    function splitJsonStream(raw) {
+      const chunks = [];
+      let start = null;
+      let depth = 0;
+      let inString = false;
+      let esc = false;
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (inString) {
+          if (esc) esc = false;
+          else if (ch === "\\") esc = true;
+          else if (ch === '"') inString = false;
+          continue;
+        }
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "{") {
+          if (depth === 0) start = i;
+          depth += 1;
+        } else if (ch === "}") {
+          if (depth > 0) depth -= 1;
+          if (depth === 0 && start !== null) {
+            chunks.push(raw.slice(start, i + 1));
+            start = null;
+          }
+        }
+      }
+      return chunks;
+    }
+
+    function extractPromptParts(prompt) {
+      const startRe = /\{+\s*#\s*From\s+Imagetext\s+to\s+Worldtext:\s+Generative\s+AI\s+as\s+Operative\s+Ekphrasis/i;
+      const endRe = /STANDING\s+RESERVE\s*}*/i;
+      const text = prompt || "";
+      const s = text.search(startRe);
+      if (s < 0) return { payload: text.trim() };
+      const tail = text.slice(s);
+      const em = tail.match(endRe);
+      let e = text.length;
+      if (em && Number.isFinite(em.index)) e = s + em.index + em[0].length;
+      return { payload: (text.slice(0, s) + text.slice(e)).trim() };
+    }
+
+    function parseRawToParsed(raw) {
+      const chunks = splitJsonStream(raw);
+      const entries = [];
+      let gid = 0;
+      for (const chunk of chunks) {
+        let obj;
+        try { obj = JSON.parse(chunk); } catch { continue; }
+        const messages = Array.isArray(obj.messages) ? obj.messages : [];
+        let pendingPrompt = null;
+        for (let i = 0; i < messages.length; i++) {
+          const m = messages[i] || {};
+          if (m.role === "Prompt") pendingPrompt = m.say || "";
+          if (m.role === "Response") {
+            gid += 1;
+            entries.push({
+              id: String(gid).padStart(3, "0"),
+              title: obj?.metadata?.title || "Untitled",
+              link: obj?.metadata?.link || "",
+              prompt: {
+                raw: pendingPrompt || "",
+                payload: extractPromptParts(pendingPrompt || "").payload || "",
+              },
+              response: { raw: m.say || "" },
+              conversation_index: entries.length + 1,
+            });
+            pendingPrompt = null;
+          }
+        }
+      }
+      return { entries };
+    }
+
+    function applyFilter() {
+      const q = normalize(el.search.value);
+      state.filtered = state.entries.filter((e) => {
+        if (!q) return true;
+        const hay = [e.id, e.title, e.response.raw, e.prompt.payload].join("\n").toLowerCase();
+        return hay.includes(q);
+      });
+      renderList();
+    }
+
+    function rowTemplate(entry) {
+      const comment = state.comments[entry.id] || "";
+      return `
+        <article class="entry" data-id="${entry.id}">
+          <div class="entry-head">
+            <div class="entry-id">#${entry.id}</div>
+            <h2 class="entry-title">${escapeHtml(entry.title || "Untitled")}</h2>
+            <div class="entry-meta">${escapeHtml((entry.response.raw || "").split(/\s+/).length + "w")}</div>
+          </div>
+          <div class="entry-body">
+            <div class="line-tools">
+              <button class="btn tiny" data-select-all-lines="${entry.id}">Select All</button>
+              <button class="btn tiny" data-clear-lines="${entry.id}">Clear</button>
+              <button class="btn tiny" data-copy-selected="${entry.id}">Copy Selected</button>
+              <label class="auto-copy">
+                <input type="checkbox" data-auto-copy-id="${entry.id}" ${state.autoCopyByEntry[entry.id] ? "checked" : ""}>
+                Auto Copy
+              </label>
+              <div class="line-info" data-line-info-id="${entry.id}">${lineInfoText(entry.id)}</div>
+            </div>
+            <div class="completion-lines">${completionLinesHtml(entry.id)}</div>
+            <section class="comment-wrap ${state.mode === "comment" ? "active" : ""}">
+              <textarea data-comment-id="${entry.id}" rows="4" placeholder="Comment on this completion">${escapeHtml(comment)}</textarea>
+              <button class="btn" data-save-comment="${entry.id}">Save Comment</button>
+            </section>
+            <section class="tts-wrap ${state.mode === "tts" ? "active" : ""}">
+              <div class="tts-grid">
+                <button class="btn primary" data-speak-id="${entry.id}">Speak</button>
+                <button class="btn" data-copy-id="${entry.id}">Copy</button>
+                <button class="btn warn" data-stop-id="${entry.id}">Stop</button>
+              </div>
+              <div class="tts-label">Mobile: tap <strong>Speak</strong>. Active line highlights as TTS reads.</div>
+            </section>
+          </div>
+        </article>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderList() {
+      el.count.textContent = `${state.filtered.length} entries`;
+      el.list.innerHTML = state.filtered.map(rowTemplate).join("");
+      el.stickyTTS.classList.toggle("active", state.mode === "tts");
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll(".mode").forEach((b) => b.classList.toggle("active", b.dataset.mode === mode));
+      renderList();
+    }
+
+    async function loadDefault() {
+      const res = await fetch(DEFAULT_FILE, { cache: "no-store" });
+      if (!res.ok) throw new Error("Could not load parsed JSON");
+      const data = await res.json();
+      state.data = data;
+      state.entries = (data.entries || []).map((e) => ({
+        ...e,
+        prompt: e.prompt || { payload: "", raw: "" },
+        response: e.response || { raw: "" },
+      }));
+      state.lineMetaByEntry = {};
+      state.lineSelections = {};
+      state.autoCopyByEntry = {};
+      state.reading = { entryId: null, lineIndex: -1 };
+      state.speaking = { queue: [], cancelled: false };
+      applyFilter();
+    }
+
+    function handleImport(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const txt = String(reader.result || "");
+          if (file.name.toLowerCase().endsWith(".json")) {
+            const data = JSON.parse(txt);
+            state.data = data;
+            state.entries = data.entries || [];
+          } else {
+            const parsed = parseRawToParsed(txt);
+            state.data = parsed;
+            state.entries = parsed.entries || [];
+          }
+          state.lineMetaByEntry = {};
+          state.lineSelections = {};
+          state.autoCopyByEntry = {};
+          state.reading = { entryId: null, lineIndex: -1 };
+          state.speaking = { queue: [], cancelled: false };
+          applyFilter();
+        } catch (err) {
+          alert("Import failed: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function getVoice() {
+      const idx = Number(el.voiceSelect.value);
+      return state.voices[idx] || null;
+    }
+
+    function setReadingLine(entryId, lineIndex) {
+      const prevEntryId = state.reading.entryId;
+      const prevLine = state.reading.lineIndex;
+      if (prevEntryId === entryId && prevLine === lineIndex) return;
+
+      if (prevEntryId != null) {
+        const prevNode = el.list.querySelector(`.completion-line.reading[data-entry-id="${prevEntryId}"][data-line-index="${prevLine}"]`);
+        if (prevNode) prevNode.classList.remove("reading");
+        updateEntrySelectionUI(prevEntryId);
+      }
+
+      state.reading = { entryId, lineIndex };
+      const node = el.list.querySelector(`.completion-line[data-entry-id="${entryId}"][data-line-index="${lineIndex}"]`);
+      if (node) {
+        node.classList.add("reading");
+        node.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+      updateEntrySelectionUI(entryId);
+    }
+
+    function clearReadingLine() {
+      const prevEntryId = state.reading.entryId;
+      const prevLine = state.reading.lineIndex;
+      if (prevEntryId != null) {
+        const prevNode = el.list.querySelector(`.completion-line.reading[data-entry-id="${prevEntryId}"][data-line-index="${prevLine}"]`);
+        if (prevNode) prevNode.classList.remove("reading");
+        updateEntrySelectionUI(prevEntryId);
+      }
+      state.reading = { entryId: null, lineIndex: -1 };
+    }
+
+    function stopTTSPlayback() {
+      state.speaking.cancelled = true;
+      state.speaking.queue = [];
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      clearReadingLine();
+    }
+
+    function speakEntry(entry, onDone) {
+      if (!("speechSynthesis" in window)) {
+        alert("TTS is not supported in this browser.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const text = entry?.response?.raw || "";
+      const entryId = entry?.id;
+      if (!text.trim() || !entryId) {
+        if (onDone) onDone();
+        return;
+      }
+
+      setReadingLine(entryId, 0);
+      const utter = new SpeechSynthesisUtterance(text);
+      const v = getVoice();
+      if (v) utter.voice = v;
+      utter.rate = Number(el.rate.value || 1);
+      utter.pitch = 1;
+
+      utter.onboundary = (ev) => {
+        if (typeof ev.charIndex !== "number") return;
+        const line = charIndexToLine(entryId, ev.charIndex);
+        setReadingLine(entryId, line);
+      };
+
+      utter.onend = () => {
+        if (state.speaking.cancelled) return;
+        if (onDone) onDone();
+        else clearReadingLine();
+      };
+
+      utter.onerror = () => {
+        if (onDone) onDone();
+        else clearReadingLine();
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    function speakSingle(entryId) {
+      const entry = entryById(entryId);
+      if (!entry) return;
+      state.speaking.cancelled = false;
+      state.speaking.queue = [];
+      speakEntry(entry);
+    }
+
+    function speakNextFromQueue() {
+      if (state.speaking.cancelled) return;
+      const nextId = state.speaking.queue.shift();
+      if (!nextId) {
+        clearReadingLine();
+        return;
+      }
+      const entry = entryById(nextId);
+      if (!entry) {
+        speakNextFromQueue();
+        return;
+      }
+      speakEntry(entry, speakNextFromQueue);
+    }
+
+    function speakVisible() {
+      if (!state.filtered.length) return;
+      state.speaking.cancelled = false;
+      state.speaking.queue = state.filtered.map((e) => e.id);
+      speakNextFromQueue();
+    }
+
+    function fillVoices() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices() || [];
+      state.voices = voices;
+      el.voiceSelect.innerHTML = voices
+        .map((v, i) => `<option value="${i}">${escapeHtml(v.name)} (${escapeHtml(v.lang)})</option>`)
+        .join("");
+    }
+
+    function downloadComments() {
+      const blob = new Blob([JSON.stringify(state.comments, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "worldtext-comments.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function bindEvents() {
+      el.search.addEventListener("input", applyFilter);
+      el.themeToggle.addEventListener("click", () => {
+        const next = document.body.dataset.theme === "light" ? "dark" : "light";
+        applyTheme(next);
+      });
+      el.loadDefault.addEventListener("click", () => loadDefault().catch((e) => alert(e.message)));
+      el.fileInput.addEventListener("change", (e) => {
+        const f = e.target.files?.[0];
+        if (f) handleImport(f);
+        e.target.value = "";
+      });
+
+      document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+
+      el.list.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+
+        const lineNode = t.closest(".completion-line");
+        if (lineNode) {
+          const entryId = lineNode.getAttribute("data-entry-id");
+          const lineIndex = Number(lineNode.getAttribute("data-line-index"));
+          const sel = new Set(selectedLines(entryId));
+          if (sel.has(lineIndex)) sel.delete(lineIndex);
+          else sel.add(lineIndex);
+          state.lineSelections[entryId] = [...sel].sort((a, b) => a - b);
+          updateEntrySelectionUI(entryId);
+          if (state.autoCopyByEntry[entryId]) {
+            copySelectedLines(entryId, false).catch(() => {});
+          }
+          return;
+        }
+
+        const selectAllId = t.getAttribute("data-select-all-lines");
+        const clearLinesId = t.getAttribute("data-clear-lines");
+        const copySelectedId = t.getAttribute("data-copy-selected");
+        const speakId = t.getAttribute("data-speak-id");
+        const stopId = t.getAttribute("data-stop-id");
+        const copyId = t.getAttribute("data-copy-id");
+        const saveCommentId = t.getAttribute("data-save-comment");
+
+        if (selectAllId) {
+          state.lineSelections[selectAllId] = entryLines(selectAllId).map((_, i) => i);
+          updateEntrySelectionUI(selectAllId);
+          if (state.autoCopyByEntry[selectAllId]) {
+            copySelectedLines(selectAllId, false).catch(() => {});
+          }
+        }
+
+        if (clearLinesId) {
+          state.lineSelections[clearLinesId] = [];
+          updateEntrySelectionUI(clearLinesId);
+        }
+
+        if (copySelectedId) {
+          copySelectedLines(copySelectedId, true).catch(() => {
+            alert("Copy failed.");
+          });
+        }
+
+        if (speakId) {
+          speakSingle(speakId);
+        }
+
+        if (stopId) {
+          stopTTSPlayback();
+        }
+
+        if (copyId) {
+          const row = entryById(copyId);
+          if (row) copyToClipboard(row.response.raw || "").catch(() => {});
+        }
+
+        if (saveCommentId) {
+          const area = el.list.querySelector(`textarea[data-comment-id=\"${saveCommentId}\"]`);
+          state.comments[saveCommentId] = area ? area.value : "";
+          saveComments();
+        }
+      });
+
+      el.list.addEventListener("change", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const autoCopyId = t.getAttribute("data-auto-copy-id");
+        if (!autoCopyId) return;
+        if (t instanceof HTMLInputElement) {
+          state.autoCopyByEntry[autoCopyId] = !!t.checked;
+          updateEntrySelectionUI(autoCopyId);
+        }
+      });
+
+      el.speakVisible.addEventListener("click", speakVisible);
+      el.stopTTS.addEventListener("click", stopTTSPlayback);
+      el.downloadComments.addEventListener("click", downloadComments);
+
+      el.expandAll.addEventListener("click", () => {
+        document.querySelectorAll(".completion-lines").forEach((x) => x.style.maxHeight = "none");
+      });
+      el.collapseAll.addEventListener("click", () => {
+        document.querySelectorAll(".completion-lines").forEach((x) => x.style.maxHeight = "240px");
+      });
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = fillVoices;
+      }
+    }
+
+    function boot() {
+      loadTheme();
+      loadComments();
+      bindEvents();
+      fillVoices();
+      loadDefault().catch(() => {
+        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">WORLD-TEXT-DOUBLE.parsed.json</span> or import a file.</p></div></article>`;
+      });
+    }
+
+    boot();
+  </script>
+</body>
+</html>

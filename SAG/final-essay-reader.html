@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>SAG Final Essay Reader</title>
+    <style>
+        :root {
+            --bg: #f2f2f2;
+            --panel: #f8f8f8;
+            --paper: #ffffff;
+            --ink: #111111;
+            --ink-soft: #4f4f4f;
+            --line: #cfcfcf;
+            --accent: #1f5ca8;
+            --good: #236c32;
+            --bad: #9d2a2a;
+            --space: 12px;
+            --radius: 4px;
+            --serif: "Latin Modern Roman", "CMU Serif", "Times New Roman", Times, serif;
+            --sans: "Helvetica Neue", Arial, sans-serif;
+            --mono: "Latin Modern Mono", "CMU Typewriter Text", "Courier New", monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: var(--serif);
+            color: var(--ink);
+            background: var(--bg);
+            line-height: 1.5;
+        }
+
+        .shell {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 10px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--panel);
+            padding: var(--space);
+        }
+
+        .hero {
+            display: grid;
+            gap: 2px;
+            background: #f7f7f7;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(1.16rem, 2.8vw, 1.48rem);
+            line-height: 1.2;
+            letter-spacing: 0;
+            font-weight: 700;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 0.92rem;
+            font-family: var(--sans);
+        }
+
+        .controls,
+        .sidebar,
+        .sidebar-head,
+        .index,
+        .index-item,
+        .index-item small,
+        .button,
+        .search,
+        .status,
+        .meta,
+        .viewer-nav,
+        .chips {
+            font-family: var(--sans);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            align-items: center;
+            background: #f7f7f7;
+        }
+
+        .search {
+            width: 100%;
+            border: 1px solid #bfc4cc;
+            border-radius: 3px;
+            background: #fff;
+            color: var(--ink);
+            min-height: 40px;
+            padding: 8px 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(31, 92, 168, 0.14);
+        }
+
+        .button {
+            appearance: none;
+            border: 1px solid #b8bec8;
+            border-radius: 3px;
+            background: #fff;
+            color: #1c1c1c;
+            min-height: 40px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .button.primary {
+            background: #f1f5fb;
+            color: #0e3f7c;
+            border-color: #9eb5d4;
+        }
+
+        #menuToggle {
+            display: none;
+        }
+
+        .button:disabled {
+            opacity: 0.55;
+            cursor: default;
+        }
+
+        .status {
+            margin: 0;
+            min-height: 1em;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--good);
+            grid-column: 1 / -1;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 10px;
+            min-height: 76vh;
+        }
+
+        .sidebar,
+        .viewer {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: #f7f7f7;
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .sidebar-head {
+            border-bottom: 1px solid var(--line);
+            padding: 10px;
+            background: #f2f2f2;
+            display: grid;
+            gap: 6px;
+        }
+
+        .sidebar-head h2 {
+            margin: 0;
+            font-size: 0.78rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #4c4c4c;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            border: 1px solid #ccd1d7;
+            border-radius: 3px;
+            padding: 2px 7px;
+            background: #ffffff;
+            font-size: 0.69rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .index {
+            overflow: auto;
+            padding: 8px;
+            display: grid;
+            gap: 10px;
+            align-content: start;
+        }
+
+        .group {
+            display: grid;
+            gap: 6px;
+        }
+
+        .group h3 {
+            margin: 0;
+            font-size: 0.69rem;
+            color: #646464;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            border-bottom: 1px dashed #c9c9c9;
+            padding-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .index-item {
+            appearance: none;
+            border: 1px solid #ccd1d7;
+            border-radius: 3px;
+            background: #fff;
+            color: #1a1a1a;
+            text-align: left;
+            padding: 7px;
+            cursor: pointer;
+            display: grid;
+            gap: 3px;
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .index-item small {
+            font-size: 0.63rem;
+            color: #6e6e6e;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .index-item.active {
+            background: #edf3fb;
+            border-color: #95b3d8;
+            box-shadow: inset 2px 0 0 var(--accent);
+            color: #0f3f7c;
+        }
+
+        .index-item.active small {
+            color: #426a9a;
+        }
+
+        .viewer {
+            background: #ededed;
+            display: grid;
+            grid-template-rows: auto auto auto 1fr auto;
+        }
+
+        .viewer-head {
+            border-bottom: 1px solid var(--line);
+            background: #f9f9f9;
+            padding: 16px 10px 12px;
+            display: grid;
+            gap: 4px;
+            text-align: center;
+        }
+
+        .viewer-head h2 {
+            margin: 0;
+            font-family: var(--serif);
+            font-size: clamp(1.16rem, 3vw, 1.72rem);
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #525252;
+            font-style: italic;
+            font-family: var(--serif);
+        }
+
+        .byline {
+            margin: 0;
+            font-size: 0.82rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            color: #3f3f3f;
+            font-weight: 700;
+        }
+
+        .meta {
+            border-bottom: 1px solid var(--line);
+            background: #f4f4f4;
+            padding: 8px 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .meta .chip {
+            font-size: 0.66rem;
+            font-family: var(--mono);
+            letter-spacing: 0;
+            text-transform: none;
+            border-color: #d4d4d4;
+        }
+
+        .meta a {
+            color: #0f4e95;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .meta a:hover {
+            text-decoration: underline;
+        }
+
+        .video {
+            border-bottom: 1px solid var(--line);
+            background: #fafafa;
+            padding: 10px;
+        }
+
+        .video-inner {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 1px solid #cdd2d8;
+            border-radius: 3px;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .video iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .viewer-body {
+            overflow: auto;
+            padding: 12px;
+        }
+
+        .article {
+            border: 1px solid #d0d0d0;
+            border-radius: 2px;
+            background: var(--paper);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 26px 34px 30px;
+            max-width: 880px;
+            margin: 0 auto;
+        }
+
+        .paper-abstract {
+            border: 1px solid #d8d8d8;
+            background: #fafafa;
+            padding: 10px 12px;
+            margin: 0 0 16px;
+        }
+
+        .paper-abstract h3 {
+            margin: 0 0 6px;
+            font-family: var(--sans);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #515151;
+            font-weight: 700;
+        }
+
+        .paper-abstract p {
+            margin: 0;
+            font-size: 0.99rem;
+            line-height: 1.62;
+            text-indent: 0;
+            text-align: left;
+        }
+
+        .article p {
+            margin: 0 0 14px;
+            font-family: var(--serif);
+            font-size: clamp(1rem, 1.35vw, 1.08rem);
+            line-height: 1.72;
+            text-align: justify;
+            text-indent: 1.5em;
+            hyphens: auto;
+        }
+
+        .article p.one {
+            font-weight: 700;
+            text-indent: 0;
+            text-align: left;
+            font-family: var(--sans);
+            letter-spacing: 0.01em;
+        }
+
+        .article p:first-of-type {
+            text-indent: 0;
+        }
+
+        .article p:last-child {
+            margin-bottom: 0;
+        }
+
+        .article a {
+            color: #0e4f97;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            font-weight: 600;
+        }
+
+        .article strong {
+            font-weight: 700;
+        }
+
+        .article em {
+            color: #5b5b5b;
+            font-style: italic;
+        }
+
+        .article hr {
+            border: none;
+            border-top: 1px solid #d8d8d8;
+            margin: 16px 0;
+        }
+
+        .viewer-nav {
+            border-top: 1px solid var(--line);
+            background: #f7f7f7;
+            padding: 8px 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .empty {
+            border: 1px dashed #c8c8c8;
+            border-radius: 3px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .empty p {
+            margin: 0;
+            color: #666;
+            font-family: var(--sans);
+        }
+
+        @media (max-width: 980px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                max-height: 42vh;
+            }
+
+            .article {
+                padding: 20px 18px;
+            }
+        }
+
+        @media (max-width: 840px) {
+            .controls {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .controls .search,
+            .controls .status {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .viewer-nav {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 1.16rem;
+            }
+
+            .button,
+            .search {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="panel hero">
+            <h1>SAG Final Essay Reader</h1>
+            <p>arXiv-style paper reading mode with searchable contents, source links, and top-of-paper video embeds.</p>
+        </header>
+
+        <section class="panel controls">
+            <input id="searchInput" class="search" type="search" placeholder="Search essay titles and text">
+            <button id="menuToggle" class="button" type="button">Hide Index</button>
+            <button id="copyCurrent" class="button primary" type="button">Copy Current Essay</button>
+            <button id="copyAll" class="button" type="button">Copy All</button>
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-head">
+                    <h2>Essay Index</h2>
+                    <div id="docChips" class="chips"></div>
+                </div>
+                <div id="indexRoot" class="index"></div>
+            </aside>
+
+            <section class="viewer">
+                <header class="viewer-head">
+                    <h2 id="essayTitle">No essay selected</h2>
+                    <p id="essaySubtitle" class="subtitle"></p>
+                    <p id="essayByline" class="byline"></p>
+                </header>
+                <div id="essayMeta" class="meta"></div>
+                <section id="videoPanel" class="video" style="display:none">
+                    <div class="video-inner">
+                        <iframe id="videoFrame" title="Essay source video" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </section>
+                <main id="viewerBody" class="viewer-body"></main>
+                <nav class="viewer-nav">
+                    <button id="prevBtn" class="button" type="button">Previous</button>
+                    <button id="nextBtn" class="button" type="button">Next</button>
+                </nav>
+            </section>
+        </section>
+    </div>
+
+    <script>
+    (function() {
+        const ESSAYS = [
+            {
+                id: "s9",
+                group: "Core Finals",
+                source: "SAG/s9.md",
+                video: "",
+                raw: `The Dissolution of the Spectacle Moat
+A Struggle Over Who Is Trusted to Define Cinema
+
+The current fight over AI in film is staged as a jobs fight: artists versus software, unions versus studios, humans versus automation. It is not. It is a legitimacy fight over who gets to count as a filmmaker when AI can produce the visible signs of cinematic competence on demand.
+
+For decades, Hollywood authenticated authority through friction. You paid your dues on set before dawn, took script coverage no one praised, survived endless notes rounds, and learned timing by sitting through dailies with people who could cut your scene in ten seconds. Apprenticeship was not just labor allocation. It was the ladder that turned proximity to decisions into the right to make them.
+
+This is why the panic feels deeper than a labor cycle. AI does not just speed up production. It produces the artifact without the ordeal, and that breaks the social proof mechanism the industry used to justify rank.
+
+The first wave removed expensive drudgery: rotoscope passes, cleanup passes, previz iteration, background generation, voice temping. The second wave is removing symbolic drudgery: the junior steps that once separated ambition from authority. The industry is not only losing hours. It is losing the ritual that made judgment legible.
+
+Two camps now define the argument. Optimizers say cinema is entering its desktop publishing moment, where lower costs and faster loops expand authorship, unlock stories that never got financed, and reduce dependence on bloated production machinery. Custodians say those same gains hollow out tacit knowledge, erase apprenticeship rungs, and convert collaborative craft into a thin layer of prompt management.
+
+Both positions contain truth. Neither resolves the anxiety.
+
+This is why the fight keeps returning even after every technical demo and every union statement. It is not human versus machine. It is two incompatible definitions of work.
+
+Under this definition, work is output. If the image lands, the scene works, and the audience stays, value has been created. The path is secondary. The toolchain is irrelevant. The winner is whoever can deliver compelling results at lower cost and higher speed.
+
+Under this definition, work is responsibility under constraint. Value includes judgment, liability, sequencing, and the ability to absorb risk when systems fail. The winner is not who can generate the best shot in isolation, but who can make decisions that hold together across budgets, contracts, safety obligations, and public trust.
+
+When AI mass-produces polished language, coherent frames, fast iterations, and confident explanation, the proxy economy starts to wobble. The old signs of competence, clean decks, smooth pitches, cinematic mood boards, can now be manufactured at scale by people who did not pass through the same institutional gates. When proxies get cheap, prestige gets volatile.
+
+That volatility is already shifting power. In an era of infinite supply, making is less scarce than filtering. The platform, the recommender, the curator, and the rights stack matter more than the rendering pipeline. The economic center of gravity moves from production control to discovery control.
+
+This is an experiential technology problem, not a spectator problem. You do not learn this transition by watching hot takes about it. You learn it by riding through it, like finding balance on a bicycle where stability appears only after motion starts and disappears when you freeze.
+
+None of this guarantees utopia. Institutions can be hollowed while still looking intact. Apprenticeship can vanish faster than replacement models appear. Tacit set knowledge can erode while output quality seems to improve. Speed can increase fragility in ways that only show up at scale.
+
+The stakes are not nostalgic. Film has always mixed art, labor, capital, and logistics. What changes now is which layer sets terms for the others, and who gets to claim authority when the old proof rituals no longer function as trusted evidence.
+
+The question is not who produces the artifact. It is who is trusted to decide what it means, who carries liability when it fails, and who can be held accountable when synthetic fluency outruns human judgment.
+
+Hollywood can climb a new ladder in motion, or defend the old one until the rungs rot underfoot.`
+            },
+            {
+                id: "s10",
+                group: "Core Finals",
+                source: "SAG/s10.md",
+                video: "",
+                raw: `The Hollywood Quality Ceiling
+A Struggle Over Who Is Trusted When Spectacle Becomes Cheap
+By Watson Hartsoe
+
+The current argument about AI in film is staged as a fight over whether machines can make "real art." It is not. In an AI-saturated industry, it is a struggle over who gets to matter when the old proof of cinematic authority stops working.
+
+For decades, Hollywood certified legitimacy through friction. You climbed through assistant jobs before you touched decisions. You learned story politics in notes meetings that ran past midnight. You proved reliability on set when weather broke, actors shifted, and money was already burning by the hour. The ladder was not incidental. The ladder was the institution.
+
+The ordeal was the proof.
+
+What generative systems destabilize is not only payroll. They destabilize the ritual that linked rank to visible sacrifice. When a solo operator can produce a plausible stadium sequence, period street, or digital crowd from a prompt stack, the blockbuster artifact appears without the old industrial choreography.
+
+This is the dissolution of the quality ceiling. High-fidelity spectacle was once a capital moat: sets, crews, permits, post houses, and distribution muscle. It separated studios from everyone else. AI compresses that moat into compute, workflow design, and model access.
+
+The first wave removed expensive drudgery. Cleanup passes, rough previs, synthetic extras, temporary dubbing, and environment generation moved from specialist bottlenecks to software features. The second wave removes symbolic drudgery. Entry-level tasks that once trained judgment are now framed as inefficiencies to automate away.
+
+Two camps now look rational from inside their own logic. LEGACY DEFENDERS argue that filmmaking is responsibility under shared constraint, and that removing embodied collaboration removes the craft memory that keeps the medium coherent. SYNTHETIC OPERATORS argue that cinema is a delivery system, and that reducing cost and cycle time expands access, experimentation, and output.
+
+Both positions contain truth. Neither resolves the anxiety.
+
+This is why the conflict keeps returning. It is not human versus machine. It is two incompatible definitions of work.
+
+Under this definition, work is output. If the scene lands, attention holds, and emotion transfers, value has been created. Production provenance is secondary. Tool purity is irrelevant. Cost, speed, and iteration win.
+
+Under this definition, work is responsibility under constraint. Value includes sequencing, liability, interpersonal calibration, labor stewardship, and the capacity to absorb failure without collapsing the system. The artifact matters, but so does who can answer for it.
+
+AI now mass-produces the visible signs of cinematic competence: polish, pacing, aesthetic coherence, articulate development language, and persuasive creative rationale. When those signs become abundant, proxy economies wobble. The old shortcuts for trust no longer map cleanly to underlying capability.
+
+That wobble shifts power. In an environment of near-infinite supply, creation is less scarce than filtration. Recommenders, storefronts, rights managers, and platform interfaces become the decisive layer. The algorithmic filter starts to matter more than the production unit, because attention becomes the true bottleneck.
+
+This is why debates about "democratization" often miss the structural turn. Lower barriers to making do not automatically lower barriers to being seen. Old gatekeepers weaken; new gatekeepers harden. Control moves from greenlight rooms to ranking systems.
+
+Competence in this transition is experiential, not declarative. You do not learn it by arguing from the shore. You learn it like bike balance: by moving through instability until correction becomes embodied judgment.
+
+None of this guarantees utopia.
+
+Institutions can hollow while still producing glossy output. Apprenticeship rungs can disappear faster than replacement pathways emerge. Tacit knowledge can decay quietly while performance metrics improve in the short term. The system can look more efficient and become more fragile.
+
+There is a second risk. If studios optimize only for throughput, they can burn down the very labor ecology that produces durable taste. If they refuse adaptation, they price themselves out of relevance while smaller operators train new reflexes in public.
+
+The central question is not who rendered the frame. It is who is trusted to decide what that frame means, who carries legal and cultural liability for its effects, and who can be held accountable when synthetic fluency outruns institutional judgment.
+
+Hollywood can learn to steer while moving, or stand still and watch the ladder fall.`
+            },
+            {
+                id: "s11",
+                group: "New Adds",
+                source: "User draft",
+                video: "http://www.youtube.com/watch?v=I1dW-nZqhew",
+                raw: `The Narcissus Engine
+A Struggle Over Who Gets to be the Protagonist
+By Watson Hartsoe
+
+The current fight over AI video generation is staged as a debate about copyright, deepfakes, and the democratization of filmmaking. It is not. It is a struggle over the psychological baseline of human entertainment in a world where the visible signs of a compelling narrative can be bypassed entirely by the ego. The first wave of outrage focused on intellectual property, on whether models built by OpenAI had ingested the work of directors and illustrators without consent. That conflict was real, and it revealed a moral fracture about digital extraction. But the second wave is more destabilizing. It has moved from the studio to the psyche, from the question of who owns the footage to the question of who is required to watch it.
+
+Consider the user generating a hyper-realistic simulation of themselves receiving Botox. It is framed as a novelty - a harmless toy testing the limits of text-to-video rendering. But it is not a toy. It is a hyper-personalized visualization engine for consumer desire. It blurs the line between a digital joke and a physical marketing funnel. When a user can simulate their own physical modification with photorealistic accuracy, the platform has ceased to be an entertainment medium; it has become a reality-warping mirror.
+
+For decades, the creative class secured its authority through friction. The filmmaker proved value by lighting the set. The animator justified status by enduring the render times. The creator earned an audience by bearing the financial and logistical burden of production that the viewer could not. Difficulty authenticated importance. The ordeal was part of the proof. The AI video generator quietly dissolves that logic. It produces the cinematic lighting without the crew, the animation without the rendering, the action sequence without the stunt double. When users now describe typing a few words from their bed and generating a polished scene, they are not celebrating democratized storytelling. They are describing the disappearance of the ritual that once conferred cultural value.
+
+This is why the reaction oscillates between intellectual disgust and behavioral addiction. The Traditionalists insist the transformation is obvious and fatal. You cannot replace the human soul with algorithmically generated "slop." They look at the endless dribble of computer-generated nonsense and recoil. Yet, as the transcripts reveal, even the skeptics admit to spending hours scrolling through it. The "disgust vs. addiction" paradox misunderstands the system entirely. A casino does not become less profitable just because the gambler knows the house wins. In an accelerating technological regime, behavioral submission matters far more than intellectual approval.
+
+Yet the Creator Economy evangelists, like Casey Neistat, see something else. They see the inversion of the Funnel. The prevailing theory held that reducing the barrier to entry (widening the top of the funnel) would inevitably yield more "good" content at the bottom. YouTube democratized distribution; TikTok democratized editing. But frictionless AI video generation does not widen the funnel. It shatters it. If anyone can instantly generate infinite, zero-cost video, the funnel is replaced by millions of disconnected, single-person silos. The fear is not that AI will make bad movies. It is that it will make professional storytelling obsolete by offering something cheaper and far more intoxicating: self-insertion.
+
+This tension reveals the deeper axis of the culture war. It is not human versus machine. It is two incompatible definitions of "Good Content." One side defines good content through intent and shared experience. If the story resonates, value has been created. The other side defines good content as ego gratification. If the user can see themselves in an impossible scenario, value has been created. Under this definition, AI is not a storytelling tool; it is a digital mirror, and those who master the art of hyper-personalization rise.
+
+Both positions contain truth. Neither resolves the anxiety. What makes this moment volatile is the death of shared reality.
+
+The professional class, long accustomed to creating cultural touchstones - the "watercooler moments" - confronts a system that evaporates the watercooler entirely. If I watch a cinematic epic starring me, and you watch a romantic comedy starring you, the shared cultural cohesion collapses. The prestige economy built on broad appeal begins to wobble. If production value no longer signals importance, the proxies for cultural authority collapse.
+
+The temptation is to retreat into moral denunciation or techno-triumphalism. Both responses avoid the harder recognition. "Slop" is an experiential technology that restructures desire through use. Moving slowly to protect high-friction storytelling feels prudent, but in a dynamic system, it is destabilizing. The creator economy ideology contains a fatal contradiction: it praises tools that empower humans to work faster, but panics when tools empower humans to not work at all.
+
+None of this guarantees a creative utopia. Eliminating friction may create short-term engagement and long-term social isolation. Replacing shared narratives with personalized digital mirrors may erode forms of cultural empathy that were built on watching other people's stories. These are structural risks, not nostalgic fantasies. The assumption that users will eventually tire of "slop" and return to traditional cinema is a protective myth. Future generations may simply prefer low-effort, personalized gratification over high-effort, passive storytelling.
+
+The Narcissus Engine, then, is not a debate about whether machines will replace directors. It is a confrontation over the criteria by which we assign value in a world where the performance of reality is abundant. The question is not who frames the shot. It is who gets to be the protagonist. Those who try to compete in the "mid-tier" of generated fiction risk defending a hierarchy that no longer maps onto consumer desire. Those who survive will either build the tools that allow users to insert themselves into the narrative, or they will double down on the one thing AI cannot generate: un-fakeable, high-friction, messy, physical reality.
+
+In the end, the fight is about validation in an age of synthetic reflection. The tools are real. The isolation is real. The only illusion is that standing still and polishing the old scripts will preserve the old order. The audience has found a mirror. Either you sell them the glass, or you pull them out of the room entirely.
+
+**Watson Hartsoe** is a writer covering the AI culture war and the privatization of shared reality.
+
+*This essay was drafted with the assistance of a generative AI model. All uses were structurally narcissistic, friction-free, and conducted without the generation of a shared cultural touchstone. The model has read Neistat. The model has declined to comment.*`
+            },
+            {
+                id: "s12",
+                group: "New Adds",
+                source: "User draft",
+                video: "http://www.youtube.com/watch?v=EIhzg-2jeog",
+                raw: `The Apprenticeship Cliff
+A Struggle Over Who Gets to Understand
+
+On a recent episode of the Hard Fork podcast, tech columnist Kevin Roose demonstrated the future of software development by building a functioning application live on air using an autonomous AI agent. He admitted he did not fully understand the code it was writing. He simply described the "vibe" he wanted, and the machine generated the syntax. The application ran. The hosts marveled at the democratization of software creation. But they were not celebrating a triumph of engineering. They were describing the disappearance of the cognitive ritual that once conferred understanding. The realization is brutal: in the age of generative AI, execution no longer requires comprehension.
+
++1
+
+For decades, the software class secured its authority through friction. The junior engineer proved value by hunting down syntax errors. The mid-level developer justified status by writing unit tests and wrestling with dependencies. The senior architect earned apprenticeship by doing the repetitive technical labor that the system demanded before revealing its structural secrets. Difficulty authenticated importance. The ordeal was part of the proof. Agentic coding quietly dissolves that logic. It produces the website without the junior developer, the script without the syntax check, the application without the apprenticeship. When users now describe "vibe coding" from their beds - typing a few natural language prompts and deploying the result - they are not celebrating convenience. They are describing the death of the mechanism that creates senior talent.
+
+This is why the reaction oscillates between techno-triumphalism and existential dread. The Vibe Coders insist the transformation is obvious and empowering. You cannot understand the AI revolution passively. You do not build the future by clinging to deterministic syntax. In an accelerating technological regime, stability is produced by abandoning the "how" and focusing entirely on the "what." A business does not become less profitable just because the CEO does not know how the assembly line works. We are gardening now.
+
+Yet the traditional engineers see something else. They see the "Apprenticeship Cliff." If the grunt work is automated, the feedback loop required for a human to internalize the logic of complex systems is severed. We are eating the seed corn of future expertise. If the industry enforces a 20% drop in entry-level hiring because an agent can do the work cheaper, the ladder disappears. The fear is not that AI will write bad code. It is that it will make professional technical identity unworkable. When the functional artifact appears without the struggle, what remains to justify the hierarchy built upon that struggle?
+
+This tension reveals the deeper axis of the culture war. It is not human versus machine. It is two incompatible definitions of Verification. One side defines verification as deterministic understanding. If you know why the architecture works, value has been created. The other side defines verification as functional execution. If the code runs, value has been created. Under this definition, AI is a translation engine, and those who master the vibe rise.
+
+Both positions contain truth. Neither resolves the anxiety. What makes this moment volatile is the shift in corporate liability.
+
+The professional class, long accustomed to treating code as a verifiable craft, confronts a system that treats code as a probabilistically generated output. The transition from copilot to autonomous agent structures the human worker not as a creator, but as a client. You are no longer doing the work; you are procuring the work from an internal synthetic vendor. If the marginal cost of producing code is approaching zero, the cost of bad architecture is increasing exponentially due to the speed at which agents can generate technical debt.
+
+The temptation is to retreat into moral denunciation or blind adoption. Both responses avoid the harder recognition. Agentic coding is an experiential technology that restructures liability through use. Moving slowly feels prudent, but in a market driven by the Recursion Singularity - where AI models are used to write the training runs for their own subsequent versions - it is destabilizing. Productivity has decoupled from human time. The workforce that minimizes motion in the name of code purity may find itself less stable than the one that redirects its entire strategy from execution capacity to specification capability.
+
+None of this guarantees a stable infrastructure. Democratizing the output for generalists while dismantling the career ladder for specialists creates short-term efficiency and long-term fragility. The logic trap is assuming that because an agent can build a simple game, it can maintain a legacy enterprise codebase. When an autonomous agent writes a recursive script that causes a critical security failure six months later, the vibe coder who admits they do not understand syntax cannot fix it. The system becomes permanently dependent on the AI vendor to debug itself.
+
+The coding culture war, then, is not a debate about whether machines will replace developers. It is a confrontation over the criteria by which we assign technical sovereignty in a world where the performance of programming is abundant. The question is not who writes the syntax. It is who is trusted to decide what the syntax means when it inevitably breaks. Those who treat vibe coding as pure salvation risk defending a digital infrastructure that no one alive actually understands.
+
+In the end, the fight is about maintenance in an age of synthetic growth. The tools are real. The deflationary pressure is real. The only illusion is that standing still will preserve the old order. We have stopped building deterministic bridges and started planting algorithmic kudzu. It grows faster than anything we could build. It covers the wall. But we do not understand the root system. When the foundation cracks, the question is not whether the vines grew fast enough. The question is who decided what the structure was meant to hold, and when they decided the human architect no longer had the standing to ask.
+
+**Watson Hartsoe** is a PhD student in Digital Media at Georgia Tech and an adjunct professor researching computational poetics and design theory.
+
+*This essay was drafted with the assistance of a generative AI model. All uses were structurally specified, algorithmically generated, and conducted without the employment of a junior developer. The model has read Kevin Roose. The model has declined to comment.*`
+            },
+            {
+                id: "s13",
+                group: "New Adds",
+                source: "User draft",
+                video: "https://youtube.com/shorts/-l-7O5-3uoY?si=Xb09uR-SFOjunZYj",
+                raw: `The Arbitrage of Irrationality
+A Struggle Over Who Gets to Define Value
+
+A product designer sits in a glowing room, scrolling through a feed of algorithmic video Shorts. A 60-second clip flashes on screen, distilling Daniel Kahneman's Nobel Prize-winning Prospect Theory into a bite-sized UX tutorial. The video explains that humans do not evaluate decisions based on absolute outcomes, but relative to a shifting, psychological baseline. The designer likes the video, saves it to a mood board, and returns to wireframing a subscription checkout page.
+
+This is the inciting incident of the modern digital economy. It is framed as an educational moment - a bridge between academic behavioral economics and digital interface design. It is not. It is the exact moment an epistemological boundary collapses. When a UX channel treats human cognitive failure not as a vulnerability to be mitigated, but as an engineering constraint to be exploited, the platform has ceased to be a utility. It has become an arbitrage engine for irrationality.
+
+For decades, classical economics secured its authority through the friction of rationality. The market proved its value by clearing at an objective price. The consumer justified their status by maximizing absolute utility. The system required a baseline of logical intent. Difficulty authenticated the transaction. The digital behavioral regime quietly dissolves that logic. It produces the purchase without the utility, the engagement without the intent, the choice without the deliberation. When product managers now describe optimizing a conversion funnel by anchoring a price, they are not celebrating a better product. They are describing the disappearance of the objective reality that once conferred market value.
+
+This is why the reaction to behavioral design oscillates between academic prestige and structural hypocrisy. The video compressed the laureate. The video flattered the designer. The video bypassed the math. But the video cannot resolve its own paradox. It uses a Shorts format - the ultimate engine of fast, intuitive, low-effort System 1 thinking - to explain a concept fundamentally rooted in the failure of slow, deliberative System 2 thinking. The medium relies on the exact cognitive shortcuts (brevity, authority bias) that the theory was written to dissect.
+
+This tension reveals the deeper axis of the interface war. It is not aesthetics versus functionality. It is two incompatible definitions of Value.
+
+The classical economist defines value absolutely. If the product improves your objective material condition, value has been created. The UX designer defines value relatively. If the user can be made to feel like they gained something relative to a manipulated starting point, value has been created.
+
+Both positions contain a certain structural truth. Neither resolves what is actually at stake. A third definition of value is operating throughout this conflict that neither side will name: value as whatever the interface can anchor the user to. When the video declares triumphantly, We Don't Think Logically, it is not engaging either of the first two definitions. It is announcing the third. Under that definition, logic is not a goal; it is a liability.
+
+What the UX designer's position cannot survive is contact with its own source material. The speaker uses an absolute appeal to authority - Kahneman's Nobel Prize - to argue for a strictly relative view of human decision-making. We are asked to trust the absolute credibility of the institution to accept that objective truth is an illusion. The designer identified the gap between rational utility and human impulse, then built their remedy out of the same material as the problem: a cognitive blindspot.
+
+More damaging still is the glaring omission. The video describes relative gains and losses but conveniently ignores the gravitational core of Prospect Theory: Loss Aversion. Losses hurt biologically worse than equivalent gains feel good. By omitting this asymmetry, the theory is sanitized into a neutral user spec. But ignoring loss aversion while applying behavioral economics is like teaching orbital mechanics without gravity. The critical assumption is that merely describing human irrationality gives the designer the predictive power to manage it beneficially. The reality is that the baseline - the reference point - is never neutral. It is set by the house.
+
+The We Don't Think Logically framing is the statute the tech industry uses to designate absolute quality a structural inefficiency. Applied to product design, the designation requires a significant interpretive leap: that human irrationality absolves the creator from the responsibility of building a rational product. Psychological relativity, reframed as a license to print money. The move is economically aggressive and strategically deliberate. By establishing that objective improvements do not drive user behavior, the platform claims a veto over the costly necessity of actually making a better product.
+
+The compliant designers understood the implication immediately. Improving absolute utility is capital-intensive. Manipulating the reference frame is free. Value is not created; it is framed.
+
+If a decision is strictly relative to a curated current situation, and absolute value can be legally reframed as a cognitive illusion, then the architectural integrity the software industry spent decades constructing was never structural. It was a funhouse. The modern interface is not a bridge built on the bedrock of utility; it is a scaffolding suspended entirely on the shifting vectors of human bias. The tech conglomerates did not abandon their engineering principles under pressure. They exchanged a fragile, expensive form of objective quality for something more durable: psychological leverage. An interface that controls the reference point does not need to offer a better deal. It is the architecture of reality. Architecture does not need to be fair. It only needs to hold weight.
+
+The measurements were taken before the foundation liquefied. They describe a rational actor adapting to a different market than the digital one arriving now. When the baseline shifts, the question is not whether the product actually improved. The question is who decided where the anchor was dropped, and when they decided the user no longer had the standing to pull it up.
+
+**Watson Hartsoe** is a PhD student in Digital Media at Georgia Tech and an adjunct professor researching systems theory, artificial intelligence, and computational poetics.
+
+*This essay was drafted with the assistance of a generative language model. All uses were contextually recontextualized, structurally anchored, and conducted without the generation of absolute utility. The model has read Kahneman. The model has declined to comment.*`
+            }
+        ];
+
+        const state = {
+            query: "",
+            activeId: "s10",
+            indexOpen: true,
+            filtered: []
+        };
+
+        const searchInput = document.getElementById("searchInput");
+        const menuToggle = document.getElementById("menuToggle");
+        const copyCurrentBtn = document.getElementById("copyCurrent");
+        const copyAllBtn = document.getElementById("copyAll");
+        const statusEl = document.getElementById("status");
+        const docChipsEl = document.getElementById("docChips");
+        const indexRootEl = document.getElementById("indexRoot");
+        const sidebarEl = document.querySelector(".sidebar");
+        const titleEl = document.getElementById("essayTitle");
+        const subtitleEl = document.getElementById("essaySubtitle");
+        const bylineEl = document.getElementById("essayByline");
+        const metaEl = document.getElementById("essayMeta");
+        const videoPanelEl = document.getElementById("videoPanel");
+        const videoFrameEl = document.getElementById("videoFrame");
+        const viewerBodyEl = document.getElementById("viewerBody");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function inlineMarkdown(text) {
+            let out = escapeHtml(text);
+            out = out.replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+            out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+            return out;
+        }
+
+        function parseEssay(entry) {
+            const lines = entry.raw.trim().split("\n");
+            const title = (lines.shift() || "").trim();
+            const subtitle = (lines.shift() || "").trim();
+
+            let byline = "";
+            if (lines[0] && /^By\s+/i.test(lines[0].trim())) {
+                byline = lines.shift().trim();
+            }
+
+            const body = lines.join("\n").trim();
+            const paragraphs = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+            const words = body ? body.replace(/\s+/g, " ").trim().split(" ").filter(Boolean).length : 0;
+            const readMin = Math.max(1, Math.round(words / 220));
+
+            return {
+                id: entry.id,
+                group: entry.group,
+                source: entry.source,
+                video: entry.video,
+                raw: entry.raw,
+                title,
+                subtitle,
+                byline,
+                body,
+                paragraphs,
+                words,
+                readMin
+            };
+        }
+
+        const parsedEssays = ESSAYS.map(parseEssay);
+
+        function findById(id) {
+            return parsedEssays.find((essay) => essay.id === id) || null;
+        }
+
+        function currentEssay() {
+            return state.filtered.find((essay) => essay.id === state.activeId) || null;
+        }
+
+        function toYoutubeEmbed(url) {
+            if (!url) {
+                return "";
+            }
+            try {
+                const parsed = new URL(url);
+                const host = parsed.hostname.toLowerCase();
+                let id = "";
+
+                if (host.includes("youtu.be")) {
+                    id = parsed.pathname.split("/").filter(Boolean)[0] || "";
+                } else if (host.includes("youtube.com")) {
+                    if (parsed.pathname === "/watch") {
+                        id = parsed.searchParams.get("v") || "";
+                    } else if (parsed.pathname.startsWith("/shorts/")) {
+                        id = parsed.pathname.split("/")[2] || "";
+                    } else if (parsed.pathname.startsWith("/embed/")) {
+                        id = parsed.pathname.split("/")[2] || "";
+                    }
+                }
+
+                if (!id) {
+                    return "";
+                }
+                return "https://www.youtube.com/embed/" + encodeURIComponent(id) + "?rel=0&modestbranding=1";
+            } catch (_) {
+                return "";
+            }
+        }
+
+        function isMobile() {
+            return window.matchMedia("(max-width: 980px)").matches;
+        }
+
+        function applyIndexVisibility() {
+            const mobile = isMobile();
+            menuToggle.style.display = mobile ? "inline-block" : "none";
+
+            if (!mobile) {
+                state.indexOpen = true;
+                sidebarEl.style.display = "grid";
+                return;
+            }
+
+            sidebarEl.style.display = state.indexOpen ? "grid" : "none";
+            menuToggle.textContent = state.indexOpen ? "Hide Index" : "Show Index";
+        }
+
+        function setStatus(message, isError) {
+            statusEl.textContent = message;
+            statusEl.style.color = isError ? "var(--bad)" : "var(--good)";
+            window.clearTimeout(setStatus.timer);
+            setStatus.timer = window.setTimeout(() => {
+                statusEl.textContent = "";
+            }, 2200);
+        }
+
+        function filterEssays() {
+            const q = state.query.trim().toLowerCase();
+            state.filtered = parsedEssays.filter((essay) => {
+                if (!q) {
+                    return true;
+                }
+                return essay.title.toLowerCase().includes(q)
+                    || essay.subtitle.toLowerCase().includes(q)
+                    || essay.body.toLowerCase().includes(q);
+            });
+
+            if (!state.filtered.length) {
+                state.activeId = null;
+                return;
+            }
+
+            if (!state.filtered.some((essay) => essay.id === state.activeId)) {
+                state.activeId = state.filtered[0].id;
+            }
+        }
+
+        function renderDocChips() {
+            const words = state.filtered.reduce((acc, essay) => acc + essay.words, 0);
+            const groups = new Set(state.filtered.map((essay) => essay.group)).size;
+            docChipsEl.innerHTML = [
+                '<span class="chip">' + state.filtered.length + " essays</span>",
+                '<span class="chip">' + words + " words</span>",
+                '<span class="chip">' + groups + " groups</span>"
+            ].join("");
+        }
+
+        function renderIndex() {
+            if (!state.filtered.length) {
+                indexRootEl.innerHTML = '<div class="empty"><p>No essay matches this search.</p></div>';
+                return;
+            }
+
+            const grouped = new Map();
+            state.filtered.forEach((essay) => {
+                if (!grouped.has(essay.group)) {
+                    grouped.set(essay.group, []);
+                }
+                grouped.get(essay.group).push(essay);
+            });
+
+            let html = "";
+            grouped.forEach((items, groupName) => {
+                html += '<section class="group">';
+                html += "<h3>" + escapeHtml(groupName) + "</h3>";
+                html += items.map((essay) => {
+                    const active = essay.id === state.activeId;
+                    return (
+                        '<button class="index-item' + (active ? " active" : "") + '" type="button" data-id="' + essay.id + '">' +
+                        "<small>" + essay.words + "w · " + essay.readMin + "m</small>" +
+                        "<span>" + escapeHtml(essay.title) + "</span>" +
+                        "</button>"
+                    );
+                }).join("");
+                html += "</section>";
+            });
+
+            indexRootEl.innerHTML = html;
+        }
+
+        function renderBody(essay) {
+            const paragraphs = essay.paragraphs.filter((para) => para.trim() !== "+1");
+            const lead = paragraphs[0] || "";
+            const tail = paragraphs.slice(1);
+
+            const html = tail.map((para) => {
+                if (/^---+$/.test(para)) {
+                    return "<hr>";
+                }
+                const formatted = inlineMarkdown(para);
+                const words = para.split(/\s+/).filter(Boolean).length;
+                const cls = words <= 8 ? "one" : "";
+                return '<p class="' + cls + '">' + formatted + "</p>";
+            }).join("");
+
+            const abstract = lead
+                ? '<section class="paper-abstract"><h3>Abstract</h3><p>' + inlineMarkdown(lead) + "</p></section>"
+                : "";
+
+            return '<article class="article">' + abstract + html + "</article>";
+        }
+
+        function renderViewer() {
+            const essay = currentEssay();
+            if (!essay) {
+                titleEl.textContent = "No essay selected";
+                subtitleEl.textContent = "";
+                bylineEl.textContent = "";
+                metaEl.innerHTML = "";
+                videoPanelEl.style.display = "none";
+                videoFrameEl.removeAttribute("src");
+                viewerBodyEl.innerHTML = '<div class="empty"><p>Try clearing the search filter.</p></div>';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                return;
+            }
+
+            titleEl.textContent = essay.title;
+            subtitleEl.textContent = essay.subtitle;
+            bylineEl.textContent = essay.byline || "";
+            bylineEl.style.display = essay.byline ? "block" : "none";
+
+            const metaBits = [
+                '<span class="chip">' + essay.id.toUpperCase() + "</span>",
+                '<span class="chip">' + essay.words + " words</span>",
+                '<span class="chip">' + essay.readMin + " min read</span>",
+                '<span class="chip">' + escapeHtml(essay.source) + "</span>"
+            ];
+            if (essay.video) {
+                metaBits.push('<a class="chip" href="' + essay.video + '" target="_blank" rel="noopener noreferrer">Video</a>');
+            }
+            metaEl.innerHTML = metaBits.join("");
+
+            const embedUrl = toYoutubeEmbed(essay.video);
+            if (embedUrl) {
+                videoPanelEl.style.display = "block";
+                videoFrameEl.src = embedUrl;
+            } else {
+                videoPanelEl.style.display = "none";
+                videoFrameEl.removeAttribute("src");
+            }
+            viewerBodyEl.innerHTML = renderBody(essay);
+
+            const idx = state.filtered.findIndex((item) => item.id === essay.id);
+            prevBtn.disabled = idx <= 0;
+            nextBtn.disabled = idx >= state.filtered.length - 1;
+        }
+
+        function renderAll() {
+            filterEssays();
+            renderDocChips();
+            renderIndex();
+            applyIndexVisibility();
+            renderViewer();
+        }
+
+        async function copyText(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (_) {
+                // fallback below
+            }
+
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.setAttribute("readonly", "true");
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            let ok = false;
+            try {
+                ok = document.execCommand("copy");
+            } catch (_) {
+                ok = false;
+            }
+            document.body.removeChild(ta);
+            return ok;
+        }
+
+        searchInput.addEventListener("input", (event) => {
+            state.query = event.target.value || "";
+            renderAll();
+        });
+
+        menuToggle.addEventListener("click", () => {
+            state.indexOpen = !state.indexOpen;
+            applyIndexVisibility();
+        });
+
+        copyCurrentBtn.addEventListener("click", async () => {
+            const essay = currentEssay();
+            if (!essay) {
+                setStatus("No essay selected.", true);
+                return;
+            }
+            const ok = await copyText(essay.raw.trim());
+            setStatus(ok ? "Essay copied." : "Copy failed.", !ok);
+        });
+
+        copyAllBtn.addEventListener("click", async () => {
+            const text = parsedEssays.map((essay) => {
+                return "===== " + essay.id.toUpperCase() + " =====\n" + essay.raw.trim();
+            }).join("\n\n");
+            const ok = await copyText(text);
+            setStatus(ok ? "All essays copied." : "Copy failed.", !ok);
+        });
+
+        indexRootEl.addEventListener("click", (event) => {
+            const button = event.target.closest(".index-item");
+            if (!button) {
+                return;
+            }
+            const id = button.getAttribute("data-id");
+            if (!id) {
+                return;
+            }
+            state.activeId = id;
+            renderAll();
+        });
+
+        prevBtn.addEventListener("click", () => {
+            const essay = currentEssay();
+            if (!essay) {
+                return;
+            }
+            const idx = state.filtered.findIndex((item) => item.id === essay.id);
+            if (idx > 0) {
+                state.activeId = state.filtered[idx - 1].id;
+                renderAll();
+            }
+        });
+
+        nextBtn.addEventListener("click", () => {
+            const essay = currentEssay();
+            if (!essay) {
+                return;
+            }
+            const idx = state.filtered.findIndex((item) => item.id === essay.id);
+            if (idx >= 0 && idx < state.filtered.length - 1) {
+                state.activeId = state.filtered[idx + 1].id;
+                renderAll();
+            }
+        });
+
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") {
+                prevBtn.click();
+            } else if (event.key === "ArrowRight") {
+                nextBtn.click();
+            }
+        });
+
+        state.indexOpen = !isMobile();
+        window.addEventListener("resize", applyIndexVisibility);
+        renderAll();
+    })();
+    </script>
+</body>
+</html>

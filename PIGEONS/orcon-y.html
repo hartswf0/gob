@@ -1,0 +1,1771 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Treating Workers Like Guided Missile Pigeons: Cybernetics, Behaviorism, and Symbolic Systems of Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        'warm-grey': '#8B8680',
+                        'deep-plum': '#6B2737',
+                        'soft-ivory': '#FEFCF7',
+                        'graphite': '#2C2C2C',
+                        'muted-rose': '#D4A5A5'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html, body {
+            overflow-x: hidden;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #FEFCF7 0%, #D4A5A5 100%);
+        }
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .prose-custom {
+            line-height: 1.7;
+        }
+        .mermaid-container {
+            display: flex;
+            justify-content: center;
+            min-height: 300px;
+            max-height: 800px;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mermaid-container .mermaid {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .mermaid-container .mermaid svg {
+            max-width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .mermaid-container .mermaid:active {
+            cursor: grabbing;
+        }
+
+        .mermaid-container.zoomed .mermaid {
+            height: 100%;
+            width: 100%;
+            cursor: grab;
+        }
+
+        .mermaid-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mermaid-control-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #374151;
+            font-size: 14px;
+            min-width: 36px;
+            height: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mermaid-control-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .mermaid-control-btn:active {
+            transform: scale(0.95);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .bento-item {
+            background: rgba(254, 252, 247, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 165, 165, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .toc-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: rgba(254, 252, 247, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(212, 165, 165, 0.3);
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            z-index: 50;
+        }
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+        .citation-link {
+            color: #6B2737;
+            text-decoration: none;
+            border-bottom: 1px dotted #6B2737;
+            transition: all 0.2s ease;
+        }
+        .citation-link:hover {
+            background: rgba(107, 39, 55, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .pull-quote {
+            border-left: 4px solid #6B2737;
+            background: rgba(212, 165, 165, 0.1);
+            padding: 2rem;
+            margin: 2rem 0;
+            font-style: italic;
+            font-size: 1.125rem;
+        }
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .collapse-content.expanded {
+            max-height: 1000px;
+        }
+        .toc-link {
+            display: block;
+            padding: 0.5rem 0;
+            color: #2C2C2C;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .toc-link:hover {
+            color: #6B2737;
+            border-bottom-color: rgba(212, 165, 165, 0.5);
+        }
+        .toc-link.active {
+            color: #6B2737;
+            font-weight: 600;
+        }
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(254, 252, 247, 0.9) 0%, rgba(212, 165, 165, 0.8) 100%);
+        }
+
+        @media (max-width: 640px) {
+            .mermaid-control-btn:not(.reset-zoom) {
+                display: none;
+            }
+            .mermaid-controls {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .toc-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .toc-sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mermaid-container {
+                padding: 15px;
+            }
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Mermaid theme customization for better contrast */
+        .mermaid .node rect,
+        .mermaid .node circle,
+        .mermaid .node ellipse,
+        .mermaid .node polygon {
+            fill: #ffffff;
+            stroke: #6B2737;
+            stroke-width: 2px;
+        }
+        .mermaid .node .label {
+            color: #2C2C2C;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .mermaid .edgePath .path {
+            stroke: #8B8680;
+            stroke-width: 2px;
+        }
+        .mermaid .edgeLabel {
+            background-color: #FEFCF7;
+            color: #2C2C2C;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+        }
+        /* Timeline specific styling */
+        .mermaid .section0, .mermaid .section1, .mermaid .section2, .mermaid .section3 {
+            fill: #FEFCF7;
+            stroke: #6B2737;
+            stroke-width: 2px;
+        }
+        .mermaid .cScale0, .mermaid .cScale1, .mermaid .cScale2, .mermaid .cScale3 {
+            fill: #6B2737;
+        }
+        .mermaid .timeline-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            fill: #2C2C2C;
+        }
+        /* Enhanced contrast for different node types */
+        .mermaid .node[class*="default"] rect,
+        .mermaid .node.default rect {
+            fill: #ffffff;
+            stroke: #6B2737;
+        }
+        .mermaid .node[class*="default"] .label {
+            color: #2C2C2C;
+        }
+        /* Ensure text readability on all background types */
+        .mermaid text {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            fill: #2C2C2C;
+        }
+        /* Decision nodes special styling */
+        .mermaid .node[class*="decision"] polygon {
+            fill: #D4A5A5;
+            stroke: #6B2737;
+        }
+        .mermaid .node[class*="decision"] .label {
+            color: #2C2C2C;
+            font-weight: 600;
+        }
+    </style>
+  <base target="_blank">
+</head>
+
+  <body class="font-sans text-graphite bg-soft-ivory prose-custom">
+    <!-- Table of Contents Sidebar -->
+    <nav class="toc-sidebar">
+      <h3 class="font-serif text-lg font-bold text-deep-plum mb-4">Contents</h3>
+      <div class="space-y-2 text-sm">
+        <a href="#introduction" class="toc-link">Introduction: The Pigeon as Paradigm</a>
+        <a href="#historical-foundations" class="toc-link">Historical Foundations</a>
+        <a href="#six-observations" class="toc-link">The Six Observations</a>
+        <a href="#thin-to-thick" class="toc-link">From Thin to Thick Description</a>
+        <a href="#rlhf-skinner" class="toc-link">RLHF as Cultural Skinner Box</a>
+        <a href="#digital-twin" class="toc-link">Operator Digital Twin</a>
+        <a href="#flourishing-capture" class="toc-link">The Capture of Flourishing</a>
+        <a href="#symbolic-sovereignty" class="toc-link">Symbolic Sovereignty</a>
+        <a href="#semiotic-paradox" class="toc-link">The Semiotic Paradox</a>
+        <a href="#counter-cybernetics" class="toc-link">Counter-Cybernetics</a>
+        <a href="#six-conditions" class="toc-link">Six Conditions for Symbolic Sovereignty</a>
+        <a href="#conclusion" class="toc-link">Conclusion</a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Hero Section -->
+      <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden">
+        <div class="absolute inset-0">
+          <img src="https://kimi-web-img.moonshot.cn/img/lh7-rt.googleusercontent.com/ec3fb2081495df1e3ddda26a84eccc455ad118b7" alt="Abstract representation of cybernetic feedback loops" class="w-full h-full object-cover opacity-30" size="wallpaper" aspect="wide" query="cybernetic feedback loop pattern" referrerpolicy="no-referrer" data-modified="1" data-score="0.00"/>
+        </div>
+        <div class="hero-overlay absolute inset-0"></div>
+
+        <div class="container mx-auto px-4 sm:px-8 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- Title Block -->
+            <div class="space-y-6">
+              <h1 class="font-serif text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight text-shadow">
+                <em class="text-deep-plum">Treating Workers Like</em>
+                <br/>
+                <span class="text-graphite">Guided Missile Pigeons</span>
+              </h1>
+              <p class="text-lg sm:text-xl text-warm-grey font-medium leading-relaxed break-words">
+                Cybernetics, Behaviorism, and Symbolic Systems of Control
+              </p>
+              <div class="flex items-center space-x-4 text-sm text-warm-grey">
+                <span class="font-medium">Watson Hartsoe</span>
+                <span>•</span>
+                <span>Georgia Institute of Technology</span>
+              </div>
+            </div>
+
+            <!-- Bento Grid Highlights -->
+            <div class="bento-grid">
+              <div class="bento-item">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">The Central Thesis</h3>
+                <p class="text-sm text-warm-grey leading-relaxed">
+                  <strong>&#34;The worker is the pigeon.&#34;</strong> Both integrated into cybernetic feedback loops as servomechanisms, their behavior shaped through engineered environmental contingencies.
+                </p>
+              </div>
+              <div class="bento-item">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">From Grain to Wellness</h3>
+                <p class="text-sm text-warm-grey leading-relaxed">
+                  Contemporary &#34;wellness,&#34; &#34;engagement,&#34; and &#34;mental health support&#34; are symbolic successors to grain rewards—enabling deeper penetration into subjective experience.
+                </p>
+              </div>
+              <div class="bento-item">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">Historical Continuity</h3>
+                <p class="text-sm text-warm-grey leading-relaxed">
+                  From B.F. Skinner&#39;s 1943 Project Pigeon to today&#39;s AI-driven workplace analytics—the persistent ORCON architecture endures across technological generations.
+                </p>
+              </div>
+              <div class="bento-item">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">The Open Question</h3>
+                <p class="text-sm text-warm-grey leading-relaxed">
+                  Who decides the target? And whether the pigeons can learn to peck somewhere else?
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content Area -->
+      <div class="bg-soft-ivory">
+        <div class="container mx-auto px-4 sm:px-8 py-16 max-w-4xl">
+
+          <!-- Introduction -->
+          <section id="introduction" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">Introduction: The Pigeon as Paradigm</h2>
+
+            <div class="pull-quote">
+              <p class="mb-4">&#34;Project Pigeon was not a failure. It was a proof of concept.&#34;</p>
+              <cite class="text-sm not-italic">— B.F. Skinner, 1943</cite>
+            </div>
+
+            <p class="text-lg leading-relaxed mb-6">
+              In 1943, at the height of World War II, behavioral psychologist <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">B.F. Skinner proposed a radical solution to a critical military engineering problem</a>. The challenge was formidable: contemporary guidance systems could not reliably steer missiles toward moving targets. Radio signals were vulnerable to jamming, radar technology remained primitive and unreliable, and mechanical computing systems lacked the responsiveness for real-time trajectory correction against evasive maneuvers.
+            </p>
+
+            <p class="text-lg leading-relaxed mb-6">
+              Skinner&#39;s innovation was not technological in the conventional sense—it was <strong>biological</strong>. Rather than attempting to improve electromechanical systems, he proposed integrating living organisms directly into the weapon&#39;s control architecture.
+            </p>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h3 class="font-serif text-xl font-bold text-deep-plum mb-4">The 1943 Biological Guidance System</h3>
+              <p class="mb-4">
+                Three pigeons were secured in the nose cone of a glide bomb, each positioned before a translucent screen. Through extensive operant conditioning, the pigeons had been trained to peck at the visual profile of enemy ships. The critical engineering insight was that when aerodynamic forces caused the bomb to deviate from its intended trajectory, the target image would drift across the screen.
+              </p>
+              <p class="mb-4">
+                The birds, seeking to center the image for their grain reward, would peck in the direction of correction. These pecks were mechanically translated via a <strong>pneumatic servo link</strong> into adjustments to the bomb&#39;s steering fins.
+              </p>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Contemporary Translation</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              The contemporary instantiation of ORCON involves systematic translation of components across technological generations. The physical nose cone has been replaced by the call center headset, the optical lens by biometric wristbands, and grain by &#34;wellness,&#34; &#34;engagement,&#34; and &#34;mental health support.&#34;
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Then: Nose Cone</h4>
+                <p class="text-sm text-warm-grey">Physical enclosure constraining sensory environment</p>
+              </div>
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Now: Digital Dashboard</h4>
+                <p class="text-sm text-warm-grey">Performance metrics guiding behavior without comprehension</p>
+              </div>
+            </div>
+
+            <div class="pull-quote">
+              <p class="mb-4">&#34;The worker is the pigeon.&#34;</p>
+              <cite class="text-sm not-italic">— Central thesis of this analysis</cite>
+            </div>
+
+            <p class="text-lg leading-relaxed mb-6">
+              The worker occupies a structural position functionally identical to Skinner&#39;s pigeons. Both are integrated into cybernetic feedback loops as organic components. Both have their behavior shaped through engineered environmental contingencies. Both contribute sensory, cognitive, and motor capabilities to system objectives they do not comprehend.
+            </p>
+          </section>
+
+          <!-- The Six Observations -->
+          <section id="six-observations" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Six Observations</h2>
+
+            <div class="space-y-8">
+              <div class="bg-white rounded-lg p-6 border-l-4 border-deep-plum">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">1. Cybernetic-Behaviorist Synthesis</h3>
+                <p class="text-warm-grey">Organisms are treated as servomechanisms where internal states are irrelevant and only input-output relationships matter. Behavior is shaped by feedback and reinforcement—the pigeon does not understand war, only grain.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-muted-rose">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">2. RLHF Cultural Skinner Box</h3>
+                <p class="text-warm-grey">Reinforcement Learning from Human Feedback resolves AI alignment by treating human culture as a Skinner box. Morality is stripped of philosophical intent and reduced to statistical compliance.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-warm-grey">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">3. Semiotic Surplus Value</h3>
+                <p class="text-warm-grey">The locus of extraction has shifted from physical surplus value to the capacity to define one&#39;s own interiority. The algorithm retroactively defines what human flourishing means to match its efficiency objectives.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-deep-plum">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">4. Operator-in-the-Loop Illusion</h3>
+                <p class="text-warm-grey">The human worker is not the system&#39;s director but the organic sensor and actuator bridging technical limitations. Functionally identical to the pigeon strapped inside the Pelican bomb.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-muted-rose">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">5. Forced Benevolence Defense</h3>
+                <p class="text-warm-grey">The ORCON&#39;s ultimate defense against resistance is framing totalizing surveillance as ergonomic relief. Fighting the system means demanding physical stress and physiological unsafety.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-warm-grey">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">6. Symbolic Sovereignty</h3>
+                <p class="text-warm-grey">The fundamental right to privately interpret, own, and withhold one&#39;s physiological and emotional states. The new battleground for labor rights—migrating from physical to interpretive autonomy.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Historical Foundations -->
+          <section id="historical-foundations" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">Historical Foundations</h2>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Norbert Wiener&#39;s Anti-Aircraft Predictor</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              <a href="https://zhuanlan.zhihu.com/p/477962553" class="citation-link">Norbert Wiener&#39;s development of the anti-aircraft predictor during World War II established foundational concepts that would become central to cybernetics</a>. The technical problem was formidable: anti-aircraft shells required approximately 20 seconds to reach their targets, during which enemy aircraft could change course, speed, and altitude.
+            </p>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">The Black Box Model</h4>
+              <p class="mb-4">
+                Wiener&#39;s solution involved creating what he termed a &#34;black box&#34; model of the enemy pilot—a computational representation that could predict future position based on past behavior without requiring knowledge of the pilot&#39;s intentions, reasoning, or internal states.
+              </p>
+              <div class="bg-deep-plum/5 rounded-lg p-4">
+                <p class="text-sm font-medium text-deep-plum">Key Insight:</p>
+                <p class="text-sm text-warm-grey">Under combat stress, human behavior sheds complexity and defaults to repetitive patterns. The pilot struggling against turbulence, flak, and physiological limits becomes predictable—a machine.</p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Universalizing Epistemology of Cybernetics</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              From the anti-aircraft predictor, Wiener developed the broader framework of cybernetics: &#34;a universalizing epistemology&#34; in which &#34;the human nervous system and the electromechanical servomechanism were functionally isomorphic&#34; <a href="https://zhuanlan.zhihu.com/p/477962553" class="citation-link">[2]</a>.
+            </p>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">B.F. Skinner&#39;s Operant Conditioning</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">B.F. Skinner&#39;s development of operant conditioning provided the experimental and engineering complement to Wiener&#39;s cybernetic theory</a>. Where Wiener offered mathematical formalization of feedback systems, Skinner offered practical techniques for shaping biological behavior through environmental control.
+            </p>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">The Skinner Box as Engineering Mechanism</h4>
+              <p class="mb-4">The Skinner box provided precise environmental control: illumination, temperature, sound, and spatial arrangement could all be specified. It constrained behavioral options and delivered reinforcement with temporal precision.</p>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="text-center p-4 bg-deep-plum/5 rounded-lg">
+                  <h5 class="font-bold text-deep-plum mb-2">Continuous Reinforcement</h5>
+                  <p class="text-xs text-warm-grey">Every correct response rewarded</p>
+                </div>
+                <div class="text-center p-4 bg-muted-rose/10 rounded-lg">
+                  <h5 class="font-bold text-deep-plum mb-2">Fixed Interval</h5>
+                  <p class="text-xs text-warm-grey">Reward after specified time</p>
+                </div>
+                <div class="text-center p-4 bg-warm-grey/10 rounded-lg">
+                  <h5 class="font-bold text-deep-plum mb-2">Variable Ratio</h5>
+                  <p class="text-xs text-warm-grey">Highest, most persistent rates</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Historical Timeline -->
+          <section class="mb-16">
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-8">Evolution of ORCON Architecture: 1943-2026</h3>
+
+            <div class="mermaid-container">
+              <div class="mermaid-controls">
+                <button class="mermaid-control-btn zoom-in" title="放大">
+                  <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="mermaid-control-btn zoom-out" title="缩小">
+                  <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="mermaid-control-btn reset-zoom" title="重置">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+              <div class="mermaid" id="timeline-chart">
+                timeline
+                title &#34;Evolution of ORCON Architecture&#34;
+
+                1943 : &#34;Project Pigeon Proof-of-Concept&#34;
+                : &#34;B.F. Skinner&#39;s pigeon-guided missile system&#34;
+                : &#34;Biological guidance architecture established&#34;
+                : &#34;Operant conditioning in military application&#34;
+
+                1943-1945 : &#34;Norbert Wiener&#39;s Anti-Aircraft Predictor&#34;
+                : &#34;Cybernetic theory development&#34;
+                : &#34;Black box modeling of human targets&#34;
+
+                1953 : &#34;Project ORCON Termination&#34;
+                : &#34;Official military project cancellation&#34;
+                : &#34;Proof-of-concept successfully demonstrated&#34;
+                : &#34;Institutional knowledge preserved&#34;
+
+                1953-1980 : &#34;Cold War Behavioral Research&#34;
+                : &#34;Skinner box methodology refined&#34;
+                : &#34;Schedules of reinforcement optimization&#34;
+                : &#34;Successive approximation techniques&#34;
+
+                1980-2000 : &#34;Digital Transformation Era&#34;
+                : &#34;Call center headset as digital nose cone&#34;
+                : &#34;Early computer monitoring systems&#34;
+                : &#34;Performance metric standardization&#34;
+
+                2000-2010 : &#34;Wearable Technology Emergence&#34;
+                : &#34;Biometric wristband development&#34;
+                : &#34;Physiological signal monitoring&#34;
+                : &#34;Early gamification systems&#34;
+
+                2010-2020 : &#34;Big Data &amp; Analytics Revolution&#34;
+                : &#34;Digital dashboard proliferation&#34;
+                : &#34;Comprehensive worker monitoring&#34;
+                : &#34;Algorithmic intervention systems&#34;
+
+                2020-2026 : &#34;AI-Driven Optimization&#34;
+                : &#34;RLHF systems deployment&#34;
+                : &#34;Operator Digital Twin implementation&#34;
+                : &#34;Affective surveillance normalization&#34;
+                : &#34;Flourishing operationalization&#34;
+              </div>
+            </div>
+          </section>
+
+          <!-- Project ORCON -->
+          <section class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">Project ORCON: Military Architecture of Organic Control</h2>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h3 class="font-serif text-xl font-bold text-deep-plum mb-4">Technical Specifications</h3>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Project ORCON&#39;s implementation began with careful selection of biological components</a>. The pigeons were chosen not for general intelligence but for specific capabilities: &#34;exceptional optical acuity, rapid reaction time, and highly conditionable reflexes.&#34;
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">The Pneumatic Servo Link</h4>
+                  <p class="text-sm text-warm-grey">The technical integration required sophisticated engineering. The pigeons&#39; pecking behavior—rapid, precise, and directionally specific—had to be translated into mechanical adjustments to the bomb&#39;s steering fins.</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">Functional Decoupling</h4>
+                  <p class="text-sm text-warm-grey">The core architectural feature was the complete functional decoupling of the actor&#39;s intent from the system&#39;s outcome. The pigeon experienced pecking as foraging behavior; the system experienced it as guidance correction.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Termination and Legacy</h4>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Project ORCON was officially terminated in 1953 with assessments citing two deficiencies: inadequate pneumatic servomechanisms and military prejudice against trusting animals with weapons</a>. Yet this termination marked not failure but successful proof-of-concept.
+              </p>
+
+              <div class="pull-quote bg-white">
+                <p>&#34;The contemporary equivalents of the pigeon&#39;s corrective pecks are gamification systems and behavioral nudges: micro-interventions designed to shape behavior through reinforcement rather than instruction.&#34;</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- From Thin to Thick Description -->
+          <section id="thin-to-thick" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">From Thin to Thick Description</h2>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Clifford Geertz&#39;s Conceptual Framework</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">The Twitch-Wink Distinction</h4>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 bg-deep-plum/5 rounded-lg">
+                  <h5 class="font-bold text-deep-plum mb-2">Thin Description</h5>
+                  <p class="text-sm text-warm-grey">Rapid eyelid contraction</p>
+                  <p class="text-xs text-warm-grey mt-2">What a camera or biometric sensor captures</p>
+                </div>
+                <div class="p-4 bg-muted-rose/10 rounded-lg">
+                  <h5 class="font-bold text-deep-plum mb-2">Thick Description</h5>
+                  <p class="text-sm text-warm-grey">Intentional communication (irony, complicity, flirtation)</p>
+                  <p class="text-xs text-warm-grey mt-2">Requires understanding of cultural context and intention</p>
+                </div>
+              </div>
+
+              <div class="mt-6 p-4 bg-warm-grey/5 rounded-lg">
+                <p class="text-sm italic text-warm-grey">
+                  <a href="https://zhuanlan.zhihu.com/p/477962553" class="citation-link">Geertz famously wrote that man is &#34;an animal suspended in webs of significance he himself has spun&#34;</a>. Culture is those webs—the categories through which experience is organized, the codes through which action is interpreted, the narratives through which lives are understood.
+                </p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Semantic Turn in Contemporary AI</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              Contemporary AI systems must operate within the realm of the semantic and the social, requiring capacity for thick description. Large language models must distinguish the twitch from the wink: must recognize that identical words can carry different meanings depending on context, tone, and relationship.
+            </p>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">The Modern ORCON&#39;s Dual Operation</h4>
+              <p class="mb-4">
+                While operating cybernetic feedback loops, the modern ORCON simultaneously produces symbolic meaning: defining wellness, engagement, flourishing in system-compatible terms; framing surveillance as care, optimization as development, constraint as flexibility.
+              </p>
+              <div class="pull-quote bg-white">
+                <p>&#34;The modern ORCON bridges Skinnerian and Geertzian frameworks—behaviorist conditioning and cultural interpretation—in a novel synthesis.&#34;</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- RLHF as Cultural Skinner Box -->
+          <section id="rlhf-skinner" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">RLHF as Cultural Skinner Box</h2>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Structural Identity with Operant Conditioning</h3>
+
+            <p class="text-lg leading-relaxed mb-6">
+              <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Researchers describe RLHF as &#34;a Skinner box to train LLMs: instead of a rat tapping a lever in response to rewards and punishments, a language model outputs answers to text prompts&#34;</a>.
+            </p>
+
+            <div class="overflow-x-auto mb-8">
+              <table class="w-full bg-white rounded-lg border border-muted-rose/30">
+                <thead class="bg-deep-plum/5">
+                  <tr>
+                    <th class="px-6 py-3 text-left font-serif text-deep-plum">Stage</th>
+                    <th class="px-6 py-3 text-left font-serif text-deep-plum">Skinner&#39;s Pigeon</th>
+                    <th class="px-6 py-3 text-left font-serif text-deep-plum">RLHF Model</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-muted-rose/20">
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-deep-plum">Stimulus observation</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Target image on screen</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Text prompt input</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-deep-plum">Behavior emission</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Directional pecking</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Token sequence generation</td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-deep-plum">Reinforcement reception</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Grain reward</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey"><strong>Scalar rating from human evaluator</strong></td>
+                  </tr>
+                  <tr>
+                    <td class="px-6 py-4 font-medium text-deep-plum">Learning mechanism</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey">Response probability adjustment</td>
+                    <td class="px-6 py-4 text-sm text-warm-grey"><strong>Policy gradient descent optimization</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Transcending Thin Behaviorism</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">The Instrumentality of Machine Morality</h4>
+              <div class="pull-quote bg-deep-plum/5">
+                <p>&#34;The model does not reason about what is right; it predicts what will be rated as right. It does not grasp ethical principles; it learns statistical correlates of ethical-sounding language.&#34;</p>
+              </div>
+              <p class="mt-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">The result: morality that is entirely instrumental—optimized for appearance rather than substance, statistical compliance rather than genuine ethical understanding</a>.
+              </p>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Paradox of Cultural Alignment</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Human Evaluation (Thick)</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Qualitative, contextual, narrative</li>
+                  <li>• Extended deliberation, reconsideration</li>
+                  <li>• Situated in relationships, institutions</li>
+                  <li>• Multiple conflicting values</li>
+                  <li>• Ongoing renegotiation of meaning</li>
+                </ul>
+              </div>
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">RLHF Training (Thin)</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Quantitative, decontextualized, scalar</li>
+                  <li>• Immediate, automatic, irreversible</li>
+                  <li>• Abstracted from social context</li>
+                  <li>• Single aggregated objective</li>
+                  <li>• Fixed training distribution</li>
+                </ul>
+              </div>
+            </div>
+
+            <p class="text-lg leading-relaxed">
+              The paradox: RLHF <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">relies on thick culture while employing thin training. The culture is thick; the training is thin. The result is the modern ORCON: engaging with meaning to function while systematically destroying the meaningfulness it exploits</a>.
+            </p>
+          </section>
+
+          <!-- Operator Digital Twin -->
+          <section id="digital-twin" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Operator Digital Twin: Affective Surveillance</h2>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h3 class="font-serif text-xl font-bold text-deep-plum mb-4">Technical Architecture</h3>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">The Operator Digital Twin (ODT) represents the culmination of ORCON evolution: a high-fidelity, real-time digital replica of the human worker that enables comprehensive monitoring, prediction, and optimization of individual performance</a>. Unlike traditional digital twins, which virtualize machine parts for predictive maintenance, the ODT creates a computational model of the worker themselves—their physiological states, behavioral patterns, cognitive capacities, and emotional conditions.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div class="text-center p-4 bg-deep-plum/5 rounded-lg">
+                  <i class="fas fa-heartbeat text-2xl text-deep-plum mb-2"></i>
+                  <h4 class="font-bold text-deep-plum mb-2">Wearable Sensors</h4>
+                  <p class="text-xs text-warm-grey">Heart rate variability, skin temperature, respiratory rates, postural kinematics</p>
+                </div>
+                <div class="text-center p-4 bg-muted-rose/10 rounded-lg">
+                  <i class="fas fa-eye text-2xl text-deep-plum mb-2"></i>
+                  <h4 class="font-bold text-deep-plum mb-2">Computer Vision</h4>
+                  <p class="text-xs text-warm-grey">Facial expressions, gaze patterns, body language analysis</p>
+                </div>
+                <div class="text-center p-4 bg-warm-grey/10 rounded-lg">
+                  <i class="fas fa-comments text-2xl text-deep-plum mb-2"></i>
+                  <h4 class="font-bold text-deep-plum mb-2">Natural Language Processing</h4>
+                  <p class="text-xs text-warm-grey">Communication analysis for anxiety, depression, burnout detection</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Thick Description as Operational Method</h3>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Heart Rate Variability as Engagement</h4>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Heart rate variability (HRV)—a physical measure of autonomic nervous system activity—is interpreted through engagement frameworks: higher HRV indicates &#34;optimal engagement,&#34; while lower HRV indicates &#34;disengagement&#34; or &#34;burnout risk.&#34;</a>
+              </p>
+
+              <div class="bg-white rounded-lg p-4 mt-4">
+                <h5 class="font-bold text-deep-plum mb-2">Problems with HRV Interpretation:</h5>
+                <ul class="space-y-1 text-sm text-warm-grey">
+                  <li>• <strong>Individual Variation:</strong> Baselines vary dramatically; population norms misclassify healthy outliers</li>
+                  <li>• <strong>Multiple Influences:</strong> Sleep quality, physical activity, caffeine consumption, medication</li>
+                  <li>• <strong>Context-Dependence:</strong> Lower HRV may accompany intense focus on challenging tasks, not merely depletion</li>
+                </ul>
+              </div>
+
+              <div class="pull-quote bg-white mt-4">
+                <p>&#34;The system&#39;s power lies not in the accuracy of its interpretations but in its ability to enforce them.&#34;</p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Automated Intervention Systems</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Pace Adjustment</h4>
+                <p class="text-sm text-warm-grey">Slowing or accelerating task flow based on detected cognitive load; maintaining &#34;zone of proximal development&#34;</p>
+              </div>
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Task Reallocation</h4>
+                <p class="text-sm text-warm-grey">Shifting assignments based on detected capabilities and states</p>
+              </div>
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Break Prompting</h4>
+                <p class="text-sm text-warm-grey">Mandating recovery periods when fatigue indicators exceed thresholds</p>
+              </div>
+            </div>
+
+            <div class="pull-quote bg-deep-plum/5">
+              <p>&#34;The ODT and its interventions are framed as the pinnacle of workplace ergonomics and corporate care—the fulfillment of long-standing aspirations for healthy, supportive, human-centered work environments.&#34;</p>
+            </div>
+          </section>
+
+          <!-- The Capture of Flourishing -->
+          <section id="flourishing-capture" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Capture of Flourishing</h2>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Thick Concept of Human Flourishing</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">Eudaimonia: Realization of Human Potential</h4>
+              <p class="mb-4">
+                In ethical philosophy, <strong>flourishing (Greek eudaimonia)</strong> denotes the realization of human potential in its fullest sense. This includes not merely pleasure or satisfaction but:
+              </p>
+              <ul class="space-y-2 text-sm text-warm-grey">
+                <li>• Meaningful activity</li>
+                <li>• Virtuous character</li>
+                <li>• Supportive relationships</li>
+                <li>• Civic participation</li>
+                <li>• Contribution to goods beyond oneself</li>
+              </ul>
+            </div>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Resistance to Quantification</h4>
+              <p class="mb-4">
+                The thickness of flourishing generates resistance to quantification. Meaningful activity cannot be reduced to output metrics; virtuous character cannot be captured in personality assessments; supportive relationships cannot be measured by network density.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <h5 class="font-bold text-deep-plum mb-2">Philosophical Accounts:</h5>
+                  <ul class="text-sm text-warm-grey space-y-1">
+                    <li>• Aristotelian virtue ethics</li>
+                    <li>• Stoic rational acceptance</li>
+                    <li>• Utilitarian preference satisfaction</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 class="font-bold text-deep-plum mb-2">Political Dimension:</h5>
+                  <ul class="text-sm text-warm-grey space-y-1">
+                    <li>• Historically contested</li>
+                    <li>• Shaped by collective struggle</li>
+                    <li>• Site of power and definition</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Operationalization in ODT Framework</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">Mathematically Bounded Parameters</h4>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Within the ODT framework, flourishing is operationalized as &#34;a highly specific, mathematically bounded set of parameters&#34;</a>.
+              </p>
+
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-deep-plum/5">
+                    <tr>
+                      <th class="px-4 py-2 text-left font-serif text-deep-plum text-sm">Parameter</th>
+                      <th class="px-4 py-2 text-left font-serif text-deep-plum text-sm">Data Source</th>
+                      <th class="px-4 py-2 text-left font-serif text-deep-plum text-sm">Presumed Indicator</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-muted-rose/20">
+                    <tr>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Baseline heart rate</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Wearable sensors</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Physiological resilience</td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Positive sentiment ratio</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">NLP of communications</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Psychological well-being, social integration</td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Cognitive load matching</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Task metrics + physiological inference</td>
+                      <td class="px-4 py-2 text-sm text-warm-grey">Productive equilibrium</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Capture of Moral Narrative</h3>
+
+            <div class="pull-quote bg-deep-plum/5">
+              <p>&#34;Outsourcing the pursuit of the good life to the servomechanism.&#34;</p>
+            </div>
+
+            <p class="text-lg leading-relaxed">
+              <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">The worker is positioned as object of optimization, not subject of their own life: their good is determined by the system, not by themselves; their pursuit is directed by algorithm, not by deliberation. The servomechanism as arbiter inverts the proper relationship between means and ends</a>.
+            </p>
+          </section>
+
+          <!-- The Erosion of Symbolic Sovereignty -->
+          <section id="symbolic-sovereignty" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Erosion of Symbolic Sovereignty</h2>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Defining Symbolic Sovereignty</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">Capacity to Control Meaning Production</h4>
+              <p class="mb-4">
+                <strong>Symbolic sovereignty</strong>: &#34;the capacity of an individual or community to control the production of meaning regarding their own existence, identity, and values.&#34;
+              </p>
+              <p class="text-sm text-warm-grey">
+                This includes the right to interpret one&#39;s own experience, construct one&#39;s identity, articulate one&#39;s values, and narrate one&#39;s life.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">What ORCON Violates</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Treats winks as twitches</li>
+                  <li>• Reduces meaning to movement</li>
+                  <li>• Ignores intentionality</li>
+                  <li>• Enforces statistical categories</li>
+                  <li>• Overrides self-assessment</li>
+                </ul>
+              </div>
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">What Sovereignty Protects</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Contextual interpretation</li>
+                  <li>• Intention recognition</li>
+                  <li>• Meaningful understanding</li>
+                  <li>• Contestable self-definition</li>
+                  <li>• Epistemic authority of first-person</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Systematic Transfer to Algorithmic Overseer</h3>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">AI Evaluation of Facial Expression</h4>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">&#34;Systematic transfer of symbolic sovereignty from human subject to algorithmic overseer.&#34; Algorithm&#39;s classification of emotional state overrides worker&#39;s own assessment, becomes basis for intervention, shapes organizational reality</a>.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">RLHF Policing of Discourse Boundaries</h4>
+              <p class="mb-4">
+                Extends to language through RLHF-trained systems &#34;policing boundaries of helpful discourse&#34;: evaluating communicative appropriateness, identifying and flagging problematic content, suggesting/enforcing alternative formulations.
+              </p>
+              <p class="text-sm text-warm-grey">
+                Performing &#34;the cultural labor of interpretation&#34;: determining acceptable meanings, permitted expressions, articulable thoughts.
+              </p>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Regime of Statistical Truth</h3>
+
+            <div class="pull-quote bg-deep-plum/5">
+              <p>&#34;Elimination of private experience and solidarity as resources for worker autonomy and resistance&#34;</p>
+            </div>
+
+            <p class="text-lg leading-relaxed mb-6">
+              <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">&#34;Regime of truth based not on hermeneutic consensus but on statistical optimization of human feedback and biometric data.&#34; Overrides traditional validation mechanisms: intersubjective agreement, narrative coherence, experiential adequacy, ethical justification</a>.
+            </p>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Unique Difficulty of Resistance</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Forced Benevolence as Control Obstacle</h4>
+              <div class="pull-quote bg-deep-plum/5">
+                <p>&#34;How does one strike against machine that responds to stress by lowering quota? To reject affective surveillance is to reject workplace safety, mental health support, ergonomic relief.&#34;</p>
+              </div>
+              <p class="mt-4 text-sm text-warm-grey">
+                Resistance positioned as demanding physical stress and physiological unsafety.
+              </p>
+            </div>
+          </section>
+
+          <!-- The Semiotic Paradox -->
+          <section id="semiotic-paradox" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Semiotic Paradox</h2>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h3 class="font-serif text-xl font-bold text-deep-plum mb-4">Fundamental Dependence on Cultural Matrix</h3>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">&#34;Relies entirely on rich, context-heavy cultural matrix of human evaluators and workers to generate data it needs.&#34;</a>
+              </p>
+              <p class="text-sm text-warm-grey mb-4">
+                System cannot function without thick description: nuanced judgments, complex states, social contexts giving behavior meaning.
+              </p>
+              <div class="bg-deep-plum/5 rounded-lg p-4">
+                <p class="text-sm font-medium text-deep-plum">Extraction Asymmetry:</p>
+                <p class="text-sm text-warm-grey">System takes meaning-making capacity; humans give cultural labor without reciprocity.</p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Context-Blind Processing Mechanisms</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Assumed Universality</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Heart rate variability = engagement</li>
+                  <li>• Facial configuration = emotion</li>
+                  <li>• Communication pattern = mental health</li>
+                </ul>
+              </div>
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Ignored Variation</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Cultural contingency of expression</li>
+                  <li>• Individual differences in physiology</li>
+                  <li>• Situational specificity of meaning</li>
+                  <li>• Personal style and idiosyncrasy</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Inevitability of Flawed Translation</h3>
+
+            <div class="pull-quote bg-deep-plum/5 mb-8">
+              <p>&#34;System&#39;s power lies not in accuracy of interpretations but in ability to enforce them.&#34;</p>
+            </div>
+
+            <p class="text-lg leading-relaxed mb-6">
+              <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">Translation from lived experience to machine-readable data involves selection of what can be measured, framing in system categories, stripping complicating context and meaning. Worker&#39;s experience overridden by system diagnosis; interpretation becomes reality through its enactment</a>.
+            </p>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Reduction of Empathy</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Empathy vs. Homeostatic Variable Substitution</h4>
+              <p class="mb-4">
+                &#34;Empathy claimed by affective surveillance systems is not empathy at all but homeostatic variable substitution&#34;: treatment of human emotion as system parameter to be regulated, error signal to be minimized, deviation from optimal to be corrected.
+              </p>
+              <div class="bg-deep-plum/5 rounded-lg p-4">
+                <p class="text-sm font-medium text-deep-plum">True empathy requires acknowledgment of subject&#39;s unquantifiable alterity:</p>
+                <p class="text-sm text-warm-grey">Recognition that other is fundamentally different, not fully knowable, not reducible to one&#39;s own categories or measurements.</p>
+              </div>
+              <p class="mt-4 text-sm text-warm-grey">
+                ORCON violates this by presuming complete knowability—worker as fully captured by system categories.
+              </p>
+            </div>
+          </section>
+
+          <!-- Counter-Cybernetics -->
+          <section id="counter-cybernetics" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">Counter-Cybernetics: Strategies of Resistance</h2>
+
+            <div class="pull-quote bg-deep-plum/5 mb-8">
+              <p>If the ORCON operates by co-opting thick description to manage behavior, the question of resistance becomes technical: Can the human operator weaponize semiotic noise? Can they operationalize their own biometric inputs to jam the system&#39;s interpretive layer?</p>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Weaponizing Semiotic Noise</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Caffeine Manipulation</h4>
+                <p class="text-sm text-warm-grey">Elevated arousal signals read as engagement during actual disengagement</p>
+              </div>
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Exercise Baselines</h4>
+                <p class="text-sm text-warm-grey">Regular exercise establishes HRV buffer against stress detection</p>
+              </div>
+              <div class="bg-white rounded-lg p-6 border border-muted-rose/30">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Controlled Expression</h4>
+                <p class="text-sm text-warm-grey">Strategic displays masking internal states while preserving autonomy</p>
+              </div>
+            </div>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">The Digital Equivalent of the Slave Song</h4>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">&#34;Digital equivalent of slave singing in field&#34;: double-voiced performance—contentment to master ears, coded communication to community</a>.
+              </p>
+              <p class="text-sm text-warm-grey">
+                Political significance of performed compliance: survival strategy maintaining interior autonomy while producing exterior compliance.
+              </p>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Performing Compliance, Preserving Interiority</h3>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Strategic Goal</h4>
+              <div class="pull-quote bg-deep-plum/5">
+                <p>&#34;Performing compliance while preserving interiority&#34;: producing behavioral and physiological signals satisfying system requirements while maintaining genuine self-determination regarding what one does, feels, means.</p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">Introducing Un-Optimizable Friction</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Operative Ekphrasis</h4>
+                <p class="text-sm text-warm-grey">Strategic use of detailed, vivid description overloading system processing, introducing interpretive ambiguity</p>
+              </div>
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Thick Prompting</h4>
+                <p class="text-sm text-warm-grey">Strategic elaboration of context and meaning in AI interactions to exploit system limitations</p>
+              </div>
+              <div class="bg-warm-grey/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Generative Semantic Noise</h4>
+                <p class="text-sm text-warm-grey">Creating resistant meaning evading machine classification while achieving human understanding</p>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Arms Race of Interpretation</h3>
+
+            <div class="pull-quote bg-deep-plum/5">
+              <p>&#34;The perpetuity of the arms race is not cause for despair but for strategic realism. The goal is not to win once and for all but to keep the struggle alive, to prevent definitive system victory, to maintain space for transformation.&#34;</p>
+            </div>
+          </section>
+
+          <!-- Six Conditions -->
+          <section id="six-conditions" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">The Six Conditions for Symbolic Sovereignty</h2>
+
+            <div class="space-y-8">
+              <div class="bg-white rounded-lg p-6 border-l-4 border-deep-plum">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">1. Right to Illegibility</h3>
+                <p class="text-warm-grey mb-3">Workers must have the operational capability to selectively blind the system to their actions, physiology, and emotional states without punitive consequences.</p>
+                <p class="text-sm text-deep-plum/70">Counters the cybernetic-behaviorist treatment of organisms as transparent servomechanisms.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-muted-rose">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">2. Right to Semantic Autonomy</h3>
+                <p class="text-warm-grey mb-3">The meaning of biometric and behavioral signals cannot be dictated by the algorithm; workers must contest and override system interpretations.</p>
+                <p class="text-sm text-deep-plum/70">Challenges RLHF&#39;s reduction of morality to statistical compliance.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-warm-grey">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">3. Right to Interiority</h3>
+                <p class="text-warm-grey mb-3">The extraction of semiotic surplus value must be prohibited; workers must own their physiological and emotional data.</p>
+                <p class="text-sm text-deep-plum/70">Prevents the appropriation of self-definition capacity.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-deep-plum">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">4. Right to Agency</h3>
+                <p class="text-warm-grey mb-3">The Operator-in-the-Loop paradigm must be replaced with genuine human direction; the system must serve the worker.</p>
+                <p class="text-sm text-deep-plum/70">Transforms functional identity with the pigeon into authentic human control.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-muted-rose">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">5. Right to Resistance</h3>
+                <p class="text-warm-grey mb-3">The forced benevolence of affective surveillance must be exposed as control; workers cannot be penalized for rejecting efficiency-masquerading-wellness.</p>
+                <p class="text-sm text-deep-plum/70">Enables recognition and opposition to the cage experienced as care.</p>
+              </div>
+
+              <div class="bg-white rounded-lg p-6 border-l-4 border-warm-grey">
+                <h3 class="font-serif text-xl font-bold text-deep-plum mb-3">6. Right to Interpretation</h3>
+                <p class="text-warm-grey mb-3">The final authority over the meaning of one&#39;s existence must remain with the individual and their community, not the algorithmic overseer.</p>
+                <p class="text-sm text-deep-plum/70">The foundational right from which all others derive—symbolic sovereignty affirmed.</p>
+              </div>
+            </div>
+
+            <div class="bg-deep-plum/5 rounded-lg p-6 mt-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">The Political Architecture of Resistance</h4>
+              <p class="mb-4">
+                These six conditions represent not a conclusion but a beginning: the starting point for political struggle, not the end point of theoretical analysis. Their realization requires collective action: worker organization, policy advocacy, technical development, cultural change.
+              </p>
+              <p class="text-sm text-warm-grey">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">The paper&#39;s contribution: clarifying what is at stake and what must be demanded; the work of realization is ongoing</a>.
+              </p>
+            </div>
+          </section>
+
+          <!-- Conclusion -->
+          <section id="conclusion" class="mb-16">
+            <h2 class="font-serif text-3xl font-bold text-deep-plum mb-8">Conclusion: The Architecture of Control</h2>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h3 class="font-serif text-xl font-bold text-deep-plum mb-4">The Continuous Trajectory of Behavioral Control</h3>
+              <p class="mb-4">
+                <a href="https://zhuanlan.zhihu.com/p/539842750" class="citation-link">The evolution of behavioral control systems from the mid-twentieth century to the present reveals &#34;a continuous trajectory of increasing scope, subtlety, and intimacy&#34;</a>.
+              </p>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">Scale Evolution</h4>
+                  <p class="text-sm text-warm-grey">Individual machines → global platforms</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">Visibility Evolution</h4>
+                  <p class="text-sm text-warm-grey">Explicit conditioning → implicit nudging</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">Depth Evolution</h4>
+                  <p class="text-sm text-warm-grey">External behavior → internal states</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-deep-plum mb-2">Target Evolution</h4>
+                  <p class="text-sm text-warm-grey">What workers do → <strong>who workers are</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Then (1943)</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Pigeons in nose cones</li>
+                  <li>• Grain reinforcement</li>
+                  <li>• Pneumatic servos</li>
+                  <li>• Military command determining target</li>
+                </ul>
+              </div>
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-lg font-bold text-deep-plum mb-3">Now (2026)</h4>
+                <ul class="space-y-2 text-sm text-warm-grey">
+                  <li>• Workers on platforms</li>
+                  <li>• Wellness metrics</li>
+                  <li>• Digital infrastructures</li>
+                  <li>• Platform operators and algorithmic optimization</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Modern ORCON&#39;s Sophistication</h3>
+
+            <div class="pull-quote bg-deep-plum/5 mb-8">
+              <p>&#34;Modern ORCON internalizes behaviorist project entirely. Behaviorism has disappeared into infrastructure: cage experienced as wellness, grain called engagement, optimization felt as fulfillment.&#34;</p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mb-8">
+              <h4 class="font-serif text-lg font-bold text-deep-plum mb-4">Harnessing Higher Human Capacities</h4>
+              <div class="space-y-4">
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-deep-plum rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-medium text-deep-plum">Creativity</p>
+                    <p class="text-sm text-warm-grey">Channeled toward problem-solving within system-defined constraints</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-muted-rose rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-medium text-deep-plum">Moral reflection</p>
+                    <p class="text-sm text-warm-grey">Operationalized as compliance with corporate values</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                  <div class="w-2 h-2 bg-warm-grey rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <p class="font-medium text-deep-plum">Imagination</p>
+                    <p class="text-sm text-warm-grey">Deployed to envision career advancement within system-structured pathways</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-6">The Final Questions</h3>
+
+            <div class="space-y-8">
+              <div class="bg-deep-plum/5 rounded-lg p-6">
+                <h4 class="font-serif text-xl font-bold text-deep-plum mb-3">Who decides the target?</h4>
+                <p class="text-warm-grey">
+                  In Project Pigeon, military command determined which ship to sink. Today, platform operators and algorithmic optimization determine which metrics to maximize, which growth trajectory to pursue.
+                </p>
+              </div>
+
+              <div class="bg-muted-rose/10 rounded-lg p-6">
+                <h4 class="font-serif text-xl font-bold text-deep-plum mb-3">Whether the pigeons can learn to peck elsewhere?</h4>
+                <p class="text-warm-grey">
+                  Can workers escape ORCON architecture? Reclaim interpretive authority, assert symbolic sovereignty, imagine and create alternatives?
+                </p>
+              </div>
+            </div>
+
+            <div class="pull-quote bg-deep-plum/5 mt-8">
+              <p>&#34;The only question is who gets to decide what the target is. And whether the pigeons can learn to peck somewhere else.&#34;</p>
+              <cite class="text-sm not-italic">— The question that remains open</cite>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 border border-muted-rose/30 mt-8">
+              <p class="text-lg leading-relaxed">
+                The pigeons of Project Pigeon could not escape their nose cone. Contemporary workers—more cognitively sophisticated, more collectively organized, more politically aware—may achieve what conditioned birds could not.
+              </p>
+            </div>
+          </section>
+
+          <!-- Mermaid Diagram: ORCON System Architecture -->
+          <section class="mb-16">
+            <h3 class="font-serif text-2xl font-bold text-deep-plum mb-8">ORCON System Architecture: From Pigeons to Workers</h3>
+
+            <div class="mermaid-container">
+              <div class="mermaid-controls">
+                <button class="mermaid-control-btn zoom-in" title="放大">
+                  <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="mermaid-control-btn zoom-out" title="缩小">
+                  <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="mermaid-control-btn reset-zoom" title="重置">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+              <div class="mermaid" id="orcon-diagram">
+                graph TB
+                subgraph &#34;1943: Project Pigeon&#34;
+                A[&#34;Pigeon&#34;] --&gt; B[&#34;Optical Screen&#34;]
+                B --&gt; C[&#34;Pecking Response&#34;]
+                C --&gt; D[&#34;Pneumatic Servo&#34;]
+                D --&gt; E[&#34;Guidance Fins&#34;]
+                F[&#34;Grain Reward&#34;] --&gt; A
+                G[&#34;Military Command&#34;] --&gt; H[&#34;Target Selection&#34;]
+                H --&gt; B
+                end
+
+                subgraph &#34;2026: Digital Workplace&#34;
+                I[&#34;Worker&#34;] --&gt; J[&#34;Digital Dashboard&#34;]
+                J --&gt; K[&#34;Behavioral Response&#34;]
+                K --&gt; L[&#34;Algorithmic Intervention&#34;]
+                L --&gt; M[&#34;Performance Optimization&#34;]
+                N[&#34;Wellness/Engagement&#34;] --&gt; I
+                O[&#34;Platform Operators&#34;] --&gt; P[&#34;Metric Definition&#34;]
+                P --&gt; J
+                end
+
+                A -.-&gt;|&#34;Structural Identity&#34;| I
+                B -.-&gt;|&#34;Functional Equivalent&#34;| J
+                C -.-&gt;|&#34;Behavioral Conditioning&#34;| K
+                D -.-&gt;|&#34;Control Mechanism&#34;| L
+                E -.-&gt;|&#34;System Output&#34;| M
+                F -.-&gt;|&#34;Symbolic Reward&#34;| N
+                G -.-&gt;|&#34;Authority Structure&#34;| O
+                H -.-&gt;|&#34;Objective Definition&#34;| P
+
+                style A fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style I fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style F fill:#D4A5A5,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style N fill:#D4A5A5,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style G fill:#8B8680,stroke:#2C2C2C,stroke-width:2px,color:#2C2C2C
+                style O fill:#8B8680,stroke:#2C2C2C,stroke-width:2px,color:#2C2C2C
+                style B fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style J fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style C fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style K fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style D fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style L fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style E fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style M fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style H fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+                style P fill:#ffffff,stroke:#6B2737,stroke-width:2px,color:#2C2C2C
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid with custom theme and better contrast
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#2C2C2C',
+                primaryBorderColor: '#6B2737',
+                lineColor: '#8B8680',
+                secondaryColor: '#FEFCF7',
+                secondaryTextColor: '#2C2C2C',
+                secondaryBorderColor: '#6B2737',
+                tertiaryColor: '#D4A5A5',
+                tertiaryTextColor: '#2C2C2C',
+                tertiaryBorderColor: '#6B2737',
+                background: '#FEFCF7',
+                mainBkg: '#ffffff',
+                secondBkg: '#FEFCF7',
+                tertiaryBkg: '#D4A5A5',
+                primaryBorderColor: '#6B2737',
+                primaryTextColor: '#2C2C2C',
+                secondaryTextColor: '#2C2C2C',
+                tertiaryTextColor: '#2C2C2C',
+                lineColor: '#8B8680',
+                textColor: '#2C2C2C',
+                THEME_COLOR_LIMIT: 12,
+                nodeBkg: '#ffffff',
+                nodeBorder: '#6B2737',
+                clusterBkg: '#FEFCF7',
+                clusterBorder: '#8B8680',
+                defaultLinkColor: '#8B8680',
+                titleColor: '#2C2C2C',
+                edgeLabelBackground: '#FEFCF7',
+                nodeTextColor: '#2C2C2C',
+                // Additional contrast improvements
+                cScale0: '#6B2737',
+                cScale1: '#8B8680', 
+                cScale2: '#D4A5A5',
+                cScale3: '#FEFCF7',
+                cScale4: '#2C2C2C',
+                scaleLabelColor: '#2C2C2C'
+            },
+            timeline: {
+                padding: 20,
+                useMaxWidth: true,
+                rightAngles: false
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 14
+        });
+
+        // Initialize Mermaid Controls for zoom and pan
+        function initializeMermaidControls() {
+            const containers = document.querySelectorAll('.mermaid-container');
+
+            containers.forEach(container => {
+            const mermaidElement = container.querySelector('.mermaid');
+            let scale = 1;
+            let isDragging = false;
+            let startX, startY, translateX = 0, translateY = 0;
+
+            // 触摸相关状态
+            let isTouch = false;
+            let touchStartTime = 0;
+            let initialDistance = 0;
+            let initialScale = 1;
+            let isPinching = false;
+
+            // Zoom controls
+            const zoomInBtn = container.querySelector('.zoom-in');
+            const zoomOutBtn = container.querySelector('.zoom-out');
+            const resetBtn = container.querySelector('.reset-zoom');
+            const fullscreenBtn = container.querySelector('.fullscreen');
+
+            function updateTransform() {
+                mermaidElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+                if (scale > 1) {
+                container.classList.add('zoomed');
+                } else {
+                container.classList.remove('zoomed');
+                }
+
+                mermaidElement.style.cursor = isDragging ? 'grabbing' : 'grab';
+            }
+
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', () => {
+                scale = Math.min(scale * 1.25, 4);
+                updateTransform();
+                });
+            }
+
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', () => {
+                scale = Math.max(scale / 1.25, 0.3);
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+                updateTransform();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                updateTransform();
+                });
+            }
+
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', () => {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                });
+            }
+
+            // Mouse Events
+            mermaidElement.addEventListener('mousedown', (e) => {
+                if (isTouch) return; // 如果是触摸设备，忽略鼠标事件
+
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                mermaidElement.style.cursor = 'grabbing';
+                updateTransform();
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging && !isTouch) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseleave', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            // 获取两点之间的距离
+            function getTouchDistance(touch1, touch2) {
+                return Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+                );
+            }
+
+            // Touch Events - 触摸事件处理
+            mermaidElement.addEventListener('touchstart', (e) => {
+                isTouch = true;
+                touchStartTime = Date.now();
+
+                if (e.touches.length === 1) {
+                // 单指拖动
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+
+                } else if (e.touches.length === 2) {
+                // 双指缩放
+                isPinching = true;
+                isDragging = false;
+
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = getTouchDistance(touch1, touch2);
+                initialScale = scale;
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && isDragging && !isPinching) {
+                // 单指拖动
+                const touch = e.touches[0];
+                translateX = touch.clientX - startX;
+                translateY = touch.clientY - startY;
+                updateTransform();
+
+                } else if (e.touches.length === 2 && isPinching) {
+                // 双指缩放
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = getTouchDistance(touch1, touch2);
+
+                if (initialDistance > 0) {
+                    const newScale = Math.min(Math.max(
+                    initialScale * (currentDistance / initialDistance),
+                    0.3
+                    ), 4);
+                    scale = newScale;
+                    updateTransform();
+                }
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchend', (e) => {
+                // 重置状态
+                if (e.touches.length === 0) {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                // 延迟重置isTouch，避免鼠标事件立即触发
+                setTimeout(() => {
+                    isTouch = false;
+                }, 100);
+                } else if (e.touches.length === 1 && isPinching) {
+                // 从双指变为单指，切换为拖动模式
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+                }
+
+                updateTransform();
+            });
+
+            mermaidElement.addEventListener('touchcancel', (e) => {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                setTimeout(() => {
+                isTouch = false;
+                }, 100);
+
+                updateTransform();
+            });
+
+            // Enhanced wheel zoom with better center point handling
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.min(Math.max(scale * delta, 0.3), 4);
+
+                // Adjust translation to zoom towards center
+                if (newScale !== scale) {
+                const scaleDiff = newScale / scale;
+                translateX = translateX * scaleDiff;
+                translateY = translateY * scaleDiff;
+                scale = newScale;
+
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+
+                updateTransform();
+                }
+            });
+
+            // Initialize display
+            updateTransform();
+            });
+        }
+
+        // Table of Contents functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tocLinks = document.querySelectorAll('.toc-link');
+            const sections = document.querySelectorAll('section[id]');
+            
+            // Smooth scrolling for TOC links
+            tocLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Active section highlighting
+            function updateActiveSection() {
+                let current = '';
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= 100) {
+                        current = section.id;
+                    }
+                });
+                
+                tocLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            
+            window.addEventListener('scroll', updateActiveSection);
+            updateActiveSection();
+            
+            // Mobile TOC toggle
+            const tocToggle = document.createElement('button');
+            tocToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            tocToggle.className = 'fixed top-4 left-4 z-50 bg-deep-plum text-white p-3 rounded-lg shadow-lg lg:hidden';
+            document.body.appendChild(tocToggle);
+            
+            const tocSidebar = document.querySelector('.toc-sidebar');
+            
+            tocToggle.addEventListener('click', function() {
+                tocSidebar.classList.toggle('open');
+            });
+            
+            // Close TOC when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 1024 && 
+                    !tocSidebar.contains(event.target) && 
+                    event.target !== tocToggle &&
+                    tocSidebar.classList.contains('open')) {
+                    tocSidebar.classList.remove('open');
+                }
+            });
+            
+            // Remove 'open' class when resizing to desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 1024) {
+                    tocSidebar.classList.remove('open');
+                }
+            });
+
+            // Initialize enhanced mermaid controls
+            initializeMermaidControls();
+        });
+
+        // Collapsible content functionality
+        document.querySelectorAll('.collapse-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                content.classList.toggle('expanded');
+                this.querySelector('i').classList.toggle('fa-chevron-down');
+                this.querySelector('i').classList.toggle('fa-chevron-up');
+            });
+        });
+    </script>
+  
+
+</body></html>

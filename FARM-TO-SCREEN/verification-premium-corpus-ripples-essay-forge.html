@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RIPPLES — Weapon Essay Forge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg: #03060a;
+  --panel: rgba(4, 12, 18, 0.96);
+  --border: #0d2030;
+  --border-bright: #1a4060;
+  --text: #7ab8d4;
+  --text-dim: #2a5068;
+  --text-bright: #b0dff0;
+  --goal: #ffd700;
+  --goal-dim: rgba(255,215,0,0.15);
+  --obstacle: #ff3333;
+  --obstacle-dim: rgba(255,51,51,0.15);
+  --shift: #00ffee;
+  --shift-dim: rgba(0,255,238,0.12);
+  --success: #39ff14;
+  --warn: #ff5533;
+  --depth1: #4af626;
+  --depth2: #00ccff;
+  --depth3: #ff44ff;
+  --depth4: #ffcc00;
+  --scan-line: rgba(0,0,0,0.12);
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-ui: 'Rajdhani', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    var(--scan-line) 2px,
+    var(--scan-line) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+  mix-blend-mode: multiply;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(0,60,100,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 999;
+}
+
+canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+#ui-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 240px 1fr 380px;
+  gap: 8px;
+  padding: 8px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--shift), transparent);
+  opacity: 0.4;
+}
+
+.panel-title {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 6px 10px 4px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-title::before {
+  content: '▸';
+  color: var(--shift);
+  font-size: 8px;
+}
+
+#top-bar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+#header-brand {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 250px;
+  position: relative;
+  overflow: hidden;
+}
+
+#header-brand::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,255,238,0.04), transparent);
+}
+
+.brand-title {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 6px;
+  color: var(--shift);
+  text-shadow: 0 0 20px var(--shift), 0 0 40px rgba(0,255,238,0.3);
+  line-height: 1;
+}
+
+.brand-sub {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+#stats-bar {
+  flex: 1;
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  display: flex;
+  align-items: stretch;
+  padding: 0 4px;
+  gap: 4px;
+}
+
+.stat-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 10px;
+  border-right: 1px solid var(--border);
+  min-width: 80px;
+}
+
+.stat-cell:last-child { border-right: none; }
+
+.stat-label {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.stat-val {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--shift);
+  text-shadow: 0 0 8px var(--shift);
+  line-height: 1;
+  margin-top: 1px;
+}
+
+#status-pill {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-bright);
+  border-left: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+#status-pill.win { color: var(--success); text-shadow: 0 0 12px var(--success); }
+#status-pill.loss { color: var(--warn); text-shadow: 0 0 12px var(--warn); }
+
+#left-panel {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#search-box {
+  width: calc(100% - 14px);
+  margin: 7px;
+  border: 1px solid var(--border-bright);
+  background: rgba(0,0,0,0.18);
+  color: var(--text-bright);
+  padding: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+#section-filter {
+  width: calc(100% - 14px);
+  margin: 0 7px 7px;
+  border: 1px solid var(--border-bright);
+  background: rgba(0,0,0,0.2);
+  color: var(--text-bright);
+  padding: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+#entity-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+#entity-list::-webkit-scrollbar { width: 3px; }
+#entity-list::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+.entity-item {
+  padding: 7px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  margin-bottom: 3px;
+  transition: all 0.12s;
+  position: relative;
+}
+
+.entity-item:hover { border-color: var(--border-bright); background: rgba(0,200,255,0.04); }
+.entity-item.selected { border-color: var(--shift); background: rgba(0,255,238,0.06); }
+.entity-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--shift);
+  box-shadow: 0 0 8px var(--shift);
+}
+
+.entity-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-bright);
+}
+
+.entity-state {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+
+.entity-depth-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.depth-pip {
+  width: 8px;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--border-bright);
+}
+
+.depth-pip.filled.d1 { background: var(--depth1); box-shadow: 0 0 4px var(--depth1); }
+.depth-pip.filled.d2 { background: var(--depth2); box-shadow: 0 0 4px var(--depth2); }
+.depth-pip.filled.d3 { background: var(--depth3); box-shadow: 0 0 4px var(--depth3); }
+.depth-pip.filled.d4 { background: var(--depth4); box-shadow: 0 0 4px var(--depth4); }
+
+#center-area {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  pointer-events: auto;
+}
+
+#center-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--shift), transparent);
+  z-index: 2;
+}
+
+#right-panel {
+  grid-column: 3;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+#worldtext-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#worldtext-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+#worldtext-content::-webkit-scrollbar { width: 3px; }
+#worldtext-content::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+#worldtext-content p {
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeTextIn 0.45s forwards;
+}
+
+@keyframes fadeTextIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.worldtext-entity { color: var(--shift); font-weight: bold; }
+.worldtext-channel { color: var(--goal); }
+.worldtext-delta { color: var(--depth3); }
+.worldtext-inference { color: #9980ff; font-style: italic; }
+
+#worldtext-placeholder {
+  color: var(--text-dim);
+  font-size: 10px;
+  text-align: center;
+  padding: 20px;
+  line-height: 2;
+  letter-spacing: 1px;
+}
+
+#impact-content {
+  padding: 8px 10px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.impact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.impact-row:last-child { border-bottom: none; }
+.impact-key { color: var(--text-dim); letter-spacing: 1px; font-size: 9px; }
+.impact-val { color: var(--text-bright); font-size: 10px; }
+.impact-val.pos { color: var(--success); }
+.impact-val.neg { color: var(--warn); }
+
+#audit-panel { max-height: 140px; overflow: hidden; }
+#audit-list { overflow-y: auto; max-height: 110px; padding: 4px 8px; }
+#audit-list::-webkit-scrollbar { width: 2px; }
+#audit-list::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+.audit-item {
+  font-size: 9px;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.audit-tick { color: var(--shift); min-width: 42px; }
+.audit-entity { color: var(--text-bright); }
+.audit-vector.GOAL { color: var(--goal); }
+.audit-vector.OBSTACLE { color: var(--obstacle); }
+.audit-vector.SHIFT { color: var(--shift); }
+
+#bottom-bar {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+#vector-controls {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  align-items: center;
+}
+
+.vec-btn {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 10px 14px;
+  border: 1px solid;
+  border-radius: 2px;
+  cursor: pointer;
+  background: transparent;
+  text-transform: uppercase;
+  transition: all 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.vec-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.vec-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.vec-btn:not(:disabled):hover::after { opacity: 1; }
+.vec-btn:not(:disabled):active { transform: translateY(1px); }
+
+.vec-btn.goal { color: var(--goal); border-color: var(--goal); }
+.vec-btn.goal::after { background: var(--goal-dim); }
+.vec-btn.goal:not(:disabled):hover { box-shadow: 0 0 16px var(--goal-dim), inset 0 0 16px var(--goal-dim); }
+
+.vec-btn.obstacle { color: var(--obstacle); border-color: var(--obstacle); }
+.vec-btn.obstacle::after { background: var(--obstacle-dim); }
+.vec-btn.obstacle:not(:disabled):hover { box-shadow: 0 0 16px var(--obstacle-dim), inset 0 0 16px var(--obstacle-dim); }
+
+.vec-btn.shift { color: var(--shift); border-color: var(--shift); }
+.vec-btn.shift::after { background: var(--shift-dim); }
+.vec-btn.shift:not(:disabled):hover { box-shadow: 0 0 16px var(--shift-dim), inset 0 0 16px var(--shift-dim); }
+
+.vec-label {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  font-family: var(--font-ui);
+  margin-left: 2px;
+}
+
+#fader-controls {
+  flex: 1;
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  display: flex;
+  gap: 12px;
+  padding: 8px 14px;
+  align-items: center;
+}
+
+.fader-row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fader-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.fader-val { color: var(--shift); }
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+
+input[type=range]:focus { outline: none; }
+
+input[type=range]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(90deg, var(--shift-dim), var(--border-bright));
+  border-radius: 2px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 6px;
+  background: var(--shift);
+  border-radius: 1px;
+  margin-top: -5.5px;
+  box-shadow: 0 0 8px var(--shift);
+}
+
+#action-controls,
+#mode-controls {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.act-btn {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text);
+  text-transform: uppercase;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.act-btn:hover { border-color: var(--shift); color: var(--shift); }
+.act-btn.active { background: rgba(0,255,238,0.08); border-color: var(--shift); color: var(--shift); }
+.act-btn.danger { color: var(--warn); border-color: rgba(255,53,51,0.3); }
+.act-btn.danger:hover { border-color: var(--warn); background: rgba(255,51,51,0.08); }
+
+#messages {
+  position: absolute;
+  bottom: 80px;
+  left: 260px;
+  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  max-width: 460px;
+}
+
+.msg {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  background: rgba(0,255,238,0.06);
+  border: 1px solid rgba(0,255,238,0.15);
+  color: var(--shift);
+  letter-spacing: 1px;
+  transition: opacity 0.8s;
+  display: inline-block;
+  clear: both;
+}
+
+.msg.warn { color: var(--warn); border-color: rgba(255,51,51,0.2); background: rgba(255,51,51,0.05); }
+
+#init-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.hint-title {
+  font-family: var(--font-ui);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  color: var(--shift);
+  text-shadow: 0 0 30px var(--shift), 0 0 60px rgba(0,255,238,0.3);
+}
+
+.hint-sub {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+#essay-output {
+  width: 100%;
+  height: 110px;
+  border: 1px solid var(--border-bright);
+  background: rgba(0,0,0,0.22);
+  color: var(--text-bright);
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+#zen-btn {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 500;
+  background: rgba(4,12,18,0.5);
+  border: 1px solid var(--border-bright);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  display: none;
+}
+
+body.zen #ui-layer { opacity: 0; pointer-events: none; }
+body.zen #zen-btn { display: block; }
+
+@media (max-width: 1200px) {
+  #ui-layer {
+    grid-template-columns: 220px 1fr 320px;
+  }
+}
+
+@media (max-width: 980px) {
+  #ui-layer {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(190px, 30vh) minmax(150px, 26vh) 1fr auto;
+  }
+
+  #left-panel { grid-column: 1; grid-row: 2; }
+  #center-area { grid-column: 1; grid-row: 3; }
+  #right-panel { grid-column: 1; grid-row: 4; }
+  #bottom-bar { grid-column: 1; grid-row: 5; flex-wrap: wrap; }
+
+  #messages { left: 8px; right: 8px; max-width: none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="simCanvas"></canvas>
+<canvas id="rippleCanvas"></canvas>
+
+<button id="zen-btn">SHOW UI</button>
+
+<div id="ui-layer">
+  <div id="top-bar">
+    <div id="header-brand">
+      <div class="brand-title">RIPPLES</div>
+      <div class="brand-sub">Weapon Essay Forge · 671 Fragment Assembly</div>
+    </div>
+    <div id="stats-bar">
+      <div class="stat-cell">
+        <div class="stat-label">Fragments</div>
+        <div class="stat-val" id="st-pop">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Selected</div>
+        <div class="stat-val" id="st-depth">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Forged</div>
+        <div class="stat-val" id="st-k">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Ops</div>
+        <div class="stat-val" id="st-tick">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">FPS</div>
+        <div class="stat-val" id="st-fps">60</div>
+      </div>
+      <div id="status-pill">INIT</div>
+    </div>
+  </div>
+
+  <div class="panel" id="left-panel">
+    <div class="panel-title">Fragment Pool</div>
+    <input id="search-box" type="text" placeholder="Search id, bibtex, text..." />
+    <select id="section-filter">
+      <option value="ALL">ALL SECTIONS</option>
+      <option value="NON_OBVIOUS_INSIGHTS">NON_OBVIOUS_INSIGHTS</option>
+      <option value="TENSIONS_CONTRADICTIONS">TENSIONS_CONTRADICTIONS</option>
+      <option value="SO_WHAT">SO_WHAT</option>
+      <option value="WHATS_MISSING">WHATS_MISSING</option>
+    </select>
+    <div id="entity-list"></div>
+  </div>
+
+  <div id="center-area">
+    <div id="init-hint">
+      <div class="hint-title">LOAD CORPUS</div>
+      <div class="hint-sub">Selecting fragments builds the essay machine</div>
+    </div>
+  </div>
+
+  <div id="right-panel">
+    <div class="panel" id="worldtext-panel">
+      <div class="panel-title">Fragment Viewport</div>
+      <div id="worldtext-content">
+        <div id="worldtext-placeholder">SELECT A FRAGMENT<br>ROUTE WITH A VECTOR<br>FORGE MASTER ESSAY</div>
+      </div>
+    </div>
+
+    <div class="panel" id="impact-panel">
+      <div class="panel-title">Assembly Impact</div>
+      <div id="impact-content">
+        <div style="font-size:9px;color:var(--text-dim);padding:8px;letter-spacing:1px;">No active fragment</div>
+      </div>
+    </div>
+
+    <div class="panel" id="audit-panel">
+      <div class="panel-title">Audit Log</div>
+      <div id="audit-list"></div>
+    </div>
+  </div>
+
+  <div id="bottom-bar">
+    <div id="vector-controls">
+      <div style="display:flex; flex-direction:column; gap:2px; margin-right:4px;">
+        <div style="font-size:8px; letter-spacing:2px; color:var(--text-dim); font-family:var(--font-ui); font-weight:600; text-transform:uppercase;">Routing</div>
+        <div style="font-size:8px; color:var(--text-dim);">Apply to selected</div>
+      </div>
+      <button class="vec-btn goal" id="btn-goal" disabled>GOAL</button>
+      <button class="vec-btn obstacle" id="btn-obstacle" disabled>OBSTACLE</button>
+      <button class="vec-btn shift" id="btn-shift" disabled>SHIFT</button>
+      <div class="vec-label" style="margin-left:8px; line-height:1.8;">
+        <div>G · Resolution</div>
+        <div>O · Instability</div>
+        <div>S · Unresolved</div>
+      </div>
+    </div>
+
+    <div id="fader-controls">
+      <div class="fader-row">
+        <div class="fader-header">
+          <span>Coverage</span>
+          <span class="fader-val" id="v-cov">100%</span>
+        </div>
+        <input type="range" id="sl-cov" min="5" max="100" value="100">
+      </div>
+      <div class="fader-row">
+        <div class="fader-header">
+          <span>Compression</span>
+          <span class="fader-val" id="v-cmp">0%</span>
+        </div>
+        <input type="range" id="sl-cmp" min="0" max="70" value="0">
+      </div>
+      <div class="fader-row">
+        <div class="fader-header">
+          <span>Link Depth</span>
+          <span class="fader-val" id="v-link">6</span>
+        </div>
+        <input type="range" id="sl-link" min="1" max="12" value="6" step="1">
+      </div>
+      <div class="fader-row">
+        <div class="fader-header">
+          <span>Sort Mode</span>
+          <span class="fader-val" id="v-sort">SECTION</span>
+        </div>
+        <input type="range" id="sl-sort" min="0" max="2" value="0" step="1">
+      </div>
+    </div>
+
+    <div id="mode-controls">
+      <div class="panel-title" style="border-bottom:none; padding:0 0 4px; margin-bottom:2px;">Essay</div>
+      <input id="ai-endpoint" type="text" value="http://localhost:8787" style="border:1px solid var(--border-bright);background:rgba(0,0,0,0.22);color:var(--text-bright);padding:6px;font-family:var(--font-mono);font-size:9px;" />
+      <button class="act-btn" id="btn-preview">Preview</button>
+      <button class="act-btn" id="btn-rebuild">Rebuild</button>
+      <button class="act-btn" id="btn-ai-selected">AI Evolve Selected</button>
+      <button class="act-btn" id="btn-ai-master">AI Evolve Master</button>
+      <button class="act-btn" id="btn-ai-apply">Apply AI Draft</button>
+      <button class="act-btn" id="btn-copy-names">Copy Name+Text</button>
+    </div>
+
+    <div id="action-controls">
+      <div class="panel-title" style="border-bottom:none; padding:0 0 4px; margin-bottom:2px;">Forge</div>
+      <button class="act-btn" id="btn-autoforge">Auto Forge 671</button>
+      <button class="act-btn" id="btn-copy">Copy Essay</button>
+      <button class="act-btn" id="btn-export">Export Markdown</button>
+      <button class="act-btn danger" id="btn-clear">Clear Essay</button>
+    </div>
+  </div>
+</div>
+
+<div id="messages"></div>
+
+<script>
+(() => {
+  const C = {
+    sectionOrder: ["NON_OBVIOUS_INSIGHTS", "TENSIONS_CONTRADICTIONS", "SO_WHAT", "WHATS_MISSING"],
+    sectionColor: {
+      NON_OBVIOUS_INSIGHTS: "#4af626",
+      TENSIONS_CONTRADICTIONS: "#ff3333",
+      SO_WHAT: "#ffd700",
+      WHATS_MISSING: "#00ffee",
+    },
+    sectionDepth: {
+      NON_OBVIOUS_INSIGHTS: 1,
+      TENSIONS_CONTRADICTIONS: 2,
+      SO_WHAT: 3,
+      WHATS_MISSING: 4,
+    },
+  };
+
+  const S = {
+    essays: [],
+    notesById: new Map(),
+    view: [],
+    selected: null,
+    layout: new Map(),
+    opCount: 0,
+    coverage: 100,
+    compression: 0,
+    linkDepth: 6,
+    sortMode: 0,
+    sectionFilter: "ALL",
+    query: "",
+    rings: [],
+    forged: {
+      instability: new Map(),
+      resolution: new Map(),
+      unresolved: new Map(),
+      custom: new Map(),
+    },
+    fps: 60,
+    lastTs: performance.now(),
+    ai: {
+      endpoint: localStorage.getItem("essayForgeApiEndpoint") || "http://localhost:8787",
+      draft: null,
+      masterOverride: "",
+    },
+  };
+
+  const el = {
+    sim: document.getElementById("simCanvas"),
+    ripple: document.getElementById("rippleCanvas"),
+    center: document.getElementById("center-area"),
+    entityList: document.getElementById("entity-list"),
+    search: document.getElementById("search-box"),
+    sectionFilter: document.getElementById("section-filter"),
+    worldtext: document.getElementById("worldtext-content"),
+    impact: document.getElementById("impact-content"),
+    audit: document.getElementById("audit-list"),
+    status: document.getElementById("status-pill"),
+    hint: document.getElementById("init-hint"),
+    stats: {
+      pop: document.getElementById("st-pop"),
+      depth: document.getElementById("st-depth"),
+      k: document.getElementById("st-k"),
+      tick: document.getElementById("st-tick"),
+      fps: document.getElementById("st-fps"),
+    },
+    btnGoal: document.getElementById("btn-goal"),
+    btnObstacle: document.getElementById("btn-obstacle"),
+    btnShift: document.getElementById("btn-shift"),
+    btnAutoforge: document.getElementById("btn-autoforge"),
+    btnCopy: document.getElementById("btn-copy"),
+    btnExport: document.getElementById("btn-export"),
+    btnClear: document.getElementById("btn-clear"),
+    btnPreview: document.getElementById("btn-preview"),
+    btnRebuild: document.getElementById("btn-rebuild"),
+    btnAiSelected: document.getElementById("btn-ai-selected"),
+    btnAiMaster: document.getElementById("btn-ai-master"),
+    btnAiApply: document.getElementById("btn-ai-apply"),
+    btnCopyNames: document.getElementById("btn-copy-names"),
+    aiEndpoint: document.getElementById("ai-endpoint"),
+    slCov: document.getElementById("sl-cov"),
+    slCmp: document.getElementById("sl-cmp"),
+    slLink: document.getElementById("sl-link"),
+    slSort: document.getElementById("sl-sort"),
+    vCov: document.getElementById("v-cov"),
+    vCmp: document.getElementById("v-cmp"),
+    vLink: document.getElementById("v-link"),
+    vSort: document.getElementById("v-sort"),
+  };
+
+  const sortLabels = ["SECTION", "ID", "RANDOM"];
+
+  function logMsg(text, warn = false) {
+    const box = document.getElementById("messages");
+    const msg = document.createElement("div");
+    msg.className = "msg" + (warn ? " warn" : "");
+    msg.textContent = `▸ ${text}`;
+    box.prepend(msg);
+    while (box.children.length > 6) box.lastChild.remove();
+    setTimeout(() => {
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 800);
+    }, 3200);
+  }
+
+  function splitParas(text) {
+    return String(text || "").split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
+  }
+
+  function compressText(text, ratio) {
+    if (!ratio || ratio <= 0) return text;
+    const words = String(text).split(/\s+/);
+    const keep = Math.max(24, Math.floor(words.length * (1 - ratio / 100)));
+    return words.slice(0, keep).join(" ") + (keep < words.length ? " ..." : "");
+  }
+
+  async function fetchJSON(paths) {
+    for (const path of paths) {
+      try {
+        const res = await fetch(path, { cache: "no-store" });
+        if (res.ok) return await res.json();
+      } catch (_) {
+        // continue
+      }
+    }
+    throw new Error(`Failed loading JSON from: ${paths.join(", ")}`);
+  }
+
+  async function loadCorpus() {
+    const [weapons, notes] = await Promise.all([
+      fetchJSON([
+        "./parsed_master_analyst/weapons/weaponized_essays.json",
+        "parsed_master_analyst/weapons/weaponized_essays.json",
+      ]),
+      fetchJSON([
+        "./parsed_master_analyst/papers/zettelkasten_notes.json",
+        "parsed_master_analyst/papers/zettelkasten_notes.json",
+      ]),
+    ]);
+
+    const notesById = new Map();
+    for (const n of notes.notes || []) notesById.set(n.id, n);
+
+    S.notesById = notesById;
+    S.essays = (weapons.essays || []).map((e, idx) => {
+      const note = notesById.get(e.id);
+      return {
+        ...e,
+        _idx: idx,
+        sectionDepth: C.sectionDepth[e.section] || 1,
+        links: note?.synthetic_links || [],
+        label: e.label || e.zettel_id || e.id,
+        sourceVideo: note?.video_id || "",
+      };
+    });
+
+    el.hint.style.display = "none";
+    applyFilters();
+    computeLayout();
+    renderEntityList();
+    draw();
+    setStatus("RUNNING", false);
+    logMsg(`Loaded ${S.essays.length} fragments`, false);
+  }
+
+  function applyFilters() {
+    const q = S.query.trim().toLowerCase();
+    let arr = S.essays.filter((e) => {
+      if (S.sectionFilter !== "ALL" && e.section !== S.sectionFilter) return false;
+      if (!q) return true;
+      const hay = [
+        e.id,
+        e.zettel_id,
+        e.bibtex_id,
+        e.section,
+        e.label,
+        e.reconstructed_text,
+        e.diagnostic_teardown?.The_Weapon,
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+
+    if (S.sortMode === 0) {
+      arr.sort((a, b) => {
+        const sa = C.sectionOrder.indexOf(a.section);
+        const sb = C.sectionOrder.indexOf(b.section);
+        if (sa !== sb) return sa - sb;
+        return String(a.zettel_id).localeCompare(String(b.zettel_id));
+      });
+    } else if (S.sortMode === 1) {
+      arr.sort((a, b) => String(a.zettel_id).localeCompare(String(b.zettel_id)));
+    } else {
+      arr = [...arr].sort((a, b) => {
+        const xa = (a._idx * 9301 + 49297) % 233280;
+        const xb = (b._idx * 9301 + 49297) % 233280;
+        return xa - xb;
+      });
+    }
+
+    S.view = arr;
+  }
+
+  function computeLayout() {
+    const w = el.sim.width;
+    const h = el.sim.height;
+    const cx = w / 2;
+    const cy = h / 2;
+    const R = Math.max(80, Math.min(w, h) * 0.45);
+    const golden = Math.PI * (3 - Math.sqrt(5));
+
+    S.layout.clear();
+    const n = Math.max(1, S.view.length);
+
+    S.view.forEach((e, i) => {
+      const t = (i + 0.5) / n;
+      const r = Math.sqrt(t) * R;
+      const a = i * golden;
+      const x = cx + Math.cos(a) * r;
+      const y = cy + Math.sin(a) * r;
+      S.layout.set(e.id, { x, y });
+    });
+  }
+
+  function depthPips(depth) {
+    let html = "";
+    for (let i = 0; i < 4; i++) {
+      html += `<div class="depth-pip${i < depth ? ` filled d${Math.min(depth, 4)}` : ""}"></div>`;
+    }
+    return html;
+  }
+
+  function renderEntityList() {
+    if (!S.view.length) {
+      el.entityList.innerHTML = '<div style="padding:8px;font-size:9px;color:var(--text-dim)">No matching fragments</div>';
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    for (const e of S.view) {
+      const row = document.createElement("div");
+      row.className = "entity-item" + (S.selected?.id === e.id ? " selected" : "");
+      row.dataset.id = e.id;
+
+      row.innerHTML = `
+        <div class="entity-name">${e.zettel_id || e.id}</div>
+        <div class="entity-state">${e.section} · ${e.bibtex_id}</div>
+        <div class="entity-depth-bar">${depthPips(e.sectionDepth)}</div>
+      `;
+
+      row.addEventListener("click", () => selectEssay(e));
+      frag.appendChild(row);
+    }
+
+    el.entityList.innerHTML = "";
+    el.entityList.appendChild(frag);
+    updateStats();
+  }
+
+  function selectEssay(e) {
+    S.selected = e;
+    enableVectors(true);
+    renderEntityList();
+    renderWorldtext(e);
+    renderImpact(e);
+    addRing(e.id, C.sectionColor[e.section] || "#00ffee", 110);
+    draw();
+  }
+
+  function renderWorldtext(e) {
+    const dt = e.diagnostic_teardown || {};
+    const evolvedDt = e.evolved?.diagnostic_teardown || {};
+    const dp = e.domain_profile || {};
+    const paras = splitParas(activeFragmentText(e));
+    const linkText = (e.links || []).slice(0, S.linkDepth).map((l) => `${l.target_zettel_id} (${l.score.toFixed(3)})`).join(" · ");
+
+    el.worldtext.innerHTML = `
+      <div style="font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">
+        <span style="color:${C.sectionColor[e.section] || '#00ffee'}">${e.section}</span> · ${e.zettel_id} · ${e.bibtex_id}
+      </div>
+
+      <p><span class="worldtext-entity">The_Flaw:</span> ${evolvedDt.The_Flaw || dt.The_Flaw || ""}</p>
+      <p><span class="worldtext-channel">The_Weapon:</span> ${evolvedDt.The_Weapon || dt.The_Weapon || ""}</p>
+      <p><span class="worldtext-inference">Target Reader:</span> ${dp.target_reader || ""}</p>
+      <p><span class="worldtext-delta">Utility Currency:</span> ${dp.utility_currency || ""}</p>
+      ${paras.map((p) => `<p>${p}</p>`).join("")}
+
+      <div style="margin-top:10px;font-size:9px;color:var(--text-dim);border-top:1px solid var(--border);padding-top:8px;">
+        <div style="letter-spacing:1px;color:var(--text-dim);margin-bottom:4px;">SYNTHETIC LINKS</div>
+        <div>${linkText || "No link metadata"}</div>
+      </div>
+    `;
+  }
+
+  function renderImpact(e) {
+    const forgedCount = getForgedCount();
+    const secCounts = getSectionCounts();
+    el.impact.innerHTML = `
+      <div class="impact-row"><span class="impact-key">ID</span><span class="impact-val">${e.id}</span></div>
+      <div class="impact-row"><span class="impact-key">ZK</span><span class="impact-val">${e.zettel_id}</span></div>
+      <div class="impact-row"><span class="impact-key">BIBTEX</span><span class="impact-val">${e.bibtex_id}</span></div>
+      <div class="impact-row"><span class="impact-key">FORGED</span><span class="impact-val pos">${forgedCount}</span></div>
+      <div class="impact-row"><span class="impact-key">N/T/S/M</span><span class="impact-val">${secCounts.N}/${secCounts.T}/${secCounts.S}/${secCounts.M}</span></div>
+      <div class="impact-row"><span class="impact-key">LINKS</span><span class="impact-val">${(e.links || []).length}</span></div>
+      <div class="impact-row"><span class="impact-key">SOURCE</span><span class="impact-val">${e.sourceVideo || "n/a"}</span></div>
+    `;
+  }
+
+  function addAudit(e, vector) {
+    const item = document.createElement("div");
+    item.className = "audit-item";
+    item.innerHTML = `<span class="audit-tick">OP ${String(S.opCount).padStart(4, "0")}</span><span class="audit-entity">${e.zettel_id}</span><span class="audit-vector ${vector}">${vector}</span>`;
+    el.audit.prepend(item);
+    while (el.audit.children.length > 24) el.audit.lastChild.remove();
+  }
+
+  function addRing(id, color, maxR = 90) {
+    const p = S.layout.get(id);
+    if (!p) return;
+    S.rings.push({ x: p.x, y: p.y, r: 0, maxR, alpha: 1, color });
+  }
+
+  function getSectionCounts() {
+    const all = [
+      ...S.forged.instability.values(),
+      ...S.forged.resolution.values(),
+      ...S.forged.unresolved.values(),
+      ...S.forged.custom.values(),
+    ];
+    const out = { N: 0, T: 0, S: 0, M: 0 };
+    for (const e of all) {
+      if (e.section === "NON_OBVIOUS_INSIGHTS") out.N++;
+      if (e.section === "TENSIONS_CONTRADICTIONS") out.T++;
+      if (e.section === "SO_WHAT") out.S++;
+      if (e.section === "WHATS_MISSING") out.M++;
+    }
+    return out;
+  }
+
+  function getForgedCount() {
+    const ids = new Set();
+    [S.forged.instability, S.forged.resolution, S.forged.unresolved, S.forged.custom].forEach((m) => {
+      for (const id of m.keys()) ids.add(id);
+    });
+    return ids.size;
+  }
+
+  function routeFragment(vector) {
+    if (!S.selected) {
+      logMsg("Select a fragment before routing", true);
+      return;
+    }
+
+    const e = S.selected;
+    if (vector === "OBSTACLE") {
+      S.forged.instability.set(e.id, e);
+    } else if (vector === "GOAL") {
+      S.forged.resolution.set(e.id, e);
+    } else {
+      S.forged.unresolved.set(e.id, e);
+    }
+
+    S.opCount++;
+    if (S.ai.masterOverride) S.ai.masterOverride = "";
+    addAudit(e, vector);
+    addRing(e.id, vector === "GOAL" ? "#ffd700" : vector === "OBSTACLE" ? "#ff3333" : "#00ffee", 140);
+    updateStats();
+    renderImpact(e);
+    logMsg(`${vector} routed ${e.zettel_id}`, false);
+  }
+
+  function orderedByCoverage(items) {
+    if (!items.length) return items;
+    const keep = Math.max(1, Math.round(items.length * (S.coverage / 100)));
+    return items.slice(0, keep);
+  }
+
+  function sectionSort(items) {
+    if (S.sortMode === 2) return [...items];
+    return [...items].sort((a, b) => String(a.zettel_id).localeCompare(String(b.zettel_id)));
+  }
+
+  function activeFragmentText(e) {
+    return e?.evolved?.reconstructed_text || e?.reconstructed_text || "";
+  }
+
+  function activeWeaponText(e) {
+    return e?.evolved?.diagnostic_teardown?.The_Weapon || e?.diagnostic_teardown?.The_Weapon || "";
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function apiBase() {
+    return String(S.ai.endpoint || "").replace(/\/$/, "");
+  }
+
+  async function apiPost(path, payload) {
+    const res = await fetch(`${apiBase()}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || `API ${res.status}`);
+    return data;
+  }
+
+  function getForgedEntries() {
+    const m = new Map();
+    [S.forged.instability, S.forged.resolution, S.forged.unresolved, S.forged.custom].forEach((bucket) => {
+      for (const [id, value] of bucket) m.set(id, value);
+    });
+    return [...m.values()];
+  }
+
+  function buildWorldModelState() {
+    const sec = getSectionCounts();
+    return {
+      forged_count: getForgedCount(),
+      section_mix: {
+        NON_OBVIOUS_INSIGHTS: sec.N,
+        TENSIONS_CONTRADICTIONS: sec.T,
+        SO_WHAT: sec.S,
+        WHATS_MISSING: sec.M,
+      },
+      coverage: S.coverage,
+      compression: S.compression,
+      sort_mode: sortLabels[S.sortMode] || "SECTION",
+      objective: "Evolve fragments into a coherent instability-to-resolution world model essay",
+    };
+  }
+
+  function gatherContextIds(e) {
+    const ids = [];
+    for (const link of (e.links || []).slice(0, S.linkDepth)) ids.push(link.target_id);
+    for (const forged of getForgedEntries().slice(0, 8)) ids.push(forged.id);
+    return [...new Set(ids.filter(Boolean).filter((id) => id !== e.id))];
+  }
+
+  function renderAIDraftItemPreview(sourceEssay, evolved, contextUsed = []) {
+    const original = activeFragmentText(sourceEssay);
+    const evolvedText = evolved?.reconstructed_text || "";
+    el.worldtext.innerHTML = `
+      <div style="font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">
+        AI DRAFT · ${sourceEssay.zettel_id} · ${sourceEssay.bibtex_id}
+      </div>
+      <p><span class="worldtext-channel">Routing Suggestion:</span> ${escapeHtml(evolved.routing_suggestion || "n/a")} · confidence ${Number(evolved.confidence || 0).toFixed(2)}</p>
+      <p><span class="worldtext-inference">World Model Updates:</span> ${escapeHtml((evolved.world_model_updates || []).join(" | ") || "none")}</p>
+      <p><span class="worldtext-entity">Original:</span></p>
+      <p>${escapeHtml(original)}</p>
+      <p><span class="worldtext-channel">Evolved:</span></p>
+      <p>${escapeHtml(evolvedText)}</p>
+      <div style="margin-top:10px;font-size:9px;color:var(--text-dim);border-top:1px solid var(--border);padding-top:8px;">
+        <div style="letter-spacing:1px;color:var(--text-dim);margin-bottom:4px;">CONTEXT USED</div>
+        <div>${escapeHtml(contextUsed.map((x) => x.zettel_id || x.id).join(" · ") || "none")}</div>
+      </div>
+    `;
+  }
+
+  function renderAIDraftMasterPreview(evolved) {
+    const text = evolved?.revised_essay || "";
+    el.worldtext.innerHTML = `
+      <div style="font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">
+        AI MASTER DRAFT · ${escapeHtml(evolved?.title || "Untitled")}
+      </div>
+      <p><span class="worldtext-channel">Hook:</span> ${escapeHtml(evolved?.executive_hook || "")}</p>
+      <p><span class="worldtext-delta">Map:</span> ${escapeHtml(JSON.stringify(evolved?.structural_map || {}))}</p>
+      <textarea id="essay-output" readonly>${escapeHtml(text)}</textarea>
+    `;
+  }
+
+  async function evolveSelectedWithAI() {
+    if (!S.selected) {
+      logMsg("Select a fragment first", true);
+      return;
+    }
+
+    const sourceEssay = S.selected;
+    const contextIds = gatherContextIds(sourceEssay);
+    el.btnAiSelected.disabled = true;
+    setStatus("AI_CALL", false);
+
+    try {
+      const result = await apiPost("/api/evolve-item", {
+        essay_id: sourceEssay.id,
+        context_ids: contextIds,
+        context_limit: Math.max(6, Math.min(20, S.linkDepth + 6)),
+        world_model: buildWorldModelState(),
+        temperature: 0.6,
+        max_output_tokens: 1400,
+      });
+
+      if (!result?.evolved) throw new Error("No evolved payload returned");
+      S.ai.draft = {
+        type: "item",
+        sourceId: sourceEssay.id,
+        evolved: result.evolved,
+      };
+      renderAIDraftItemPreview(sourceEssay, result.evolved, result.context_used || []);
+      addAudit(sourceEssay, "SHIFT");
+      logMsg(`AI evolved ${sourceEssay.zettel_id}; click Apply AI Draft`, false);
+    } catch (err) {
+      logMsg(`AI evolve failed: ${err.message}`, true);
+    } finally {
+      el.btnAiSelected.disabled = false;
+      updateStats();
+    }
+  }
+
+  async function evolveMasterWithAI() {
+    const essayText = getEssayForOutput();
+    const selectedIds = getForgedEntries().map((e) => e.id);
+    el.btnAiMaster.disabled = true;
+    setStatus("AI_CALL", false);
+
+    try {
+      const result = await apiPost("/api/evolve-master", {
+        essay_text: essayText,
+        selected_ids: selectedIds,
+        context_limit: Math.max(16, Math.min(64, selectedIds.length || 32)),
+        world_model: buildWorldModelState(),
+        temperature: 0.55,
+        max_output_tokens: 2600,
+      });
+
+      if (!result?.evolved?.revised_essay) throw new Error("No revised_essay returned");
+      S.ai.draft = {
+        type: "master",
+        evolved: result.evolved,
+      };
+      renderAIDraftMasterPreview(result.evolved);
+      logMsg("AI master draft ready; click Apply AI Draft", false);
+    } catch (err) {
+      logMsg(`AI master evolve failed: ${err.message}`, true);
+    } finally {
+      el.btnAiMaster.disabled = false;
+      updateStats();
+    }
+  }
+
+  function applyAIDraft() {
+    const draft = S.ai.draft;
+    if (!draft) {
+      logMsg("No AI draft to apply", true);
+      return;
+    }
+
+    if (draft.type === "item") {
+      const target = S.essays.find((e) => e.id === draft.sourceId);
+      if (!target) {
+        logMsg("AI draft target not found", true);
+        return;
+      }
+      target.evolved = draft.evolved;
+      if (S.selected?.id === target.id) {
+        S.selected = target;
+        renderWorldtext(target);
+        renderImpact(target);
+      }
+      S.forged.custom.set(target.id, target);
+      addRing(target.id, "#00ffee", 160);
+      logMsg(`Applied AI draft to ${target.zettel_id}`, false);
+    } else if (draft.type === "master") {
+      S.ai.masterOverride = draft.evolved.revised_essay || "";
+      el.worldtext.innerHTML = `
+        <div style="font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">
+          AI MASTER APPLIED
+        </div>
+        <textarea id="essay-output" readonly>${escapeHtml(S.ai.masterOverride)}</textarea>
+      `;
+      logMsg("Applied AI master essay override", false);
+    }
+
+    S.ai.draft = null;
+    updateStats();
+    draw();
+  }
+
+  function buildMasterEssay() {
+    const allInstability = sectionSort([
+      ...S.forged.instability.values(),
+      ...S.forged.custom.values(),
+    ]);
+    const allResolution = sectionSort([...S.forged.resolution.values()]);
+    const allUnresolved = sectionSort([...S.forged.unresolved.values()]);
+
+    const instability = orderedByCoverage(allInstability);
+    const resolution = orderedByCoverage(allResolution);
+    const unresolved = orderedByCoverage(allUnresolved);
+
+    const lines = [];
+    lines.push("# MASTER WEAPON ESSAY — 671 FRAGMENT SYNTHESIS");
+    lines.push("");
+    lines.push("This document is assembled from zettelkasten fragments using the RIPPLES routing model.");
+    lines.push("");
+
+    lines.push("## I. Instability Field");
+    lines.push("");
+    if (instability.length === 0) {
+      lines.push("No instability fragments routed yet.");
+    } else {
+      for (const e of instability) {
+        const paras = splitParas(activeFragmentText(e));
+        const block = compressText(paras.slice(0, 2).join("\n\n"), S.compression);
+        lines.push(`### ${e.zettel_id} · ${e.bibtex_id}`);
+        lines.push(block);
+        lines.push("");
+      }
+    }
+
+    lines.push("## II. Resolution Architecture");
+    lines.push("");
+    if (resolution.length === 0) {
+      lines.push("No resolution fragments routed yet.");
+    } else {
+      for (const e of resolution) {
+        const paras = splitParas(activeFragmentText(e));
+        const block = compressText(paras.slice(2).join("\n\n") || paras.join("\n\n"), S.compression);
+        lines.push(`### ${e.zettel_id} · ${e.bibtex_id}`);
+        lines.push(block);
+        lines.push("");
+      }
+    }
+
+    lines.push("## III. Unresolved Risk Register");
+    lines.push("");
+    if (unresolved.length === 0) {
+      lines.push("No unresolved fragments routed yet.");
+    } else {
+      for (const e of unresolved) {
+        lines.push(`### ${e.zettel_id} · ${e.bibtex_id}`);
+        lines.push(compressText(activeWeaponText(e) || activeFragmentText(e), S.compression));
+        lines.push("");
+      }
+    }
+
+    lines.push("## IV. Source Index");
+    lines.push("");
+    const sourceIds = new Set();
+    [...instability, ...resolution, ...unresolved].forEach((e) => sourceIds.add(e.id));
+    for (const id of sourceIds) {
+      const e = S.essays.find((x) => x.id === id);
+      if (!e) continue;
+      lines.push(`- ${e.zettel_id} | ${e.bibtex_id} | ${e.section} | ${e.canonical_url || e.source_url || ""}`);
+    }
+
+    return lines.join("\n").trim() + "\n";
+  }
+
+  function getEssayForOutput() {
+    return S.ai.masterOverride || buildMasterEssay();
+  }
+
+  function buildNameTextDump() {
+    const sorted = [...S.essays].sort((a, b) => String(a.zettel_id).localeCompare(String(b.zettel_id)));
+    return sorted
+      .map((e) => `${e.zettel_id} | ${e.bibtex_id}\n${activeFragmentText(e)}`)
+      .join("\n\n");
+  }
+
+  async function copyText(text, okLabel) {
+    try {
+      await navigator.clipboard.writeText(text);
+      logMsg(okLabel, false);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      logMsg(okLabel + " (fallback)", false);
+    }
+  }
+
+  function autoForgeAll() {
+    clearForge(false);
+    const sorted = [...S.essays].sort((a, b) => {
+      const sa = C.sectionOrder.indexOf(a.section);
+      const sb = C.sectionOrder.indexOf(b.section);
+      if (sa !== sb) return sa - sb;
+      return String(a.zettel_id).localeCompare(String(b.zettel_id));
+    });
+
+    for (const e of sorted) {
+      if (e.section === "NON_OBVIOUS_INSIGHTS" || e.section === "TENSIONS_CONTRADICTIONS") {
+        S.forged.instability.set(e.id, e);
+      } else if (e.section === "SO_WHAT") {
+        S.forged.resolution.set(e.id, e);
+      } else {
+        S.forged.unresolved.set(e.id, e);
+      }
+    }
+
+    S.opCount++;
+    if (S.ai.masterOverride) S.ai.masterOverride = "";
+    setStatus("FORGED", true);
+    updateStats();
+    logMsg(`Auto-forged ${sorted.length} fragments into essay structure`, false);
+
+    if (S.selected) renderImpact(S.selected);
+    draw();
+  }
+
+  function clearForge(show = true) {
+    S.forged.instability.clear();
+    S.forged.resolution.clear();
+    S.forged.unresolved.clear();
+    S.forged.custom.clear();
+    S.rings = [];
+    S.ai.draft = null;
+    S.ai.masterOverride = "";
+    if (show) logMsg("Essay forge cleared", false);
+    updateStats();
+    draw();
+  }
+
+  function exportMarkdown() {
+    const text = getEssayForOutput();
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `master_weapon_essay_${new Date().toISOString().slice(0, 10)}.md`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    logMsg("Markdown exported", false);
+  }
+
+  function setStatus(label, win) {
+    el.status.textContent = label;
+    el.status.classList.remove("win", "loss");
+    if (win) el.status.classList.add("win");
+  }
+
+  function enableVectors(on) {
+    el.btnGoal.disabled = !on;
+    el.btnObstacle.disabled = !on;
+    el.btnShift.disabled = !on;
+  }
+
+  function updateStats() {
+    const forged = getForgedCount();
+    el.stats.pop.textContent = S.view.length;
+    el.stats.depth.textContent = S.selected ? 1 : 0;
+    el.stats.k.textContent = forged;
+    el.stats.tick.textContent = S.opCount;
+    el.stats.fps.textContent = Math.round(S.fps);
+
+    if (forged === 0) {
+      setStatus("READY", false);
+    } else if (forged >= S.essays.length) {
+      setStatus("FORGED", true);
+    } else {
+      setStatus("BUILDING", false);
+    }
+  }
+
+  function draw() {
+    const ctx = el.sim.getContext("2d");
+    const rctx = el.ripple.getContext("2d");
+    const w = el.sim.width;
+    const h = el.sim.height;
+
+    ctx.clearRect(0, 0, w, h);
+    rctx.clearRect(0, 0, w, h);
+
+    // grid
+    ctx.strokeStyle = "rgba(26,64,96,0.25)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 28) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 28) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    const selected = S.selected;
+
+    // link lines for selected
+    if (selected) {
+      const p0 = S.layout.get(selected.id);
+      if (p0) {
+        const links = (selected.links || []).slice(0, S.linkDepth);
+        for (const link of links) {
+          const target = S.layout.get(link.target_id);
+          if (!target) continue;
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(target.x, target.y);
+          ctx.strokeStyle = "rgba(0,255,238,0.28)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // nodes
+    for (const e of S.view) {
+      const p = S.layout.get(e.id);
+      if (!p) continue;
+      const baseR = 3 + e.sectionDepth;
+      let r = baseR;
+      if (S.selected?.id === e.id) r += 3;
+      const forged =
+        S.forged.instability.has(e.id) ||
+        S.forged.resolution.has(e.id) ||
+        S.forged.unresolved.has(e.id) ||
+        S.forged.custom.has(e.id);
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = C.sectionColor[e.section] || "#7ab8d4";
+      ctx.globalAlpha = forged ? 0.95 : 0.55;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      if (forged) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(176,223,240,0.7)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      if (S.selected?.id === e.id) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = "#00ffee";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    // rings
+    S.rings = S.rings.filter((ring) => {
+      ring.r += 2.8;
+      ring.alpha -= 0.018;
+      if (ring.alpha <= 0 || ring.r > ring.maxR) return false;
+      rctx.beginPath();
+      rctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      rctx.strokeStyle = ring.color;
+      rctx.globalAlpha = ring.alpha;
+      rctx.lineWidth = 2;
+      rctx.stroke();
+      rctx.globalAlpha = 1;
+      return true;
+    });
+  }
+
+  function hitTest(x, y) {
+    let best = null;
+    let bestD = Infinity;
+    for (const e of S.view) {
+      const p = S.layout.get(e.id);
+      if (!p) continue;
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (d < bestD) {
+        bestD = d;
+        best = e;
+      }
+    }
+    return bestD < 22 ? best : null;
+  }
+
+  function loop(ts) {
+    const dt = ts - S.lastTs;
+    S.lastTs = ts;
+    S.fps = 1000 / Math.max(1, dt);
+    draw();
+    updateStats();
+    requestAnimationFrame(loop);
+  }
+
+  function resize() {
+    el.sim.width = window.innerWidth;
+    el.sim.height = window.innerHeight;
+    el.ripple.width = window.innerWidth;
+    el.ripple.height = window.innerHeight;
+    computeLayout();
+    draw();
+  }
+
+  // interactions
+  el.aiEndpoint.value = S.ai.endpoint;
+  el.aiEndpoint.addEventListener("change", (ev) => {
+    S.ai.endpoint = String(ev.target.value || "").trim() || "http://localhost:8787";
+    localStorage.setItem("essayForgeApiEndpoint", S.ai.endpoint);
+    logMsg(`AI endpoint set to ${S.ai.endpoint}`, false);
+  });
+
+  el.search.addEventListener("input", (ev) => {
+    S.query = ev.target.value || "";
+    applyFilters();
+    computeLayout();
+    renderEntityList();
+    draw();
+  });
+
+  el.sectionFilter.addEventListener("change", (ev) => {
+    S.sectionFilter = ev.target.value;
+    applyFilters();
+    computeLayout();
+    renderEntityList();
+    draw();
+  });
+
+  el.btnGoal.addEventListener("click", () => routeFragment("GOAL"));
+  el.btnObstacle.addEventListener("click", () => routeFragment("OBSTACLE"));
+  el.btnShift.addEventListener("click", () => routeFragment("SHIFT"));
+
+  el.btnAutoforge.addEventListener("click", autoForgeAll);
+  el.btnCopy.addEventListener("click", () => copyText(getEssayForOutput(), "Master essay copied"));
+  el.btnExport.addEventListener("click", exportMarkdown);
+  el.btnClear.addEventListener("click", () => clearForge(true));
+  el.btnAiSelected.addEventListener("click", evolveSelectedWithAI);
+  el.btnAiMaster.addEventListener("click", evolveMasterWithAI);
+  el.btnAiApply.addEventListener("click", applyAIDraft);
+
+  el.btnPreview.addEventListener("click", () => {
+    const text = getEssayForOutput();
+    el.worldtext.innerHTML = `
+      <div style="font-size:8px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px;">MASTER ESSAY PREVIEW</div>
+      <textarea id="essay-output" readonly>${text.replace(/</g, "&lt;")}</textarea>
+    `;
+    logMsg("Preview updated", false);
+  });
+
+  el.btnRebuild.addEventListener("click", () => {
+    applyFilters();
+    computeLayout();
+    renderEntityList();
+    draw();
+    logMsg("Layout rebuilt", false);
+  });
+
+  el.btnCopyNames.addEventListener("click", () => copyText(buildNameTextDump(), "Name+text copied for all fragments"));
+
+  el.slCov.addEventListener("input", (ev) => {
+    S.coverage = Number(ev.target.value);
+    el.vCov.textContent = `${S.coverage}%`;
+  });
+
+  el.slCmp.addEventListener("input", (ev) => {
+    S.compression = Number(ev.target.value);
+    el.vCmp.textContent = `${S.compression}%`;
+  });
+
+  el.slLink.addEventListener("input", (ev) => {
+    S.linkDepth = Number(ev.target.value);
+    el.vLink.textContent = String(S.linkDepth);
+    draw();
+  });
+
+  el.slSort.addEventListener("input", (ev) => {
+    S.sortMode = Number(ev.target.value);
+    el.vSort.textContent = sortLabels[S.sortMode] || "SECTION";
+    applyFilters();
+    computeLayout();
+    renderEntityList();
+    draw();
+  });
+
+  el.center.addEventListener("click", (ev) => {
+    const rect = el.center.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    const target = hitTest(x, y);
+    if (target) {
+      selectEssay(target);
+    }
+  });
+
+  window.addEventListener("keydown", (ev) => {
+    const k = ev.key.toLowerCase();
+    if (k === "g") routeFragment("GOAL");
+    if (k === "o") routeFragment("OBSTACLE");
+    if (k === "s") routeFragment("SHIFT");
+    if (k === "a") autoForgeAll();
+    if (k === "e") evolveSelectedWithAI();
+    if (k === "m") evolveMasterWithAI();
+    if (k === "enter") applyAIDraft();
+    if (k === "c") copyText(getEssayForOutput(), "Master essay copied");
+  });
+
+  document.getElementById("btn-hide")?.addEventListener("click", () => {
+    document.body.classList.add("zen");
+  });
+
+  document.getElementById("zen-btn").addEventListener("click", () => {
+    document.body.classList.remove("zen");
+  });
+
+  window.addEventListener("resize", resize);
+
+  async function boot() {
+    resize();
+    enableVectors(false);
+    try {
+      await loadCorpus();
+    } catch (err) {
+      setStatus("ERROR", false);
+      logMsg(err.message || "Failed to load corpus JSON", true);
+      el.worldtext.innerHTML = `
+        <div style="font-size:10px;color:var(--warn);padding:12px;line-height:1.7;">
+          Failed to load corpus JSON.<br>
+          Serve this file over HTTP and ensure these paths exist:<br>
+          <code>parsed_master_analyst/weapons/weaponized_essays.json</code><br>
+          <code>parsed_master_analyst/papers/zettelkasten_notes.json</code>
+        </div>
+      `;
+    }
+    requestAnimationFrame(loop);
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

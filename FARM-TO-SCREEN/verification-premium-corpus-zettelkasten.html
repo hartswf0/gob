@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification Premium Corpus — Zettelkasten Grid</title>
+  <style>
+    :root {
+      --bg-top: #0a1119;
+      --bg-mid: #111c2a;
+      --bg-bottom: #1a2739;
+      --panel: #0e1723;
+      --panel-2: #132033;
+      --line: #2f425a;
+      --text: #e9f0f6;
+      --muted: #8fa4bb;
+      --accent: #e48c33;
+      --n: #1f4f85;
+      --t: #9c4d1f;
+      --s: #257243;
+      --m: #8b2a3d;
+      --card-size: 210px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      color: var(--text);
+      font-family: "IBM Plex Sans", "Avenir Next", "Gill Sans", sans-serif;
+      background:
+        linear-gradient(140deg, rgba(228, 140, 51, 0.07) 0%, rgba(37, 114, 67, 0.04) 35%, transparent 62%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 42%, var(--bg-bottom) 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      width: 100%;
+      height: 100%;
+    }
+
+    .top {
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(7, 12, 19, 0.94) 0%, rgba(9, 15, 24, 0.89) 100%);
+      backdrop-filter: blur(5px);
+      padding: 12px 14px 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .title-wrap {
+      display: grid;
+      gap: 3px;
+      min-width: 260px;
+    }
+
+    .headline {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      font-size: 1.2rem;
+      line-height: 1.05;
+      letter-spacing: 0.15px;
+      color: #f7fbff;
+      font-weight: 700;
+    }
+
+    .subhead {
+      margin: 0;
+      font-size: 0.74rem;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+    }
+
+    .pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(10, 19, 30, 0.9);
+      color: #b9c8d8;
+      font-size: 0.66rem;
+      padding: 5px 7px;
+      line-height: 1;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      letter-spacing: 0.2px;
+    }
+
+    .pill strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) repeat(9, minmax(108px, max-content));
+      gap: 8px;
+      align-items: center;
+    }
+
+    .control,
+    .search,
+    .btn {
+      border: 1px solid #455c78;
+      background: #101b29;
+      color: #f4f8ff;
+      min-height: 34px;
+      padding: 7px 9px;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      outline: none;
+    }
+
+    .search {
+      width: 100%;
+    }
+
+    .search:focus,
+    .control:focus,
+    .btn:focus {
+      border-color: #8fb1d8;
+      box-shadow: 0 0 0 1px rgba(143, 177, 216, 0.35);
+    }
+
+    .btn {
+      cursor: pointer;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .btn:hover {
+      background: #162637;
+      border-color: #7a94b7;
+    }
+
+    .btn.active {
+      border-color: var(--accent);
+      background: rgba(228, 140, 51, 0.14);
+      color: #ffd8b0;
+    }
+
+    .btn.copy {
+      border-color: #4b6b8d;
+      background: #112033;
+    }
+
+    .btn.copy:hover {
+      border-color: #84a8d0;
+      background: #18304c;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 370px;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .grid-wrap {
+      min-height: 0;
+      overflow: auto;
+      padding: 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+      gap: 10px;
+      align-content: start;
+    }
+
+    .note-card {
+      aspect-ratio: 1 / 1;
+      border: 1px solid #3a4e68;
+      background: linear-gradient(180deg, rgba(17, 28, 43, 0.95) 0%, rgba(12, 22, 35, 0.98) 100%);
+      display: grid;
+      grid-template-rows: auto auto auto 1fr auto;
+      gap: 6px;
+      padding: 8px;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+      min-width: 0;
+    }
+
+    .note-card:hover {
+      transform: translateY(-1px);
+      border-color: #8ca5c5;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .note-card.selected {
+      border-color: #f6c88a;
+      box-shadow: 0 0 0 1px rgba(246, 200, 138, 0.5), 0 8px 18px rgba(0, 0, 0, 0.34);
+      transform: translateY(-1px);
+    }
+
+    .note-card.related-out {
+      border-color: #73d3a2;
+    }
+
+    .note-card.related-in {
+      border-color: #79b6e2;
+    }
+
+    .note-card.dim {
+      opacity: 0.38;
+    }
+
+    .note-card.section-non_obvious_insights { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--n) 45%, transparent); }
+    .note-card.section-tensions_contradictions { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--t) 45%, transparent); }
+    .note-card.section-so_what { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--s) 45%, transparent); }
+    .note-card.section-whats_missing { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--m) 45%, transparent); }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .zk-id {
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.67rem;
+      color: #e3edf8;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .section-badge {
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.35px;
+      padding: 3px 6px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .section-badge.section-non_obvious_insights {
+      background: color-mix(in srgb, var(--n) 24%, #000);
+      border-color: color-mix(in srgb, var(--n) 62%, #000);
+      color: #cee5ff;
+    }
+
+    .section-badge.section-tensions_contradictions {
+      background: color-mix(in srgb, var(--t) 26%, #000);
+      border-color: color-mix(in srgb, var(--t) 60%, #000);
+      color: #ffd9c1;
+    }
+
+    .section-badge.section-so_what {
+      background: color-mix(in srgb, var(--s) 28%, #000);
+      border-color: color-mix(in srgb, var(--s) 60%, #000);
+      color: #d4ffe6;
+    }
+
+    .section-badge.section-whats_missing {
+      background: color-mix(in srgb, var(--m) 28%, #000);
+      border-color: color-mix(in srgb, var(--m) 60%, #000);
+      color: #ffd9e0;
+    }
+
+    .card-label {
+      margin: 0;
+      font-size: 0.72rem;
+      line-height: 1.25;
+      color: #f5f9ff;
+      min-height: 2.35em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .card-bib {
+      margin: 0;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.58rem;
+      color: #94aac1;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-text {
+      margin: 0;
+      font-size: 0.69rem;
+      line-height: 1.35;
+      color: #b9c7d8;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 8;
+    }
+
+    .card-meta {
+      margin: 0;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.6rem;
+      line-height: 1.25;
+      color: #8ea1b8;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail {
+      min-height: 0;
+      overflow: auto;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    }
+
+    .detail-block {
+      border: 1px solid #3b4f67;
+      background: #0f1b2b;
+      padding: 9px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .detail-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 0.89rem;
+      line-height: 1.2;
+      color: #fff;
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    }
+
+    .detail-sub {
+      margin: 0;
+      font-size: 0.67rem;
+      color: #9cb0c6;
+      line-height: 1.3;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail-text {
+      margin: 0;
+      font-size: 0.76rem;
+      line-height: 1.5;
+      color: #dbe6f3;
+      white-space: pre-wrap;
+    }
+
+    .meta-links {
+      display: grid;
+      gap: 5px;
+    }
+
+    .meta-links a {
+      color: #96c8ff;
+      text-decoration: none;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.66rem;
+      line-height: 1.3;
+      word-break: break-all;
+    }
+
+    .meta-links a:hover {
+      text-decoration: underline;
+      color: #c1ddff;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      border: 1px solid #4d6684;
+      background: #15253a;
+      color: #e1ecfa;
+      padding: 4px 7px;
+      font-size: 0.64rem;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      cursor: pointer;
+      line-height: 1.15;
+    }
+
+    .chip:hover {
+      border-color: #84a4ca;
+      background: #1a2f49;
+    }
+
+    .link-list {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .link-item {
+      border: 1px solid #3f546e;
+      background: #122134;
+      padding: 7px;
+      display: grid;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .link-item:hover {
+      border-color: #80a3cd;
+      background: #1a2d45;
+    }
+
+    .link-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.64rem;
+      color: #dce8f6;
+      line-height: 1.2;
+    }
+
+    .link-label {
+      margin: 0;
+      font-size: 0.69rem;
+      color: #f5f9ff;
+      line-height: 1.3;
+    }
+
+    .link-terms {
+      margin: 0;
+      font-family: "IBM Plex Mono", Menlo, Consolas, monospace;
+      font-size: 0.6rem;
+      color: #8fb6dd;
+      line-height: 1.25;
+    }
+
+    .placeholder {
+      border: 1px dashed #48607d;
+      background: #0f1a2a;
+      color: #9fb2c8;
+      font-size: 0.73rem;
+      line-height: 1.45;
+      padding: 11px;
+    }
+
+    @media (max-width: 1080px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+      }
+
+      .detail {
+        max-height: 42vh;
+        border-top: 1px solid var(--line);
+      }
+
+      .grid-wrap {
+        border-right: 0;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .controls .search {
+        grid-column: 1 / -1;
+      }
+
+      :root {
+        --card-size: 185px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="title-row">
+        <div class="title-wrap">
+          <h1 class="headline">Verification Premium Corpus — Zettelkasten Grid</h1>
+          <p class="subhead">All atomic notes in one square-card surface. IDs, synthetic links, and cross-section navigation.</p>
+        </div>
+        <div class="pills">
+          <div class="pill">TOTAL <strong id="pillTotal">0</strong></div>
+          <div class="pill">VISIBLE <strong id="pillVisible">0</strong></div>
+          <div class="pill">SELECTED <strong id="pillSelected">none</strong></div>
+          <div class="pill">COPY <strong id="pillCopy">idle</strong></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="search" class="search" type="text" placeholder="Search text, label, ID, keyword..." />
+
+        <select id="section" class="control" aria-label="Filter section">
+          <option value="ALL">All Sections</option>
+          <option value="NON_OBVIOUS_INSIGHTS">NON_OBVIOUS_INSIGHTS</option>
+          <option value="TENSIONS_CONTRADICTIONS">TENSIONS_CONTRADICTIONS</option>
+          <option value="SO_WHAT">SO_WHAT</option>
+          <option value="WHATS_MISSING">WHATS_MISSING</option>
+        </select>
+
+        <select id="sort" class="control" aria-label="Sort notes">
+          <option value="zettel">Sort: Zettel ID</option>
+          <option value="entry">Sort: Entry Index</option>
+          <option value="section">Sort: Section, then ID</option>
+          <option value="links">Sort: Link Density</option>
+        </select>
+
+        <button id="linkedOnly" class="btn" type="button">Linked Cluster Only</button>
+        <button id="copyVisibleBib" class="btn copy" type="button">Copy Visible BibTeX</button>
+        <button id="copyVisibleTextName" class="btn copy" type="button">Copy Visible Name+Text</button>
+        <button id="copyVisibleMd" class="btn copy" type="button">Copy Visible Markdown</button>
+        <button id="copyVisibleJsonl" class="btn copy" type="button">Copy Visible JSONL</button>
+        <button id="copySelected" class="btn copy" type="button">Copy Selected</button>
+        <button id="reset" class="btn" type="button">Reset Filters</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="grid-wrap">
+        <div id="grid" class="grid" aria-live="polite"></div>
+      </section>
+
+      <aside id="detail" class="detail">
+        <div class="placeholder">Select a card to inspect full text, source links, keywords, and synthetic note connections.</div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const DATA_URL = 'parsed_master_analyst/papers/zettelkasten_notes.json';
+
+    const sectionLabel = {
+      NON_OBVIOUS_INSIGHTS: 'NON OBVIOUS',
+      TENSIONS_CONTRADICTIONS: 'TENSIONS',
+      SO_WHAT: 'SO WHAT',
+      WHATS_MISSING: 'MISSING'
+    };
+
+    const sectionClass = {
+      NON_OBVIOUS_INSIGHTS: 'section-non_obvious_insights',
+      TENSIONS_CONTRADICTIONS: 'section-tensions_contradictions',
+      SO_WHAT: 'section-so_what',
+      WHATS_MISSING: 'section-whats_missing'
+    };
+
+    const state = {
+      notes: [],
+      noteById: new Map(),
+      incoming: new Map(),
+      selectedId: '',
+      linkedOnly: false,
+      search: '',
+      section: 'ALL',
+      sort: 'zettel'
+    };
+
+    const el = {
+      grid: document.getElementById('grid'),
+      detail: document.getElementById('detail'),
+      search: document.getElementById('search'),
+      section: document.getElementById('section'),
+      sort: document.getElementById('sort'),
+      linkedOnly: document.getElementById('linkedOnly'),
+      copyVisibleBib: document.getElementById('copyVisibleBib'),
+      copyVisibleTextName: document.getElementById('copyVisibleTextName'),
+      copyVisibleMd: document.getElementById('copyVisibleMd'),
+      copyVisibleJsonl: document.getElementById('copyVisibleJsonl'),
+      copySelected: document.getElementById('copySelected'),
+      reset: document.getElementById('reset'),
+      pillTotal: document.getElementById('pillTotal'),
+      pillVisible: document.getElementById('pillVisible'),
+      pillSelected: document.getElementById('pillSelected'),
+      pillCopy: document.getElementById('pillCopy')
+    };
+
+    function esc(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function shortText(value, n = 230) {
+      const clean = String(value || '').replace(/\s+/g, ' ').trim();
+      if (clean.length <= n) return clean;
+      return clean.slice(0, n - 1) + '…';
+    }
+
+    function padIndex(index) {
+      const num = Number(index) || 0;
+      return String(num).padStart(3, '0');
+    }
+
+    function setCopyStatus(text) {
+      el.pillCopy.textContent = text;
+      clearTimeout(setCopyStatus._timer);
+      setCopyStatus._timer = setTimeout(() => {
+        el.pillCopy.textContent = 'idle';
+      }, 2200);
+    }
+
+    async function copyText(payload) {
+      const text = String(payload || '');
+      if (!text.trim()) {
+        setCopyStatus('empty');
+        return false;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopyStatus(`copied ${text.length}`);
+        return true;
+      } catch (_err) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', 'readonly');
+        area.style.position = 'fixed';
+        area.style.left = '-9999px';
+        document.body.appendChild(area);
+        area.select();
+        let ok = false;
+        try {
+          ok = document.execCommand('copy');
+        } catch (_err2) {
+          ok = false;
+        }
+        area.remove();
+        setCopyStatus(ok ? `copied ${text.length}` : 'copy fail');
+        return ok;
+      }
+    }
+
+    function bibtexEntryFor(note) {
+      if (note?.bibtex_entry) return note.bibtex_entry;
+      const key = note?.bibtex_id || `bias2026_${(note?.id || 'note').replace(/[^a-z0-9_]/gi, '_').toLowerCase()}`;
+      const title = `${note?.section || 'NOTE'} | ${note?.label || ''} | ${note?.zettel_id || note?.id || ''}`.trim();
+      const url = note?.canonical_url || note?.source_url || '';
+      return `@misc{${key},\\n  author = {Geometry of Bias},\\n  title = {${title}},\\n  year = {2026},\\n  howpublished = {Verification Premium Corpus Zettelkasten Note},\\n  url = {${url}},\\n  note = {note_id=${note?.id || ''}; video_id=${note?.video_id || ''}}\\n}`;
+    }
+
+    function markdownForNote(note) {
+      const links = [];
+      if (note.source_url) links.push(`source_url: ${note.source_url}`);
+      if (note.canonical_url) links.push(`canonical_url: ${note.canonical_url}`);
+      if (note.response_file) links.push(`response_file: parsed_master_analyst/${note.response_file}`);
+
+      return [
+        `### ${note.zettel_id} — ${note.label}`,
+        `- note_id: ${note.id}`,
+        `- bibtex_id: ${note.bibtex_id || ''}`,
+        `- section: ${note.section}`,
+        `- entry_index: ${padIndex(note.entry_index)}`,
+        `- video_id: ${note.video_id || 'N/A'}`,
+        ...links.map((line) => `- ${line}`),
+        '',
+        note.text,
+        '',
+        '```bibtex',
+        bibtexEntryFor(note),
+        '```',
+        ''
+      ].join('\\n');
+    }
+
+    function jsonlForNotes(notes) {
+      return notes.map((note) => JSON.stringify(note)).join('\\n');
+    }
+
+    function markdownForNotes(notes) {
+      return notes.map((note) => markdownForNote(note)).join('\\n');
+    }
+
+    function nameTextForNotes(notes) {
+      return notes
+        .map((note) => `${note.label}\\n${note.text}`)
+        .join('\\n\\n---\\n\\n');
+    }
+
+    function bibtexForNotes(notes) {
+      return notes.map((note) => bibtexEntryFor(note)).join('\\n\\n');
+    }
+
+    function noteSearchBlob(note) {
+      return [
+        note.id,
+        note.zettel_id,
+        note.bibtex_id,
+        note.section,
+        note.label,
+        note.text,
+        (note.keywords || []).join(' '),
+        note.video_id
+      ].join(' ').toLowerCase();
+    }
+
+    function buildIncomingMap(notes) {
+      const incoming = new Map();
+      for (const note of notes) incoming.set(note.id, []);
+      for (const note of notes) {
+        for (const link of (note.synthetic_links || [])) {
+          if (incoming.has(link.target_id)) {
+            incoming.get(link.target_id).push(note.id);
+          }
+        }
+      }
+      return incoming;
+    }
+
+    function getSelected() {
+      return state.noteById.get(state.selectedId) || null;
+    }
+
+    function getRelatedSet(selected) {
+      const related = new Set();
+      if (!selected) return related;
+      related.add(selected.id);
+      for (const link of (selected.synthetic_links || [])) related.add(link.target_id);
+      for (const incomingId of (state.incoming.get(selected.id) || [])) related.add(incomingId);
+      return related;
+    }
+
+    function applyFilters() {
+      const q = state.search.trim().toLowerCase();
+      const selected = getSelected();
+      const relatedSet = getRelatedSet(selected);
+
+      let notes = state.notes.filter((note) => {
+        if (state.section !== 'ALL' && note.section !== state.section) return false;
+        if (q && !noteSearchBlob(note).includes(q)) return false;
+        if (state.linkedOnly && selected && !relatedSet.has(note.id)) return false;
+        return true;
+      });
+
+      if (state.sort === 'entry') {
+        notes.sort((a, b) => {
+          if (a.entry_index !== b.entry_index) return a.entry_index - b.entry_index;
+          return a.zettel_id.localeCompare(b.zettel_id);
+        });
+      } else if (state.sort === 'section') {
+        notes.sort((a, b) => {
+          if (a.section !== b.section) return a.section.localeCompare(b.section);
+          return a.zettel_id.localeCompare(b.zettel_id);
+        });
+      } else if (state.sort === 'links') {
+        notes.sort((a, b) => {
+          const d = (b.synthetic_links || []).length - (a.synthetic_links || []).length;
+          if (d) return d;
+          return a.zettel_id.localeCompare(b.zettel_id);
+        });
+      } else {
+        notes.sort((a, b) => a.zettel_id.localeCompare(b.zettel_id));
+      }
+
+      return { notes, relatedSet };
+    }
+
+    function getVisibleNotes() {
+      return applyFilters().notes;
+    }
+
+    function renderGrid() {
+      const { notes, relatedSet } = applyFilters();
+      const selected = getSelected();
+      const selectedOutgoing = new Set((selected?.synthetic_links || []).map((l) => l.target_id));
+      const selectedIncoming = new Set(state.incoming.get(selected?.id || '') || []);
+
+      const frag = document.createDocumentFragment();
+      for (const note of notes) {
+        const card = document.createElement('article');
+        card.className = `note-card ${sectionClass[note.section] || ''}`;
+        card.dataset.id = note.id;
+
+        if (note.id === state.selectedId) {
+          card.classList.add('selected');
+        } else if (selected && selectedOutgoing.has(note.id)) {
+          card.classList.add('related-out');
+        } else if (selected && selectedIncoming.has(note.id)) {
+          card.classList.add('related-in');
+        }
+
+        if (selected && state.linkedOnly === false && !relatedSet.has(note.id)) {
+          card.classList.add('dim');
+        }
+
+        card.innerHTML = `
+          <div class="card-top">
+            <span class="zk-id">${esc(note.zettel_id)}</span>
+            <span class="section-badge ${sectionClass[note.section] || ''}">${esc(sectionLabel[note.section] || note.section)}</span>
+          </div>
+          <h3 class="card-label">${esc(note.label)}</h3>
+          <p class="card-bib">${esc(note.bibtex_id || '')}</p>
+          <p class="card-text">${esc(shortText(note.text, 275))}</p>
+          <p class="card-meta">
+            <span>#${esc(padIndex(note.entry_index))} · ${esc(note.video_id || 'N/A')}</span>
+            <span>${esc((note.synthetic_links || []).length)} links</span>
+          </p>
+        `;
+
+        card.addEventListener('click', () => {
+          state.selectedId = note.id;
+          render();
+        });
+
+        frag.appendChild(card);
+      }
+
+      el.grid.replaceChildren(frag);
+      el.pillVisible.textContent = String(notes.length);
+      el.pillSelected.textContent = selected ? selected.zettel_id : 'none';
+
+      if (!notes.length) {
+        const empty = document.createElement('div');
+        empty.className = 'placeholder';
+        empty.textContent = 'No notes match current filters.';
+        el.grid.appendChild(empty);
+      }
+    }
+
+    function renderDetail() {
+      const note = getSelected();
+      if (!note) {
+        el.detail.innerHTML = '<div class="placeholder">Select a card to inspect full text, source links, keywords, and synthetic note connections.</div>';
+        return;
+      }
+
+      const links = (note.synthetic_links || [])
+        .map((link) => {
+          const target = state.noteById.get(link.target_id);
+          if (!target) return '';
+          const terms = (link.shared_terms || []).join(', ');
+          return `
+            <article class="link-item" data-target="${esc(target.id)}">
+              <div class="link-top">
+                <span>${esc(target.zettel_id)}</span>
+                <span>score ${Number(link.score || 0).toFixed(3)}</span>
+              </div>
+              <p class="link-label">${esc(target.label)} · ${esc(sectionLabel[target.section] || target.section)}</p>
+              <p class="link-terms">${terms ? `shared: ${esc(terms)}` : 'shared: local context'}</p>
+            </article>
+          `;
+        })
+        .join('');
+
+      const sourceLink = note.source_url
+        ? `<a href="${esc(note.source_url)}" target="_blank" rel="noopener noreferrer">source_url → ${esc(note.source_url)}</a>`
+        : '';
+      const canonicalLink = note.canonical_url
+        ? `<a href="${esc(note.canonical_url)}" target="_blank" rel="noopener noreferrer">canonical_url → ${esc(note.canonical_url)}</a>`
+        : '';
+      const responseLink = note.response_file
+        ? `<a href="parsed_master_analyst/${esc(note.response_file)}" target="_blank" rel="noopener noreferrer">response_file → parsed_master_analyst/${esc(note.response_file)}</a>`
+        : '';
+
+      const keywordChips = (note.keywords || [])
+        .map((kw) => `<button type="button" class="chip" data-kw="${esc(kw)}">${esc(kw)}</button>`)
+        .join('');
+
+      el.detail.innerHTML = `
+        <section class="detail-block">
+          <div class="detail-head">
+            <h2 class="detail-title">${esc(note.label)}</h2>
+            <span class="section-badge ${sectionClass[note.section] || ''}">${esc(sectionLabel[note.section] || note.section)}</span>
+          </div>
+          <p class="detail-sub">${esc(note.id)} · ${esc(note.zettel_id)} · entry #${esc(padIndex(note.entry_index))}</p>
+          <p class="detail-text">${esc(note.text)}</p>
+        </section>
+
+        <section class="detail-block">
+          <h3 class="detail-title">Metadata</h3>
+          <div class="meta-links">
+            ${sourceLink}
+            ${canonicalLink}
+            ${responseLink}
+          </div>
+          <p class="detail-sub">Video ID: ${esc(note.video_id || 'N/A')}</p>
+          <p class="detail-sub">BibTeX ID: ${esc(note.bibtex_id || '')}</p>
+        </section>
+
+        <section class="detail-block">
+          <div class="detail-head">
+            <h3 class="detail-title">Citation</h3>
+            <button type="button" class="chip" data-copy-bib="true">Copy BibTeX</button>
+          </div>
+          <p class="detail-text">${esc(bibtexEntryFor(note))}</p>
+        </section>
+
+        <section class="detail-block">
+          <h3 class="detail-title">Keywords</h3>
+          <div class="chip-row">
+            ${keywordChips || '<span class="detail-sub">No keywords extracted.</span>'}
+          </div>
+        </section>
+
+        <section class="detail-block">
+          <h3 class="detail-title">Synthetic Links (${esc((note.synthetic_links || []).length)})</h3>
+          <div class="link-list">
+            ${links || '<div class="placeholder">No synthetic links available.</div>'}
+          </div>
+        </section>
+      `;
+
+      el.detail.querySelectorAll('.chip[data-kw]').forEach((button) => {
+        button.addEventListener('click', () => {
+          el.search.value = button.dataset.kw || '';
+          state.search = (button.dataset.kw || '').trim();
+          renderGrid();
+        });
+      });
+
+      el.detail.querySelectorAll('.chip[data-copy-bib]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          await copyText(bibtexEntryFor(note));
+        });
+      });
+
+      el.detail.querySelectorAll('.link-item[data-target]').forEach((item) => {
+        item.addEventListener('click', () => {
+          state.selectedId = item.dataset.target || '';
+          render();
+        });
+      });
+    }
+
+    function render() {
+      renderGrid();
+      renderDetail();
+    }
+
+    function bindControls() {
+      el.search.addEventListener('input', () => {
+        state.search = el.search.value;
+        renderGrid();
+      });
+
+      el.section.addEventListener('change', () => {
+        state.section = el.section.value;
+        renderGrid();
+      });
+
+      el.sort.addEventListener('change', () => {
+        state.sort = el.sort.value;
+        renderGrid();
+      });
+
+      el.linkedOnly.addEventListener('click', () => {
+        state.linkedOnly = !state.linkedOnly;
+        el.linkedOnly.classList.toggle('active', state.linkedOnly);
+        renderGrid();
+      });
+
+      el.copyVisibleBib.addEventListener('click', async () => {
+        const notes = getVisibleNotes();
+        await copyText(bibtexForNotes(notes));
+      });
+
+      el.copyVisibleTextName.addEventListener('click', async () => {
+        const notes = getVisibleNotes();
+        await copyText(nameTextForNotes(notes));
+      });
+
+      el.copyVisibleMd.addEventListener('click', async () => {
+        const notes = getVisibleNotes();
+        await copyText(markdownForNotes(notes));
+      });
+
+      el.copyVisibleJsonl.addEventListener('click', async () => {
+        const notes = getVisibleNotes();
+        await copyText(jsonlForNotes(notes));
+      });
+
+      el.copySelected.addEventListener('click', async () => {
+        const selected = getSelected();
+        if (!selected) {
+          setCopyStatus('no selection');
+          return;
+        }
+        await copyText(markdownForNote(selected));
+      });
+
+      el.reset.addEventListener('click', () => {
+        state.search = '';
+        state.section = 'ALL';
+        state.sort = 'zettel';
+        state.linkedOnly = false;
+        state.selectedId = '';
+        el.search.value = '';
+        el.section.value = 'ALL';
+        el.sort.value = 'zettel';
+        el.linkedOnly.classList.remove('active');
+        render();
+      });
+    }
+
+    async function init() {
+      bindControls();
+
+      try {
+        const response = await fetch(DATA_URL, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const payload = await response.json();
+        const notes = Array.isArray(payload.notes) ? payload.notes : [];
+
+        state.notes = notes;
+        state.noteById = new Map(notes.map((note) => [note.id, note]));
+        state.incoming = buildIncomingMap(notes);
+
+        el.pillTotal.textContent = String(notes.length);
+
+        if (notes.length) state.selectedId = notes[0].id;
+        render();
+      } catch (error) {
+        console.error(error);
+        el.grid.innerHTML = '<div class="placeholder">Failed to load zettelkasten JSON. Run `python3 parsed_master_analyst/build_section_papers.py` and refresh.</div>';
+        el.detail.innerHTML = `<div class="placeholder">${esc(String(error))}</div>`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
