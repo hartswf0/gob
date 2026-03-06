@@ -1,0 +1,1845 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HEILIG Completions Reader</title>
+  <style>
+    :root {
+      --top-height: 68px;
+      --bg: #07080d;
+      --panel: #0f1119;
+      --ink: #e8eaf3;
+      --muted: #9aa0b7;
+      --line: #22263a;
+      --accent: #70f0c1;
+      --accent-2: #88a6ff;
+      --danger: #ff6f91;
+      --top-bg: rgba(7, 8, 13, 0.95);
+      --completion-ink: #d9deef;
+      --mono: "SF Mono", "Menlo", "Consolas", monospace;
+      --sans: "Inter", "Avenir Next", system-ui, sans-serif;
+    }
+
+    body[data-theme="light"] {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #141927;
+      --muted: #5f677d;
+      --line: #d8deec;
+      --accent: #0b7a57;
+      --accent-2: #3253cf;
+      --danger: #b02d52;
+      --top-bg: rgba(245, 247, 251, 0.95);
+      --completion-ink: #1d2438;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100%;
+    }
+
+    .top {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: var(--top-bg);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+      padding: 6px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .tools-panel {
+      position: fixed;
+      left: 8px;
+      right: auto;
+      top: calc(var(--top-height) + 4px);
+      z-index: 62;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: auto;
+      width: min(780px, calc(100vw - 16px));
+      max-height: 34vh;
+      display: none;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
+    }
+
+    .tools-panel[open] {
+      display: block;
+    }
+
+    .tools-panel > summary {
+      display: none;
+    }
+
+    .tools-panel > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tools-body {
+      display: grid;
+      gap: 5px;
+      padding: 7px;
+    }
+
+    .speed-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .speed-btn {
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+    }
+
+    .speed-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title-right {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .count {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .tracker {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: min(58vw, 430px);
+    }
+
+    .controls {
+      display: grid;
+      gap: 6px;
+    }
+
+    .controls-main {
+      grid-template-columns: 1fr 1fr auto auto;
+    }
+
+    .controls-note {
+      grid-template-columns: 1fr 1.6fr auto;
+    }
+
+    .controls-section {
+      grid-template-columns: 1fr auto;
+    }
+
+    .search,
+    select,
+    textarea,
+    input[type="range"] {
+      width: 100%;
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .btn {
+      min-height: 36px;
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { border-color: var(--accent); color: var(--accent); }
+    .btn.warn { border-color: var(--danger); color: var(--danger); }
+
+    .command-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .icon-btn.active {
+      background: var(--accent);
+      color: #08110c;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .icon-btn.warn {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .command-help {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 6px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .speak-status {
+      display: none;
+    }
+
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: calc(var(--top-height) + 8px) 10px 32px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .entry {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .entry-head {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .entry-id {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent-2);
+    }
+
+    .entry-title {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .entry-meta {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .entry-body {
+      position: relative;
+      padding: 10px;
+    }
+
+    .completion-lines {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: visible;
+      min-height: 76vh;
+      background: color-mix(in oklab, var(--panel), #fff 8%);
+    }
+
+    .completion-line {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 18px 34px 1fr;
+      gap: 8px;
+      padding: 5px 8px;
+      border-bottom: 1px solid color-mix(in oklab, var(--line), transparent 55%);
+      cursor: pointer;
+      user-select: text;
+      -webkit-user-select: text;
+      -webkit-touch-callout: default;
+      scroll-margin-top: calc(var(--top-height) + 18px);
+    }
+
+    .completion-line:last-child { border-bottom: none; }
+
+    .completion-line:hover {
+      background: color-mix(in oklab, var(--accent), transparent 92%);
+    }
+
+    .completion-line.selected {
+      background: color-mix(in oklab, var(--accent-2), transparent 84%);
+      box-shadow: inset 2px 0 0 var(--accent-2);
+    }
+
+    .completion-line.reading {
+      background: color-mix(in oklab, var(--accent), transparent 68%);
+      box-shadow:
+        inset 4px 0 0 var(--accent),
+        0 0 0 1px color-mix(in oklab, var(--accent), transparent 52%);
+    }
+
+    .completion-line.reading .line-txt {
+      font-weight: 700;
+    }
+
+    .completion-line.cursor {
+      outline: 1px solid color-mix(in oklab, var(--accent-2), transparent 35%);
+      outline-offset: -1px;
+    }
+
+    .line-pick {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent-2);
+      cursor: pointer;
+      align-self: start;
+    }
+
+    .line-no {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 2px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .line-txt {
+      white-space: pre-wrap;
+      font-family: "Iowan Old Style", "Palatino", serif;
+      font-size: 15px;
+      line-height: 1.68;
+      color: var(--completion-ink);
+      word-break: break-word;
+    }
+
+    .mono { font-family: var(--mono); }
+
+    .footer-nav {
+      margin: 10px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .footer-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 1px;
+    }
+
+    .minimap {
+      position: fixed;
+      right: 4px;
+      top: calc(var(--entry-stick-top, 138px) + 2px);
+      bottom: 10px;
+      width: 14px;
+      z-index: 45;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .mini-track {
+      position: relative;
+      width: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in oklab, var(--panel), var(--bg) 30%);
+      pointer-events: auto;
+      overflow: hidden;
+    }
+
+    .mini-dot {
+      position: absolute;
+      left: 1px;
+      width: 8px;
+      height: 8px;
+      border: 1px solid color-mix(in oklab, var(--line), #000 20%);
+      border-radius: 2px;
+      background: color-mix(in oklab, var(--line), var(--panel) 35%);
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .mini-dot.has-note {
+      background: color-mix(in oklab, var(--accent-2), #fff 35%);
+    }
+
+    .mini-dot.cursor {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-2), transparent 30%);
+    }
+
+    .mini-dot.reading {
+      background: color-mix(in oklab, var(--accent), #fff 28%);
+      border-color: var(--accent);
+    }
+
+    .reading-rail {
+      position: fixed;
+      right: 6px;
+      top: calc(var(--entry-stick-top, 138px) + 8px);
+      bottom: 12px;
+      width: 20px;
+      z-index: 46;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .rail-stack {
+      width: 100%;
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .rail-track {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: color-mix(in oklab, var(--panel), var(--bg) 24%);
+      overflow: hidden;
+      position: relative;
+      min-height: 70px;
+    }
+
+    .rail-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 0%;
+      background: color-mix(in oklab, var(--accent-2), #fff 35%);
+      transition: height 120ms linear;
+    }
+
+    .rail-fill.line {
+      background: color-mix(in oklab, var(--accent), #fff 32%);
+    }
+
+    @media (max-width: 720px) {
+      h1 {
+        font-size: 12px;
+        letter-spacing: 0.09em;
+      }
+      .tracker { max-width: 52vw; font-size: 9px; }
+      .controls-main {
+        grid-template-columns: 1fr 1fr;
+      }
+      .controls-main .search {
+        grid-column: 1 / -1;
+      }
+      .controls-note {
+        grid-template-columns: 1fr;
+      }
+      .controls-section {
+        grid-template-columns: 1fr;
+      }
+      .command-bar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .tools-panel {
+        left: 8px;
+        right: 8px;
+        width: calc(100vw - 16px);
+        max-height: 36vh;
+      }
+      .command-help { display: none; }
+      .title-right .count { display: inline; }
+      .icon-btn { min-height: 48px; font-size: 12px; letter-spacing: 0.01em; }
+      .line-txt { font-size: 17px; line-height: 1.7; }
+      .completion-lines {
+        min-height: 74vh;
+      }
+      .footer-nav {
+        display: none;
+      }
+      .minimap { display: none !important; }
+      .reading-rail {
+        right: 2px;
+        width: 14px;
+      }
+      .rail-stack {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="title">
+      <h1>HEILIG Completions</h1>
+      <div class="title-right">
+        <div id="speakStatus" class="tracker" aria-live="polite">Tap line then play</div>
+        <div class="count" id="count">0 entries</div>
+      </div>
+    </div>
+
+    <div class="command-bar" aria-label="Command bar">
+      <button id="speakVisible" class="icon-btn" title="Play from tapped line" aria-label="Play">Play</button>
+      <button id="pauseTTS" class="icon-btn" title="Pause or resume speech" aria-label="Pause">Pause</button>
+      <button id="copyQuick" class="icon-btn" title="Copy selected lines or whole active entry" aria-label="Copy">Copy</button>
+      <button id="menuToggle" class="icon-btn" title="Open menu" aria-label="Open menu">Menu</button>
+    </div>
+    <details id="toolsPanel" class="tools-panel">
+      <summary>☰ Menu</summary>
+      <div class="tools-body">
+        <div id="speedRow" class="speed-row" aria-label="Speech speeds">
+          <button type="button" class="speed-btn" data-rate="1">1.0x</button>
+          <button type="button" class="speed-btn" data-rate="1.25">1.25x</button>
+          <button type="button" class="speed-btn" data-rate="1.5">1.5x</button>
+          <button type="button" class="speed-btn" data-rate="2">2.0x</button>
+        </div>
+        <div class="controls controls-main">
+          <input id="search" class="search" type="text" list="completionNames" placeholder="Search or pick completion title">
+          <datalist id="completionNames"></datalist>
+          <select id="entryJump" class="search" aria-label="Jump to completion"></select>
+          <button id="loadDefault" class="btn primary">Load</button>
+          <label class="btn">Import<input id="fileInput" type="file" accept=".json,.md,.txt" hidden></label>
+        </div>
+        <div class="controls controls-section">
+          <select id="sectionJump" class="search" aria-label="Section jump"></select>
+          <button id="selectSection" class="btn" type="button">Select Section</button>
+        </div>
+        <div class="command-help">Tap a line, then press Play. Copy uses selected lines first, otherwise full active entry.</div>
+        <div class="advanced-grid">
+          <button id="stopTTS" class="btn warn" type="button">Stop Speech</button>
+          <button id="rateBtn" class="btn" type="button">Speech Speed 1.0x</button>
+          <button id="themeToggle" class="btn" type="button">Toggle Theme</button>
+          <button id="followTTS" class="btn" type="button">Follow On</button>
+          <button id="copySelectedActive" class="btn" type="button">Copy Selected</button>
+          <button id="copyEntryActive" class="btn" type="button">Copy Entry</button>
+          <button id="clearSelectedActive" class="btn" type="button">Clear Selected</button>
+          <button id="exportNoteActive" class="btn" type="button">Export Note</button>
+          <button id="downloadComments" class="btn" type="button">Export All Notes</button>
+        </div>
+        <div class="controls controls-note">
+          <div id="activeEntryLabel" class="speak-status">Active #---</div>
+          <input id="activeNote" class="search" type="text" placeholder="Note for active completion">
+          <button id="saveActiveNote" class="btn">Save Note</button>
+        </div>
+      </div>
+    </details>
+  </header>
+
+  <main class="shell">
+    <section id="list" class="list"></section>
+    <nav class="footer-nav" aria-label="Quick navigation">
+      <a href="index.html">Index</a>
+      <a href="worldtext-completions-mobile.html">WorldText</a>
+      <a href="asclepius-completions-mobile.html">Asclepius</a>
+      <a href="heilig-completions-mobile.html">Completions</a>
+    </nav>
+  </main>
+
+  <aside id="minimap" class="minimap" aria-label="Entry map">
+    <div id="miniTrack" class="mini-track"></div>
+  </aside>
+
+  <aside id="readingRail" class="reading-rail" aria-hidden="true">
+    <div class="rail-stack">
+      <div class="rail-track"><div id="entryRailFill" class="rail-fill"></div></div>
+      <div class="rail-track"><div id="lineRailFill" class="rail-fill line"></div></div>
+    </div>
+  </aside>
+
+  <script>
+    const DEFAULT_FILES = [
+      "HEILIG.parsed.json",
+      "heilig.parsed.json",
+      "HEILIG-OS.parsed.json",
+      "heilig-os.parsed.json"
+    ];
+    const COMMENT_KEY = "heilig-comments-v1";
+    const THEME_KEY = "heilig-completions-theme-v1";
+    const RATE_KEY = "heilig-completions-rate-v1";
+    const RATE_PRESETS = [1, 1.15, 1.25, 1.5, 1.75, 2, 2.5];
+
+    const state = {
+      data: null,
+      entries: [],
+      filtered: [],
+      comments: {},
+      lineSelections: {},
+      lineMetaByEntry: {},
+      sectionMetaByEntry: {},
+      activeEntryId: null,
+      playAnchor: null,
+      cursor: { entryId: null, lineIndex: 0 },
+      reading: { entryId: null, lineIndex: -1 },
+      speaking: {
+        queue: [],
+        cancelled: false,
+        paused: false,
+        startLines: {},
+        boundarySeen: false,
+        fallbackTicker: null,
+      },
+      ttsRate: 1,
+      followTTS: true,
+    };
+
+    const el = {
+      list: document.getElementById("list"),
+      count: document.getElementById("count"),
+      toolsPanel: document.getElementById("toolsPanel"),
+      search: document.getElementById("search"),
+      entryJump: document.getElementById("entryJump"),
+      sectionJump: document.getElementById("sectionJump"),
+      selectSection: document.getElementById("selectSection"),
+      completionNames: document.getElementById("completionNames"),
+      themeToggle: document.getElementById("themeToggle"),
+      loadDefault: document.getElementById("loadDefault"),
+      fileInput: document.getElementById("fileInput"),
+      speakVisible: document.getElementById("speakVisible"),
+      pauseTTS: document.getElementById("pauseTTS"),
+      stopTTS: document.getElementById("stopTTS"),
+      copyQuick: document.getElementById("copyQuick"),
+      menuToggle: document.getElementById("menuToggle"),
+      rateBtn: document.getElementById("rateBtn"),
+      speedRow: document.getElementById("speedRow"),
+      followTTS: document.getElementById("followTTS"),
+      copySelectedActive: document.getElementById("copySelectedActive"),
+      copyEntryActive: document.getElementById("copyEntryActive"),
+      clearSelectedActive: document.getElementById("clearSelectedActive"),
+      exportNoteActive: document.getElementById("exportNoteActive"),
+      downloadComments: document.getElementById("downloadComments"),
+      activeEntryLabel: document.getElementById("activeEntryLabel"),
+      activeNote: document.getElementById("activeNote"),
+      saveActiveNote: document.getElementById("saveActiveNote"),
+      speakStatus: document.getElementById("speakStatus"),
+      minimap: document.getElementById("minimap"),
+      miniTrack: document.getElementById("miniTrack"),
+      readingRail: document.getElementById("readingRail"),
+      entryRailFill: document.getElementById("entryRailFill"),
+      lineRailFill: document.getElementById("lineRailFill"),
+    };
+
+    function setSpeakStatus(text) {
+      el.speakStatus.textContent = text || "Idle";
+    }
+
+    function updateStickyOffset() {
+      const h = document.querySelector(".top")?.getBoundingClientRect().height || 120;
+      document.documentElement.style.setProperty("--top-height", `${Math.round(h)}px`);
+      document.documentElement.style.setProperty("--entry-stick-top", `${Math.round(h) + 6}px`);
+    }
+
+    function updateReadingRail() {
+      if (!el.entryRailFill || !el.lineRailFill) return;
+      const totalEntries = Math.max(1, state.filtered.length);
+      const activeId = activeEntryId();
+      const entryIdx = activeId ? state.filtered.findIndex((e) => e.id === activeId) : -1;
+      const safeEntryIdx = Math.max(0, entryIdx);
+      const entryPct = totalEntries <= 1 ? 100 : (safeEntryIdx / (totalEntries - 1)) * 100;
+      el.entryRailFill.style.height = `${Math.max(0, Math.min(100, entryPct))}%`;
+
+      const lines = activeId ? entryLines(activeId) : [""];
+      const totalLines = Math.max(1, lines.length);
+      let lineIdx = 0;
+      if (state.reading.entryId === activeId && state.reading.lineIndex >= 0) lineIdx = state.reading.lineIndex;
+      else if (state.cursor.entryId === activeId) lineIdx = Math.max(0, state.cursor.lineIndex || 0);
+      const linePct = totalLines <= 1 ? 100 : (lineIdx / (totalLines - 1)) * 100;
+      el.lineRailFill.style.height = `${Math.max(0, Math.min(100, linePct))}%`;
+    }
+
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme === "light" ? "light" : "";
+      el.themeToggle.textContent = theme === "light" ? "Dark" : "Light";
+      localStorage.setItem(THEME_KEY, theme === "light" ? "light" : "dark");
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "light" || saved === "dark") {
+        applyTheme(saved);
+        return;
+      }
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      applyTheme(prefersLight ? "light" : "dark");
+    }
+
+    function saveComments() {
+      localStorage.setItem(COMMENT_KEY, JSON.stringify(state.comments));
+    }
+
+    function loadComments() {
+      try {
+        state.comments = JSON.parse(localStorage.getItem(COMMENT_KEY) || "{}") || {};
+      } catch {
+        state.comments = {};
+      }
+    }
+
+    function loadRate() {
+      const raw = Number(localStorage.getItem(RATE_KEY));
+      if (Number.isFinite(raw) && raw >= 0.5 && raw <= 3) {
+        state.ttsRate = raw;
+      } else {
+        state.ttsRate = 1;
+      }
+      renderRateUI();
+    }
+
+    function renderRateUI() {
+      const short = `${state.ttsRate.toFixed(2).replace(/\.00$/, "")}x`;
+      if (el.rateBtn) el.rateBtn.textContent = `Speech Speed ${short}`;
+      if (el.speedRow) {
+        el.speedRow.querySelectorAll("[data-rate]").forEach((btn) => {
+          const rate = Number(btn.getAttribute("data-rate"));
+          btn.classList.toggle("active", Math.abs(rate - state.ttsRate) < 0.001);
+        });
+      }
+    }
+
+    function restartSpeechAtCurrentAnchor() {
+      const current = (state.reading.entryId && state.reading.lineIndex >= 0)
+        ? { entryId: state.reading.entryId, lineIndex: state.reading.lineIndex }
+        : resolveVisibleStartPoint();
+      if (current) {
+        state.playAnchor = { entryId: current.entryId, lineIndex: current.lineIndex };
+      }
+      clearFallbackTicker();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      state.speaking.cancelled = false;
+      state.speaking.paused = false;
+      state.speaking.queue = [];
+      state.speaking.startLines = {};
+      speakVisible();
+    }
+
+    function setRate(rate, announce = true) {
+      const safe = Math.max(0.5, Math.min(3, Number(rate) || 1));
+      state.ttsRate = safe;
+      localStorage.setItem(RATE_KEY, String(safe));
+      renderRateUI();
+
+      if ("speechSynthesis" in window) {
+        const synth = window.speechSynthesis;
+        if (synth.speaking || synth.paused) {
+          restartSpeechAtCurrentAnchor();
+        }
+      }
+
+      if (announce) setSpeakStatus(`Speed ${safe.toFixed(2).replace(/\.00$/, "")}x`);
+    }
+
+    function cycleRate() {
+      const idx = RATE_PRESETS.findIndex((r) => Math.abs(r - state.ttsRate) < 0.001);
+      const next = RATE_PRESETS[(idx + 1 + RATE_PRESETS.length) % RATE_PRESETS.length];
+      setRate(next, true);
+    }
+
+    function normalize(s) {
+      return (s || "").toLowerCase();
+    }
+
+    function entryById(entryId) {
+      return state.entries.find((e) => e.id === entryId) || null;
+    }
+
+    function activeEntryId() {
+      if (state.cursor.entryId && state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        return state.cursor.entryId;
+      }
+      const vis = findTopVisibleLine();
+      if (vis?.entryId) return vis.entryId;
+      return state.filtered[0]?.id || null;
+    }
+
+    function activeEntry() {
+      const id = activeEntryId();
+      return id ? entryById(id) : null;
+    }
+
+    function updateActiveControls() {
+      const entry = activeEntry();
+      if (!entry) {
+        state.activeEntryId = null;
+        el.activeEntryLabel.textContent = "Active #---";
+        el.activeNote.value = "";
+        renderSectionControls(null);
+        updateReadingRail();
+        return;
+      }
+      const changed = state.activeEntryId !== entry.id;
+      state.activeEntryId = entry.id;
+      el.activeEntryLabel.textContent = `Active #${entry.id} ${entry.title || "Untitled"}`;
+      if (changed) {
+        el.activeNote.value = state.comments?.[entry.id] || "";
+      }
+      el.entryJump.value = entry.id;
+      renderSectionControls(entry.id);
+      updateReadingRail();
+    }
+
+    function renderSearchMenus() {
+      const opts = state.filtered.map((e) => `<option value="${escapeHtml(e.id)}">${escapeHtml(`#${e.id} ${e.title || "Untitled"}`)}</option>`).join("");
+      el.entryJump.innerHTML = opts;
+      const names = state.entries.map((e) => `<option value="${escapeHtml(e.title || "")}"></option>`).join("");
+      el.completionNames.innerHTML = names;
+      updateActiveControls();
+    }
+
+    function entryLines(entryId) {
+      const entry = entryById(entryId);
+      const text = (entry?.response?.raw || "").replace(/\r\n/g, "\n");
+      const lines = text.split("\n");
+      return lines.length ? lines : [""];
+    }
+
+    function isSectionHeading(line) {
+      const s = String(line || "").trim();
+      if (!s) return false;
+      if (/^#{1,6}\s+/.test(s)) return true;
+      if (/^<[^>]+>$/.test(s)) return true;
+      if (/^(\d+(\.\d+)*[.)]|[IVXLC]+\.)\s+/.test(s)) return true;
+      if (/^[A-Z0-9 _:/-]{4,}$/.test(s) && /[A-Z]{3}/.test(s)) return true;
+      if (s.endsWith(":") && s.length <= 90) return true;
+      return false;
+    }
+
+    function getSections(entryId) {
+      if (state.sectionMetaByEntry[entryId]) return state.sectionMetaByEntry[entryId];
+      const lines = entryLines(entryId);
+      const starts = [0];
+      for (let i = 1; i < lines.length; i++) {
+        const cur = String(lines[i] || "").trim();
+        if (!cur) continue;
+        const prev = String(lines[i - 1] || "").trim();
+        const prev2 = i > 1 ? String(lines[i - 2] || "").trim() : "";
+        if (isSectionHeading(cur) || (!prev && !prev2)) starts.push(i);
+      }
+      const uniqueStarts = [...new Set(starts)].sort((a, b) => a - b);
+      const sections = [];
+      const lineToSection = new Array(lines.length).fill(0);
+      for (let i = 0; i < uniqueStarts.length; i++) {
+        const start = uniqueStarts[i];
+        const end = i + 1 < uniqueStarts.length ? uniqueStarts[i + 1] - 1 : lines.length - 1;
+        const rawTitle = String(lines[start] || "").trim().replace(/^#{1,6}\s*/, "");
+        const title = rawTitle ? rawTitle.slice(0, 64) : `Section ${i + 1}`;
+        sections.push({ index: i, start, end, title });
+        for (let l = start; l <= end; l++) lineToSection[l] = i;
+      }
+      state.sectionMetaByEntry[entryId] = { sections, lineToSection };
+      return state.sectionMetaByEntry[entryId];
+    }
+
+    function renderSectionControls(entryId) {
+      if (!el.sectionJump || !el.selectSection) return;
+      if (!entryId) {
+        el.sectionJump.innerHTML = `<option value="">No section</option>`;
+        el.sectionJump.disabled = true;
+        el.selectSection.disabled = true;
+        return;
+      }
+
+      const meta = getSections(entryId);
+      const sections = meta.sections || [];
+      if (!sections.length) {
+        el.sectionJump.innerHTML = `<option value="">No section</option>`;
+        el.sectionJump.disabled = true;
+        el.selectSection.disabled = true;
+        return;
+      }
+
+      el.sectionJump.innerHTML = sections.map((s) => (
+        `<option value="${s.index}">S${s.index + 1} · L${s.start + 1}-${s.end + 1} · ${escapeHtml(s.title)}</option>`
+      )).join("");
+      el.sectionJump.disabled = false;
+      el.selectSection.disabled = false;
+      syncSectionJumpToLine(entryId, state.reading.entryId === entryId && state.reading.lineIndex >= 0 ? state.reading.lineIndex : (state.cursor.entryId === entryId ? state.cursor.lineIndex : 0));
+    }
+
+    function syncSectionJumpToLine(entryId, lineIndex) {
+      if (!el.sectionJump || el.sectionJump.disabled) return;
+      if (entryId !== activeEntryId()) return;
+      const meta = getSections(entryId);
+      const max = Math.max(0, meta.lineToSection.length - 1);
+      const safe = Math.max(0, Math.min(Number(lineIndex) || 0, max));
+      const idx = Number(meta.lineToSection[safe] ?? 0);
+      if (el.sectionJump.value !== String(idx)) {
+        el.sectionJump.value = String(idx);
+      }
+    }
+
+    function jumpToSection(entryId, sectionIndex, smooth = true) {
+      if (!entryId) return;
+      const meta = getSections(entryId);
+      const sections = meta.sections || [];
+      if (!sections.length) return;
+      const safe = Math.max(0, Math.min(Number(sectionIndex) || 0, sections.length - 1));
+      const sec = sections[safe];
+      setCursor(entryId, sec.start, true, true);
+      const node = el.list.querySelector(`.completion-line[data-entry-id="${entryId}"][data-line-index="${sec.start}"]`);
+      if (node) node.scrollIntoView({ block: "center", behavior: smooth ? "smooth" : "auto" });
+      syncSectionJumpToLine(entryId, sec.start);
+    }
+
+    function selectActiveSection() {
+      const entryId = activeEntryId();
+      if (!entryId || !el.sectionJump) return;
+      const meta = getSections(entryId);
+      const sections = meta.sections || [];
+      if (!sections.length) return;
+      const safe = Math.max(0, Math.min(Number(el.sectionJump.value) || 0, sections.length - 1));
+      const sec = sections[safe];
+      const picks = [];
+      for (let i = sec.start; i <= sec.end; i++) picks.push(i);
+      state.lineSelections[entryId] = picks;
+      updateEntrySelectionUI(entryId);
+      setCursor(entryId, sec.start, true, true);
+      setSpeakStatus(`Section ${safe + 1} selected · #${entryId} L${sec.start + 1}-${sec.end + 1}`);
+    }
+
+    function selectedLines(entryId) {
+      if (!Array.isArray(state.lineSelections[entryId])) {
+        state.lineSelections[entryId] = [];
+      }
+      return state.lineSelections[entryId];
+    }
+
+    function getLineMeta(entryId) {
+      if (state.lineMetaByEntry[entryId]) return state.lineMetaByEntry[entryId];
+      const lines = entryLines(entryId);
+      const starts = [];
+      let pos = 0;
+      lines.forEach((line) => {
+        starts.push(pos);
+        pos += line.length + 1;
+      });
+      state.lineMetaByEntry[entryId] = { lines, starts };
+      return state.lineMetaByEntry[entryId];
+    }
+
+    function charIndexToLine(entryId, charIndex) {
+      const meta = getLineMeta(entryId);
+      let lo = 0;
+      let hi = meta.starts.length - 1;
+      let out = 0;
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        if (meta.starts[mid] <= charIndex) {
+          out = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      return out;
+    }
+
+    function topBoundary() {
+      const top = document.querySelector(".top");
+      return top ? top.getBoundingClientRect().bottom + 6 : 6;
+    }
+
+    function bottomBoundary() {
+      return window.innerHeight - 18;
+    }
+
+    function keepReadingInView(node) {
+      if (!state.followTTS || !node) return;
+      const r = node.getBoundingClientRect();
+      const top = topBoundary();
+      const bottom = bottomBoundary();
+      const margin = 26;
+      if (r.top < top + margin || r.bottom > bottom - margin) {
+        const targetY = window.scrollY + r.top - top - 16;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: "auto" });
+      }
+    }
+
+    function estimateLineMs(line) {
+      const wc = String(line || "").trim().split(/\s+/).filter(Boolean).length;
+      return Math.max(450, Math.min(3200, 260 * Math.max(1, wc)));
+    }
+
+    function clearFallbackTicker() {
+      if (state.speaking?.fallbackTicker) {
+        window.clearInterval(state.speaking.fallbackTicker);
+        state.speaking.fallbackTicker = null;
+      }
+    }
+
+    function startFallbackTicker(entryId, safeStart, lines) {
+      clearFallbackTicker();
+      let idx = 0;
+      let nextAt = Date.now() + estimateLineMs(lines[0] || "");
+      state.speaking.boundarySeen = false;
+      state.speaking.fallbackTicker = window.setInterval(() => {
+        if (state.speaking.cancelled) return;
+        if (!("speechSynthesis" in window)) return;
+        if (window.speechSynthesis.paused || !window.speechSynthesis.speaking) return;
+        if (state.speaking.boundarySeen) return;
+        const max = Math.max(0, lines.length - 1);
+        if (idx >= max) return;
+        if (Date.now() < nextAt) return;
+        idx += 1;
+        setReadingLine(entryId, safeStart + idx);
+        nextAt = Date.now() + estimateLineMs(lines[idx] || "");
+      }, 140);
+    }
+
+    function findTopVisibleLine() {
+      const lines = Array.from(el.list.querySelectorAll(".completion-line"));
+      if (!lines.length) return null;
+      const top = topBoundary();
+      const bottom = bottomBoundary();
+      let best = null;
+      let bestDist = Number.POSITIVE_INFINITY;
+
+      lines.forEach((node) => {
+        const r = node.getBoundingClientRect();
+        if (r.bottom < top || r.top > bottom) return;
+        const entryId = node.getAttribute("data-entry-id");
+        const lineIndex = Number(node.getAttribute("data-line-index"));
+        const dist = Math.abs(r.top - top);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = { entryId, lineIndex };
+        }
+      });
+      return best;
+    }
+
+    function setCursor(entryId, lineIndex, quiet = false, setAnchor = true) {
+      if (!entryId || !Number.isFinite(lineIndex)) return;
+      const prev = state.cursor;
+      const safeLine = Math.max(0, lineIndex);
+      state.cursor = { entryId, lineIndex: safeLine };
+      if (setAnchor) {
+        state.playAnchor = { entryId, lineIndex: safeLine };
+      }
+      if (prev.entryId && prev.entryId !== entryId) updateEntrySelectionUI(prev.entryId);
+      updateEntrySelectionUI(entryId);
+      syncMinimapState();
+      updateActiveControls();
+      syncSectionJumpToLine(entryId, safeLine);
+      updateReadingRail();
+      if (!quiet) setSpeakStatus(`Start point #${entryId} L${safeLine + 1}`);
+    }
+
+    function resolveStartLineForEntry(entryId) {
+      if (state.cursor.entryId === entryId) return Math.max(0, state.cursor.lineIndex || 0);
+      const selected = selectedLines(entryId);
+      if (selected.length) return Math.max(0, Math.min(...selected));
+
+      const vis = findTopVisibleLine();
+      if (vis && vis.entryId === entryId) return Math.max(0, vis.lineIndex || 0);
+      return 0;
+    }
+
+    function resolveVisibleStartPoint() {
+      if (state.playAnchor?.entryId && state.filtered.some((e) => e.id === state.playAnchor.entryId)) {
+        const maxLine = Math.max(0, entryLines(state.playAnchor.entryId).length - 1);
+        return {
+          entryId: state.playAnchor.entryId,
+          lineIndex: Math.max(0, Math.min(Number(state.playAnchor.lineIndex || 0), maxLine)),
+        };
+      }
+      if (state.cursor.entryId && state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        return { entryId: state.cursor.entryId, lineIndex: Math.max(0, state.cursor.lineIndex || 0) };
+      }
+      const activeId = activeEntryId();
+      if (activeId && state.filtered.some((e) => e.id === activeId)) {
+        const selected = selectedLines(activeId);
+        if (selected.length) {
+          return { entryId: activeId, lineIndex: Math.max(0, Math.min(...selected)) };
+        }
+      }
+      const vis = findTopVisibleLine();
+      if (vis && state.filtered.some((e) => e.id === vis.entryId)) return vis;
+      const first = state.filtered[0];
+      return first ? { entryId: first.id, lineIndex: 0 } : null;
+    }
+
+    function completionLinesHtml(entryId) {
+      const lines = entryLines(entryId);
+      const selected = new Set(selectedLines(entryId));
+      const readingLine = state.reading.entryId === entryId ? state.reading.lineIndex : -1;
+      const cursorLine = state.cursor.entryId === entryId ? state.cursor.lineIndex : -1;
+      return lines.map((line, i) => `
+        <div class="completion-line${selected.has(i) ? " selected" : ""}${readingLine === i ? " reading" : ""}${cursorLine === i ? " cursor" : ""}" data-entry-id="${entryId}" data-line-index="${i}">
+          <input class="line-pick" type="checkbox" title="Select line" aria-label="Select line ${i + 1}" data-line-check="${entryId}:${i}" ${selected.has(i) ? "checked" : ""}>
+          <span class="line-no">${i + 1}</span>
+          <span class="line-txt">${line ? escapeHtml(line) : "&nbsp;"}</span>
+        </div>
+      `).join("");
+    }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+
+    function updateEntrySelectionUI(entryId) {
+      const root = el.list.querySelector(`article[data-id="${entryId}"]`);
+      if (!root) return;
+      const selected = new Set(selectedLines(entryId));
+      root.querySelectorAll(".completion-line").forEach((node) => {
+        const idx = Number(node.getAttribute("data-line-index"));
+        const isSelected = selected.has(idx);
+        node.classList.toggle("selected", isSelected);
+        node.classList.toggle("cursor", state.cursor.entryId === entryId && state.cursor.lineIndex === idx);
+        node.classList.toggle("reading", state.reading.entryId === entryId && state.reading.lineIndex === idx);
+        const checkbox = node.querySelector(`[data-line-check="${entryId}:${idx}"]`);
+        if (checkbox instanceof HTMLInputElement) checkbox.checked = isSelected;
+      });
+    }
+
+    function provenancePrefix(entry, lineLabel) {
+      const source = entry?.link ? ` | source: ${entry.link}` : "";
+      return `[heilig fragment | #${entry?.id || "?"} | ${entry?.title || "Untitled"} | lines: ${lineLabel}${source}]`;
+    }
+
+    function composeProvenanceFragment(entryId, lineIndexes) {
+      const entry = entryById(entryId);
+      if (!entry || !lineIndexes.length) return "";
+      const lines = entryLines(entryId);
+      const safeIdx = [...lineIndexes].sort((a, b) => a - b).filter((i) => i >= 0 && i < lines.length);
+      if (!safeIdx.length) return "";
+      const lineLabel = safeIdx.map((i) => i + 1).join(",");
+      const text = safeIdx.map((i) => lines[i] ?? "").join("\n");
+      return `${provenancePrefix(entry, lineLabel)}\n${text}\n`;
+    }
+
+    async function copySelectedLines(entryId, withFeedback = true) {
+      const idx = selectedLines(entryId);
+      const text = composeProvenanceFragment(entryId, idx);
+      if (!text) {
+        if (withFeedback) alert("No lines selected.");
+        return;
+      }
+      await copyToClipboard(text);
+    }
+
+    function splitJsonStream(raw) {
+      const chunks = [];
+      let start = null;
+      let depth = 0;
+      let inString = false;
+      let esc = false;
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (inString) {
+          if (esc) esc = false;
+          else if (ch === "\\") esc = true;
+          else if (ch === '"') inString = false;
+          continue;
+        }
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "{") {
+          if (depth === 0) start = i;
+          depth += 1;
+        } else if (ch === "}") {
+          if (depth > 0) depth -= 1;
+          if (depth === 0 && start !== null) {
+            chunks.push(raw.slice(start, i + 1));
+            start = null;
+          }
+        }
+      }
+      return chunks;
+    }
+
+    function extractPromptParts(prompt) {
+      const startRe = /\{+\s*#\s*From\s+Imagetext\s+to\s+Worldtext:\s+Generative\s+AI\s+as\s+Operative\s+Ekphrasis/i;
+      const endRe = /STANDING\s+RESERVE\s*}*/i;
+      const text = prompt || "";
+      const s = text.search(startRe);
+      if (s < 0) return { payload: text.trim() };
+      const tail = text.slice(s);
+      const em = tail.match(endRe);
+      let e = text.length;
+      if (em && Number.isFinite(em.index)) e = s + em.index + em[0].length;
+      return { payload: (text.slice(0, s) + text.slice(e)).trim() };
+    }
+
+    function parseRawToParsed(raw) {
+      const chunks = splitJsonStream(raw);
+      const entries = [];
+      let gid = 0;
+      for (const chunk of chunks) {
+        let obj;
+        try { obj = JSON.parse(chunk); } catch { continue; }
+        const messages = Array.isArray(obj.messages) ? obj.messages : [];
+        let pendingPrompt = null;
+        for (let i = 0; i < messages.length; i++) {
+          const m = messages[i] || {};
+          if (m.role === "Prompt") pendingPrompt = m.say || "";
+          if (m.role === "Response") {
+            gid += 1;
+            entries.push({
+              id: String(gid).padStart(3, "0"),
+              title: obj?.metadata?.title || "Untitled",
+              link: obj?.metadata?.link || "",
+              prompt: {
+                raw: pendingPrompt || "",
+                payload: extractPromptParts(pendingPrompt || "").payload || "",
+              },
+              response: { raw: m.say || "" },
+              conversation_index: entries.length + 1,
+            });
+            pendingPrompt = null;
+          }
+        }
+      }
+      return { entries };
+    }
+
+    function applyFilter() {
+      const q = normalize(el.search.value);
+      state.filtered = state.entries.filter((e) => {
+        if (!q) return true;
+        const hay = [e.id, e.title, e.response.raw, e.prompt.payload].join("\n").toLowerCase();
+        return hay.includes(q);
+      });
+      renderList();
+    }
+
+    function rowTemplate(entry) {
+      return `
+        <article class="entry" data-id="${entry.id}">
+          <div class="entry-head">
+            <div class="entry-id">#${entry.id}</div>
+            <h2 class="entry-title">${escapeHtml(entry.title || "Untitled")}</h2>
+            <div class="entry-meta">${escapeHtml((entry.response.raw || "").split(/\s+/).length + "w")}</div>
+          </div>
+          <div class="entry-body">
+            <div class="completion-lines">${completionLinesHtml(entry.id)}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderMinimap() {
+      if (!state.filtered.length) {
+        el.miniTrack.innerHTML = "";
+        el.minimap.style.display = "none";
+        return;
+      }
+      el.minimap.style.display = "flex";
+      const n = state.filtered.length;
+      const html = state.filtered.map((entry, i) => {
+        const topPct = n === 1 ? 1 : (i / (n - 1)) * 100;
+        const hasNote = Boolean((state.comments?.[entry.id] || "").trim());
+        return `<button class="mini-dot${hasNote ? " has-note" : ""}" data-mini-id="${entry.id}" style="top: calc(${topPct}% - 4px)" title="#${entry.id} ${escapeHtml(entry.title || "Untitled")}"></button>`;
+      }).join("");
+      el.miniTrack.innerHTML = html;
+      syncMinimapState();
+    }
+
+    function syncMinimapState() {
+      el.miniTrack.querySelectorAll(".mini-dot").forEach((dot) => {
+        const id = dot.getAttribute("data-mini-id");
+        dot.classList.toggle("reading", id === state.reading.entryId);
+        dot.classList.toggle("cursor", id === state.cursor.entryId);
+      });
+    }
+
+    function renderList() {
+      if (state.cursor.entryId && !state.filtered.some((e) => e.id === state.cursor.entryId)) {
+        state.cursor = { entryId: null, lineIndex: 0 };
+      }
+      if (state.reading.entryId && !state.filtered.some((e) => e.id === state.reading.entryId)) {
+        state.reading = { entryId: null, lineIndex: -1 };
+      }
+      el.count.textContent = `${state.filtered.length} entries`;
+      el.list.innerHTML = state.filtered.map(rowTemplate).join("");
+      renderMinimap();
+      renderSearchMenus();
+      updateStickyOffset();
+      updateReadingRail();
+    }
+
+    async function loadJsonCandidates(paths) {
+      const tried = [];
+      for (const path of paths) {
+        tried.push(path);
+        try {
+          const res = await fetch(path, { cache: "no-store" });
+          if (!res.ok) continue;
+          const data = await res.json();
+          return { data, path };
+        } catch {
+        }
+      }
+      throw new Error(`Could not load parsed JSON. Tried: ${tried.join(", ")}`);
+    }
+
+    async function loadDefault() {
+      const { data } = await loadJsonCandidates(DEFAULT_FILES);
+      state.data = data;
+      state.entries = (data.entries || []).map((e) => ({
+        ...e,
+        prompt: e.prompt || { payload: "", raw: "" },
+        response: e.response || { raw: "" },
+      }));
+      state.lineMetaByEntry = {};
+      state.sectionMetaByEntry = {};
+      state.lineSelections = {};
+      state.playAnchor = null;
+      state.cursor = { entryId: null, lineIndex: 0 };
+      state.reading = { entryId: null, lineIndex: -1 };
+      state.speaking = {
+        queue: [],
+        cancelled: false,
+        paused: false,
+        startLines: {},
+        boundarySeen: false,
+        fallbackTicker: null,
+      };
+      applyFilter();
+    }
+
+    function handleImport(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const txt = String(reader.result || "");
+          if (file.name.toLowerCase().endsWith(".json")) {
+            const data = JSON.parse(txt);
+            state.data = data;
+            state.entries = data.entries || [];
+          } else {
+            const parsed = parseRawToParsed(txt);
+            state.data = parsed;
+            state.entries = parsed.entries || [];
+          }
+          state.lineMetaByEntry = {};
+          state.sectionMetaByEntry = {};
+          state.lineSelections = {};
+          state.playAnchor = null;
+          state.cursor = { entryId: null, lineIndex: 0 };
+          state.reading = { entryId: null, lineIndex: -1 };
+          state.speaking = {
+            queue: [],
+            cancelled: false,
+            paused: false,
+            startLines: {},
+            boundarySeen: false,
+            fallbackTicker: null,
+          };
+          applyFilter();
+        } catch (err) {
+          alert("Import failed: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function setReadingLine(entryId, lineIndex) {
+      const prevEntryId = state.reading.entryId;
+      const prevLine = state.reading.lineIndex;
+      if (prevEntryId === entryId && prevLine === lineIndex) return;
+
+      if (prevEntryId != null) {
+        const prevNode = el.list.querySelector(`.completion-line.reading[data-entry-id="${prevEntryId}"][data-line-index="${prevLine}"]`);
+        if (prevNode) prevNode.classList.remove("reading");
+        updateEntrySelectionUI(prevEntryId);
+      }
+
+      state.reading = { entryId, lineIndex };
+      setCursor(entryId, lineIndex, true, false);
+      const node = el.list.querySelector(`.completion-line[data-entry-id="${entryId}"][data-line-index="${lineIndex}"]`);
+      if (node) {
+        node.classList.add("reading");
+        keepReadingInView(node);
+      }
+      const lines = entryLines(entryId);
+      const total = Math.max(1, lines.length);
+      const pct = Math.round(((lineIndex + 1) / total) * 100);
+      setSpeakStatus(`Reading #${entryId} line ${lineIndex + 1} of ${total} • ${pct}%`);
+      updateEntrySelectionUI(entryId);
+      syncMinimapState();
+      updateReadingRail();
+    }
+
+    function clearReadingLine() {
+      const prevEntryId = state.reading.entryId;
+      const prevLine = state.reading.lineIndex;
+      if (prevEntryId != null) {
+        const prevNode = el.list.querySelector(`.completion-line.reading[data-entry-id="${prevEntryId}"][data-line-index="${prevLine}"]`);
+        if (prevNode) prevNode.classList.remove("reading");
+        updateEntrySelectionUI(prevEntryId);
+      }
+      state.reading = { entryId: null, lineIndex: -1 };
+      if (!state.speaking.queue.length) setSpeakStatus("Idle");
+      syncMinimapState();
+      updateReadingRail();
+    }
+
+    function stopTTSPlayback() {
+      if (state.reading.entryId && Number.isFinite(state.reading.lineIndex) && state.reading.lineIndex >= 0) {
+        state.playAnchor = { entryId: state.reading.entryId, lineIndex: state.reading.lineIndex };
+      }
+      state.speaking.cancelled = true;
+      state.speaking.queue = [];
+      state.speaking.paused = false;
+      state.speaking.startLines = {};
+      clearFallbackTicker();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      clearReadingLine();
+      setSpeakStatus("Stopped");
+    }
+
+    function pauseResumeTTS() {
+      if (!("speechSynthesis" in window)) return;
+      const synth = window.speechSynthesis;
+      if (synth.paused) {
+        synth.resume();
+        state.speaking.paused = false;
+        setSpeakStatus("Resumed");
+        return;
+      }
+      if (synth.speaking) {
+        synth.pause();
+        state.speaking.paused = true;
+        setSpeakStatus("Paused");
+      }
+    }
+
+    function speakEntry(entry, onDone, startLine = 0) {
+      if (!("speechSynthesis" in window)) {
+        alert("TTS is not supported in this browser.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const entryId = entry?.id;
+      const lines = entryLines(entryId);
+      const safeStart = Math.max(0, Math.min(startLine, Math.max(0, lines.length - 1)));
+      const spokenText = lines.slice(safeStart).join("\n");
+      if (!spokenText.trim() || !entryId) {
+        if (onDone) onDone();
+        return;
+      }
+
+      const baseStartChar = getLineMeta(entryId).starts[safeStart] || 0;
+      setSpeakStatus(`#${entryId} · starting L${safeStart + 1}`);
+      setReadingLine(entryId, safeStart);
+      const utter = new SpeechSynthesisUtterance(spokenText);
+      utter.rate = state.ttsRate;
+      utter.pitch = 1;
+
+      utter.onstart = () => {
+        startFallbackTicker(entryId, safeStart, lines.slice(safeStart));
+      };
+
+      utter.onboundary = (ev) => {
+        state.speaking.boundarySeen = true;
+        if (typeof ev.charIndex !== "number") return;
+        const line = charIndexToLine(entryId, baseStartChar + ev.charIndex);
+        setReadingLine(entryId, line);
+      };
+
+      utter.onend = () => {
+        if (state.speaking.cancelled) return;
+        state.speaking.paused = false;
+        clearFallbackTicker();
+        if (onDone) onDone();
+        else {
+          clearReadingLine();
+          setSpeakStatus("Idle");
+        }
+      };
+
+      utter.onerror = () => {
+        state.speaking.paused = false;
+        clearFallbackTicker();
+        if (onDone) onDone();
+        else {
+          clearReadingLine();
+          setSpeakStatus("Error");
+        }
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    function speakNextFromQueue() {
+      if (state.speaking.cancelled) return;
+      const nextId = state.speaking.queue.shift();
+      if (!nextId) {
+        clearReadingLine();
+        setSpeakStatus("Done");
+        return;
+      }
+      const entry = entryById(nextId);
+      if (!entry) {
+        speakNextFromQueue();
+        return;
+      }
+      const startLine = Number(state.speaking.startLines[nextId] || 0);
+      speakEntry(entry, speakNextFromQueue, startLine);
+    }
+
+    function speakVisible() {
+      if (!state.filtered.length) return;
+      if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        state.speaking.paused = false;
+        setSpeakStatus("Resumed");
+        return;
+      }
+      const start = resolveVisibleStartPoint();
+      if (!start) return;
+      const startEntryIndex = state.filtered.findIndex((e) => e.id === start.entryId);
+      const safeStartEntry = startEntryIndex >= 0 ? startEntryIndex : 0;
+      state.speaking.cancelled = false;
+      state.speaking.paused = false;
+      state.speaking.queue = state.filtered.slice(safeStartEntry).map((e) => e.id);
+      state.speaking.startLines = {};
+      if (state.speaking.queue.length) {
+        state.speaking.startLines[state.speaking.queue[0]] = Math.max(0, start.lineIndex || 0);
+      }
+      setSpeakStatus(`Queue ${state.speaking.queue.length} from #${start.entryId} L${(start.lineIndex || 0) + 1}`);
+      speakNextFromQueue();
+    }
+
+    function downloadBlob(filename, content, mime = "application/json") {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadComments() {
+      const payload = {
+        exported_at: new Date().toISOString(),
+        count: Object.keys(state.comments || {}).length,
+        notes: state.comments || {}
+      };
+      downloadBlob("heilig-comments-all.json", JSON.stringify(payload, null, 2));
+    }
+
+    function exportSingleNote(entryId) {
+      const entry = entryById(entryId);
+      if (!entry) return;
+      const note = state.comments?.[entryId] || "";
+      const payload = {
+        exported_at: new Date().toISOString(),
+        id: entry.id,
+        title: entry.title || "Untitled",
+        link: entry.link || "",
+        note,
+        selected_lines: [...selectedLines(entryId)].sort((a, b) => a - b).map((i) => i + 1)
+      };
+      downloadBlob(`heilig-note-${entryId}.json`, JSON.stringify(payload, null, 2));
+    }
+
+    function saveActiveNote() {
+      const id = activeEntryId();
+      if (!id) return;
+      state.comments[id] = el.activeNote.value || "";
+      saveComments();
+      setSpeakStatus(`Note saved #${id}`);
+      renderMinimap();
+      updateActiveControls();
+    }
+
+    function clearActiveSelection() {
+      const id = activeEntryId();
+      if (!id) return;
+      state.lineSelections[id] = [];
+      updateEntrySelectionUI(id);
+      setSpeakStatus(`Cleared #${id}`);
+    }
+
+    function copyActiveEntry() {
+      const id = activeEntryId();
+      if (!id) return;
+      const row = entryById(id);
+      if (!row) return;
+      copyToClipboard(`${provenancePrefix(row, "all")}\n${row.response.raw || ""}\n`).catch(() => {});
+      setSpeakStatus(`Copied entry #${id}`);
+    }
+
+    function copyActiveSelected() {
+      const id = activeEntryId();
+      if (!id) return;
+      copySelectedLines(id, true).catch(() => {
+        alert("Copy failed.");
+      });
+      setSpeakStatus(`Copied selection #${id}`);
+    }
+
+    function copyQuick() {
+      const id = activeEntryId();
+      if (!id) return;
+      if (selectedLines(id).length > 0) {
+        copyActiveSelected();
+        return;
+      }
+      copyActiveEntry();
+    }
+
+    function jumpToEntry(id) {
+      if (!id) return;
+      const card = el.list.querySelector(`article[data-id="${id}"]`);
+      if (!card) return;
+      card.scrollIntoView({ block: "start", behavior: "smooth" });
+      setCursor(id, 0, false);
+      updateActiveControls();
+    }
+
+    function bindEvents() {
+      el.search.addEventListener("input", applyFilter);
+      el.search.addEventListener("change", () => {
+        const q = (el.search.value || "").trim().toLowerCase();
+        if (!q) return;
+        const hit = state.entries.find((e) => (e.title || "").toLowerCase() === q || String(e.id) === q.replace(/^#/, ""));
+        if (hit) {
+          jumpToEntry(hit.id);
+        }
+      });
+      el.themeToggle.addEventListener("click", () => {
+        const next = document.body.dataset.theme === "light" ? "dark" : "light";
+        applyTheme(next);
+      });
+      el.loadDefault.addEventListener("click", () => loadDefault().catch((e) => alert(e.message)));
+      el.fileInput.addEventListener("change", (e) => {
+        const f = e.target.files?.[0];
+        if (f) handleImport(f);
+        e.target.value = "";
+      });
+      el.entryJump.addEventListener("change", () => jumpToEntry(el.entryJump.value));
+      el.sectionJump?.addEventListener("change", () => {
+        const entryId = activeEntryId();
+        if (!entryId) return;
+        jumpToSection(entryId, el.sectionJump.value, true);
+      });
+      el.selectSection?.addEventListener("click", () => {
+        selectActiveSection();
+      });
+      el.activeNote.addEventListener("change", saveActiveNote);
+      el.activeNote.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          saveActiveNote();
+        }
+      });
+      el.saveActiveNote.addEventListener("click", saveActiveNote);
+
+      el.list.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+
+        const lineNode = t.closest(".completion-line");
+
+        if (t.closest("[data-line-check]")) {
+          return;
+        }
+
+        if (lineNode) {
+          const entryId = lineNode.getAttribute("data-entry-id");
+          const lineIndex = Number(lineNode.getAttribute("data-line-index"));
+          setCursor(entryId, lineIndex);
+          const sel = new Set(selectedLines(entryId));
+          if (sel.has(lineIndex)) sel.delete(lineIndex);
+          else sel.add(lineIndex);
+          state.lineSelections[entryId] = [...sel].sort((a, b) => a - b);
+          updateEntrySelectionUI(entryId);
+          return;
+        }
+      });
+
+      el.list.addEventListener("change", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const lineCheck = t.getAttribute("data-line-check");
+        if (!lineCheck) return;
+        if (!(t instanceof HTMLInputElement)) return;
+        const [entryId, idx] = String(lineCheck).split(":");
+        const lineIndex = Number(idx);
+        setCursor(entryId, lineIndex);
+        const sel = new Set(selectedLines(entryId));
+        if (t.checked) sel.add(lineIndex);
+        else sel.delete(lineIndex);
+        state.lineSelections[entryId] = [...sel].sort((a, b) => a - b);
+        updateEntrySelectionUI(entryId);
+      });
+
+      el.speakVisible.addEventListener("click", speakVisible);
+      el.pauseTTS.addEventListener("click", pauseResumeTTS);
+      el.stopTTS.addEventListener("click", stopTTSPlayback);
+      el.copyQuick.addEventListener("click", copyQuick);
+      el.menuToggle?.addEventListener("click", () => {
+        if (!el.toolsPanel) return;
+        el.toolsPanel.open = !el.toolsPanel.open;
+        updateStickyOffset();
+      });
+      el.rateBtn.addEventListener("click", cycleRate);
+      el.speedRow?.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const rate = Number(t.getAttribute("data-rate"));
+        if (!Number.isFinite(rate)) return;
+        setRate(rate, true);
+      });
+      el.followTTS.addEventListener("click", () => {
+        state.followTTS = !state.followTTS;
+        el.followTTS.textContent = state.followTTS ? "Follow On" : "Follow Off";
+        setSpeakStatus(state.followTTS ? "Follow On" : "Follow Off");
+      });
+      el.copySelectedActive.addEventListener("click", copyActiveSelected);
+      el.copyEntryActive.addEventListener("click", copyActiveEntry);
+      el.clearSelectedActive.addEventListener("click", clearActiveSelection);
+      el.exportNoteActive.addEventListener("click", () => {
+        const id = activeEntryId();
+        if (!id) return;
+        exportSingleNote(id);
+      });
+      el.downloadComments.addEventListener("click", downloadComments);
+
+      el.miniTrack.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        const id = t.getAttribute("data-mini-id");
+        if (!id) return;
+        jumpToEntry(id);
+      });
+
+      window.addEventListener("resize", () => updateStickyOffset());
+      el.toolsPanel?.addEventListener("toggle", () => updateStickyOffset());
+      document.addEventListener("pointerdown", (e) => {
+        if (!el.toolsPanel?.open) return;
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+        if (t.closest("#toolsPanel") || t.closest(".top")) return;
+        el.toolsPanel.open = false;
+        updateStickyOffset();
+      });
+    }
+
+    function boot() {
+      loadTheme();
+      loadComments();
+      loadRate();
+      bindEvents();
+      if (el.toolsPanel) el.toolsPanel.open = false;
+      updateStickyOffset();
+      setSpeakStatus("Tap line then Play");
+      loadDefault().catch(() => {
+        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">HEILIG.parsed.json</span> (or import a file).</p></div></article>`;
+      });
+    }
+
+    boot();
+  </script>
+</body>
+</html>
