@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WorldText Completions Reader</title>
+  <title>Asclepius Completions Reader</title>
   <style>
     :root {
       --top-height: 68px;
@@ -559,7 +559,7 @@
 <body>
   <header class="top">
     <div class="title">
-      <h1>WorldText Completions</h1>
+      <h1>Asclepius Completions</h1>
       <div class="title-right">
         <div id="speakStatus" class="tracker" aria-live="polite">Tap line then play</div>
         <div class="count" id="count">0 entries</div>
@@ -617,9 +617,9 @@
     <section id="list" class="list"></section>
     <nav class="footer-nav" aria-label="Quick navigation">
       <a href="index.html">Index</a>
-      <a href="worldtext-zen-reader.html">Zen Reader</a>
-      <a href="worldtext-completions-mobile.html">Completions</a>
-      <a href="worldtext-prompt-operator.html">Operator</a>
+      <a href="asclepius-zen-reader.html">Zen Reader</a>
+      <a href="asclepius-completions-mobile.html">Completions</a>
+      <a href="asclepius-prompt-operator.html">Operator</a>
     </nav>
   </main>
 
@@ -636,14 +636,14 @@
 
   <script>
     const DEFAULT_FILES = [
-      "WORLD-TEXT-DOUBLE.parsed.json",
-      "WORLD-TEXT-DOUBLE.aprses.json",
-      "world-text-double.parsed.json",
-      "world-text-double-aprses.json"
+      "ASCLEPIUS-ROD.parsed.json",
+      "ASCLEPIUS.parsed.json",
+      "asclepius-rod.parsed.json",
+      "asclepius.parsed.json"
     ];
-    const COMMENT_KEY = "worldtext-comments-v1";
-    const THEME_KEY = "worldtext-completions-theme-v1";
-    const RATE_KEY = "worldtext-completions-rate-v1";
+    const COMMENT_KEY = "asclepius-comments-v1";
+    const THEME_KEY = "asclepius-completions-theme-v1";
+    const RATE_KEY = "asclepius-completions-rate-v1";
     const RATE_PRESETS = [1, 1.15, 1.25, 1.5, 1.75, 2, 2.5];
 
     const state = {
@@ -1192,7 +1192,7 @@
 
     function provenancePrefix(entry, lineLabel) {
       const source = entry?.link ? ` | source: ${entry.link}` : "";
-      return `[worldtext fragment | #${entry?.id || "?"} | ${entry?.title || "Untitled"} | lines: ${lineLabel}${source}]`;
+      return `[asclepius fragment | #${entry?.id || "?"} | ${entry?.title || "Untitled"} | lines: ${lineLabel}${source}]`;
     }
 
     function composeProvenanceFragment(entryId, lineIndexes) {
@@ -1624,7 +1624,7 @@
         count: Object.keys(state.comments || {}).length,
         notes: state.comments || {}
       };
-      downloadBlob("worldtext-comments-all.json", JSON.stringify(payload, null, 2));
+      downloadBlob("asclepius-comments-all.json", JSON.stringify(payload, null, 2));
     }
 
     function exportSingleNote(entryId) {
@@ -1639,7 +1639,7 @@
         note,
         selected_lines: [...selectedLines(entryId)].sort((a, b) => a - b).map((i) => i + 1)
       };
-      downloadBlob(`worldtext-note-${entryId}.json`, JSON.stringify(payload, null, 2));
+      downloadBlob(`asclepius-note-${entryId}.json`, JSON.stringify(payload, null, 2));
     }
 
     function saveActiveNote() {
@@ -1835,7 +1835,7 @@
       updateStickyOffset();
       setSpeakStatus("Tap line then Play");
       loadDefault().catch(() => {
-        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">WORLD-TEXT-DOUBLE.parsed.json</span> (or import a file).</p></div></article>`;
+        el.list.innerHTML = `<article class="entry"><div class="entry-body"><p class="line-txt">Load <span class=\"mono\">ASCLEPIUS-ROD.parsed.json</span> (or import a file).</p></div></article>`;
       });
     }
 

@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asclepius Zen Reader</title>
+  <style>
+    :root {
+      --paper: #f3efe7;
+      --ink: #121212;
+      --muted: #575247;
+      --line: #1d1d1d;
+      --red: #d64024;
+      --blue: #1542a7;
+      --yellow: #f6bf3a;
+      --card: rgba(255, 253, 249, 0.94);
+      --ok: #18703b;
+      --warn: #9b2f1e;
+      --radius: 16px;
+      --shadow: 0 16px 38px rgba(0, 0, 0, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(246, 191, 58, 0.18), transparent 42%),
+        radial-gradient(circle at 88% 14%, rgba(21, 66, 167, 0.13), transparent 38%),
+        linear-gradient(130deg, #f7f3eb 0%, #ece4d8 52%, #efe8dd 100%);
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(18, 18, 18, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 18, 18, 0.045) 1px, transparent 1px);
+      background-size: 18px 18px;
+      mix-blend-mode: multiply;
+      opacity: 0.26;
+    }
+
+    .app {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 14px 12px 116px;
+      position: relative;
+      z-index: 1;
+      animation: rise 360ms ease-out;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(120deg, rgba(255, 253, 249, 0.94), rgba(255, 253, 249, 0.84));
+      box-shadow: var(--shadow);
+      padding: 14px 14px 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(214, 64, 36, 0.2), transparent 68%);
+      right: -38px;
+      top: -50px;
+      pointer-events: none;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      font-size: clamp(1.08rem, 3.9vw, 1.45rem);
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      line-height: 1.06;
+    }
+
+    .subline {
+      margin: 4px 0 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      max-width: 70ch;
+    }
+
+    .quick-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .quick-nav a {
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      text-decoration: none;
+      color: var(--ink);
+      background: #fff;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.62rem;
+      font-weight: 800;
+    }
+
+    .quick-nav a:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .stat {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 7px 6px;
+      text-align: center;
+      background: rgba(255, 252, 247, 0.9);
+    }
+
+    .stat b {
+      display: block;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+    }
+
+    .stat span {
+      font-size: 0.66rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .toolbar {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .toolbar-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    details#advancedTools {
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    details#advancedTools > summary {
+      cursor: pointer;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    select,
+    textarea,
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 0.87rem;
+      color: var(--ink);
+      background: #fffdf9;
+    }
+
+    .btn-row {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    button, .file-label {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 10px;
+      font: inherit;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      text-align: center;
+    }
+
+    button:active,
+    .file-label:active {
+      transform: translateY(1px) scale(0.995);
+    }
+
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .btn-yellow { background: var(--yellow); color: #171717; }
+
+    .file-label input { display: none; }
+
+    .deck {
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .ribbon {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+      background: linear-gradient(90deg, rgba(246, 191, 58, 0.26), rgba(255, 255, 255, 0));
+      border-bottom: 2px solid var(--line);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .ribbon button {
+      padding: 7px 10px;
+      min-width: fit-content;
+      font-size: 0.68rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .ribbon button[aria-pressed="true"] {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .card {
+      padding: 12px 12px 14px;
+      touch-action: pan-y;
+      user-select: none;
+      will-change: transform;
+      transition: transform 140ms ease;
+    }
+
+    .card.swiping {
+      transition: none;
+    }
+
+    .eyebrow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      font-size: 0.7rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .title {
+      margin: 0 0 6px;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      font-size: clamp(0.98rem, 3.5vw, 1.18rem);
+      line-height: 1.16;
+      letter-spacing: 0.02em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.66rem;
+      background: #fff;
+      color: var(--ink);
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .pane {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fffdf9;
+      min-height: 220px;
+      max-height: min(58vh, 560px);
+      overflow: auto;
+      white-space: pre-wrap;
+      line-height: 1.48;
+      font-size: 0.92rem;
+    }
+
+    .pane-empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .entry-actions {
+      margin-top: 8px;
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grade-box,
+    .compare-box {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .grade-row {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grade-row .verdict {
+      min-height: 44px;
+    }
+
+    .verdict[data-active="true"] {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .score-grid {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .compare-columns {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr;
+    }
+
+    .compare-card {
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+      background: #fff;
+      display: grid;
+      gap: 6px;
+    }
+
+    .compare-card h3 {
+      margin: 0;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      font-family: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+      text-transform: uppercase;
+    }
+
+    .compare-body {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      white-space: pre-wrap;
+      max-height: 220px;
+      overflow: auto;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      background: #fffdf8;
+    }
+
+    .footerbar {
+      position: fixed;
+      inset: auto 0 0;
+      background: rgba(19, 19, 19, 0.95);
+      border-top: 2px solid #111;
+      z-index: 6;
+      backdrop-filter: blur(5px);
+    }
+
+    .footerbar .inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 8px 10px;
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .footerbar button {
+      border-color: #f2efe7;
+      background: transparent;
+      color: #f2efe7;
+      padding: 8px 6px;
+      font-size: 0.66rem;
+    }
+
+    .hint {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 2px;
+      text-underline-offset: 2px;
+    }
+
+    @media (min-width: 760px) {
+      .toolbar-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .compare-columns { grid-template-columns: 1fr 1fr; }
+      .entry-actions { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .grade-row { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+      .footerbar .inner { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Asclepius Zen Reader</h1>
+      <p class="subline">Completions first. Swipe to grade. Open Advanced only when you need compare, export, or source diagnostics.</p>
+      <nav class="quick-nav" aria-label="Quick navigation">
+        <a href="index.html">Index</a>
+        <a href="asclepius-completions-mobile.html">Completions</a>
+        <a href="asclepius-zen-reader.html">Zen</a>
+        <a href="asclepius-prompt-operator.html">Operator</a>
+      </nav>
+      <div class="stats" id="stats"></div>
+    </section>
+
+    <section class="toolbar">
+      <div class="toolbar-grid single">
+        <input id="search" type="text" placeholder="Filter completions and prompts">
+      </div>
+      <div class="btn-row">
+        <button id="loadDefault" class="btn-blue">Load Parsed JSON</button>
+        <label class="file-label btn-yellow">Import Raw/JSON<input id="fileInput" type="file" accept=".md,.txt,.json"></label>
+      </div>
+      <details id="advancedTools">
+        <summary>Advanced Controls</summary>
+        <div class="toolbar-grid">
+          <select id="baseFilter">
+            <option value="all">All Base Types</option>
+            <option value="canonical">Canonical Base</option>
+            <option value="variant">Variant Base</option>
+            <option value="none">Followup / No Base</option>
+          </select>
+          <select id="verdictFilter">
+            <option value="all">All Verdicts</option>
+            <option value="canonize">Canonize</option>
+            <option value="hold">Hold</option>
+            <option value="subtract">Subtract</option>
+          </select>
+          <input id="jump" type="number" min="1" step="1" placeholder="Jump #">
+          <button id="toggleComparePanel">Toggle Compare</button>
+        </div>
+      </details>
+      <p class="hint">Swipe right = canonize, left = subtract. Completion text is the default pane.</p>
+    </section>
+
+    <section class="deck" id="deck" hidden>
+      <div class="ribbon" id="paneNav">
+        <button data-pane="response" aria-pressed="true">Completion</button>
+        <button data-pane="payload" aria-pressed="false">Payload Prompt</button>
+        <button data-pane="rawPrompt" aria-pressed="false">Raw Prompt</button>
+        <button data-pane="canonical" aria-pressed="false">Canonical Source</button>
+        <button data-pane="json" aria-pressed="false">Entry JSON</button>
+      </div>
+      <article class="card" id="card">
+        <div class="eyebrow">
+          <span id="progress">0 / 0</span>
+          <span class="badge" id="baseBadge">BASE</span>
+        </div>
+        <h2 class="title" id="entryTitle"></h2>
+        <div class="meta" id="meta"></div>
+        <pre class="pane" id="pane"></pre>
+        <div class="entry-actions">
+          <button id="copyPane">Copy Pane</button>
+          <button id="copyPayload">Copy Payload</button>
+          <button id="copyResponse">Copy Response</button>
+          <button id="downloadEntry">Download Entry</button>
+          <button id="setCompareA">Set Compare A</button>
+          <button id="setCompareB">Set Compare B</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="grade-box" id="gradeBox" hidden>
+      <strong>Grade Current Entry</strong>
+      <div class="grade-row">
+        <button class="verdict btn-blue" data-verdict="canonize">Canonize</button>
+        <button class="verdict" data-verdict="hold">Hold</button>
+        <button class="verdict btn-red" data-verdict="subtract">Subtract</button>
+      </div>
+      <div class="score-grid">
+        <label>Clarity
+          <input id="scoreClarity" type="range" min="1" max="5" value="3">
+        </label>
+        <label>Force
+          <input id="scoreForce" type="range" min="1" max="5" value="3">
+        </label>
+        <label>Novelty
+          <input id="scoreNovelty" type="range" min="1" max="5" value="3">
+        </label>
+      </div>
+      <textarea id="gradeNotes" rows="3" placeholder="Notes"></textarea>
+      <div class="btn-row">
+        <button id="saveGrade">Save Grade</button>
+        <button id="clearGrade">Clear Grade</button>
+      </div>
+    </section>
+
+    <section class="compare-box" id="compareBox" hidden>
+      <strong>Compare (Xanadu Mode)</strong>
+      <div class="btn-row">
+        <button id="swapCompare">Swap A/B</button>
+        <button id="copyCompare">Copy Compare</button>
+      </div>
+      <div class="compare-columns">
+        <article class="compare-card">
+          <h3 id="compareATitle">Slot A</h3>
+          <div class="compare-body" id="compareABody"></div>
+        </article>
+        <article class="compare-card">
+          <h3 id="compareBTitle">Slot B</h3>
+          <div class="compare-body" id="compareBBody"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="toolbar" id="exportTools" hidden>
+      <strong>Download / Export</strong>
+      <div class="btn-row">
+        <button id="downloadParsed">Download Parsed JSON</button>
+        <button id="downloadGrades">Download Grades JSON</button>
+      </div>
+      <div class="btn-row">
+        <button id="downloadGradesCsv">Download Grades CSV</button>
+        <button id="copyCanonical">Copy Canonical Source</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="footerbar" id="footer" hidden>
+    <div class="inner">
+      <button id="prevBtn">Prev</button>
+      <button id="nextBtn">Next</button>
+      <button id="holdBtn">Hold</button>
+      <button id="canonBtn">Canonize</button>
+      <button id="subtractBtn">Subtract</button>
+      <button id="toggleCompare">Compare</button>
+      <button id="saveAndNext">Save+Next</button>
+      <button id="randomBtn">Random</button>
+    </div>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = "asclepius-grades-v1";
+    const DEFAULT_PATHS = [
+      "ASCLEPIUS-ROD.parsed.json",
+      "ASCLEPIUS.parsed.json",
+      "asclepius-rod.parsed.json",
+      "asclepius.aprses.json"
+    ];
+
+    const state = {
+      parsed: null,
+      filteredEntries: [],
+      currentIndex: 0,
+      pane: "response",
+      grades: {},
+      compareA: null,
+      compareB: null,
+      showCompare: false,
+      drag: { active: false, startX: 0, dx: 0 }
+    };
+
+    const el = {
+      stats: document.getElementById("stats"),
+      search: document.getElementById("search"),
+      baseFilter: document.getElementById("baseFilter"),
+      verdictFilter: document.getElementById("verdictFilter"),
+      jump: document.getElementById("jump"),
+      advancedTools: document.getElementById("advancedTools"),
+      toggleComparePanel: document.getElementById("toggleComparePanel"),
+      loadDefault: document.getElementById("loadDefault"),
+      fileInput: document.getElementById("fileInput"),
+      deck: document.getElementById("deck"),
+      card: document.getElementById("card"),
+      progress: document.getElementById("progress"),
+      baseBadge: document.getElementById("baseBadge"),
+      entryTitle: document.getElementById("entryTitle"),
+      meta: document.getElementById("meta"),
+      pane: document.getElementById("pane"),
+      paneNav: document.getElementById("paneNav"),
+      gradeBox: document.getElementById("gradeBox"),
+      compareBox: document.getElementById("compareBox"),
+      exportTools: document.getElementById("exportTools"),
+      footer: document.getElementById("footer"),
+      copyPane: document.getElementById("copyPane"),
+      copyPayload: document.getElementById("copyPayload"),
+      copyResponse: document.getElementById("copyResponse"),
+      copyCanonical: document.getElementById("copyCanonical"),
+      downloadEntry: document.getElementById("downloadEntry"),
+      setCompareA: document.getElementById("setCompareA"),
+      setCompareB: document.getElementById("setCompareB"),
+      compareATitle: document.getElementById("compareATitle"),
+      compareABody: document.getElementById("compareABody"),
+      compareBTitle: document.getElementById("compareBTitle"),
+      compareBBody: document.getElementById("compareBBody"),
+      swapCompare: document.getElementById("swapCompare"),
+      copyCompare: document.getElementById("copyCompare"),
+      scoreClarity: document.getElementById("scoreClarity"),
+      scoreForce: document.getElementById("scoreForce"),
+      scoreNovelty: document.getElementById("scoreNovelty"),
+      gradeNotes: document.getElementById("gradeNotes"),
+      saveGrade: document.getElementById("saveGrade"),
+      clearGrade: document.getElementById("clearGrade"),
+      prevBtn: document.getElementById("prevBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      holdBtn: document.getElementById("holdBtn"),
+      canonBtn: document.getElementById("canonBtn"),
+      subtractBtn: document.getElementById("subtractBtn"),
+      toggleCompare: document.getElementById("toggleCompare"),
+      saveAndNext: document.getElementById("saveAndNext"),
+      randomBtn: document.getElementById("randomBtn"),
+      downloadParsed: document.getElementById("downloadParsed"),
+      downloadGrades: document.getElementById("downloadGrades"),
+      downloadGradesCsv: document.getElementById("downloadGradesCsv")
+    };
+
+    function normalizeText(value) {
+      return (value || "").trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
+    function wordCount(text) {
+      const m = (text || "").match(/\S+/g);
+      return m ? m.length : 0;
+    }
+
+    function splitJsonStream(raw) {
+      const chunks = [];
+      let start = null;
+      let depth = 0;
+      let inString = false;
+      let escape = false;
+
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (inString) {
+          if (escape) {
+            escape = false;
+          } else if (ch === "\\") {
+            escape = true;
+          } else if (ch === '"') {
+            inString = false;
+          }
+          continue;
+        }
+        if (ch === '"') {
+          inString = true;
+          continue;
+        }
+        if (ch === "{") {
+          if (depth === 0) start = i;
+          depth += 1;
+          continue;
+        }
+        if (ch === "}") {
+          if (depth === 0) continue;
+          depth -= 1;
+          if (depth === 0 && start !== null) {
+            chunks.push(raw.slice(start, i + 1));
+            start = null;
+          }
+        }
+      }
+      return chunks;
+    }
+
+    function extractPromptParts(prompt) {
+      const startRe = /\{+\s*#\s*From\s+Imagetext\s+to\s+Worldtext:\s+Generative\s+AI\s+as\s+Operative\s+Ekphrasis/i;
+      const endRe = /STANDING\s+RESERVE\s*}*/i;
+      const text = prompt || "";
+      const start = text.search(startRe);
+      if (start < 0) {
+        return { baseBlock: null, baseNorm: null, payload: text.trim() };
+      }
+      const tail = text.slice(start);
+      const endMatch = tail.match(endRe);
+      let end = text.length;
+      if (endMatch && Number.isFinite(endMatch.index)) {
+        end = start + endMatch.index + endMatch[0].length;
+      } else {
+        const marker = tail.search(/\n\s{0,8}You\s+are\b/i);
+        if (marker >= 0) end = start + marker;
+      }
+      const baseBlock = text.slice(start, end).trim();
+      const payload = (text.slice(0, start) + text.slice(end)).trim();
+      return { baseBlock, baseNorm: normalizeText(baseBlock), payload };
+    }
+
+    function pairMessages(messages) {
+      const out = [];
+      let pending = null;
+      for (let i = 0; i < messages.length; i++) {
+        const msg = messages[i] || {};
+        if (msg.role === "Prompt") {
+          if (pending) out.push({ prompt: pending.msg, response: null, promptIndex: pending.index, responseIndex: null });
+          pending = { msg, index: i };
+        } else if (msg.role === "Response") {
+          if (!pending) {
+            out.push({ prompt: null, response: msg, promptIndex: null, responseIndex: i });
+          } else {
+            out.push({ prompt: pending.msg, response: msg, promptIndex: pending.index, responseIndex: i });
+            pending = null;
+          }
+        }
+      }
+      if (pending) out.push({ prompt: pending.msg, response: null, promptIndex: pending.index, responseIndex: null });
+      return out;
+    }
+
+    function parseRawExport(raw) {
+      const chunks = splitJsonStream(raw);
+      const conversations = [];
+      const rawPairs = [];
+
+      chunks.forEach((chunk, cIndex) => {
+        let obj = null;
+        try {
+          obj = JSON.parse(chunk);
+        } catch {
+          return;
+        }
+        const metadata = obj.metadata || {};
+        const messages = Array.isArray(obj.messages) ? obj.messages : [];
+        const promptCount = messages.filter((m) => m && m.role === "Prompt").length;
+        const responseCount = messages.filter((m) => m && m.role === "Response").length;
+
+        conversations.push({
+          conversation_index: cIndex + 1,
+          title: metadata.title || "Untitled",
+          link: metadata.link || "",
+          created: (metadata.dates || {}).created || "",
+          updated: (metadata.dates || {}).updated || "",
+          exported: (metadata.dates || {}).exported || "",
+          message_count: messages.length,
+          prompt_count: promptCount,
+          response_count: responseCount
+        });
+
+        const pairs = pairMessages(messages);
+        pairs.forEach((pair, pIndex) => {
+          rawPairs.push({
+            conv_index: cIndex + 1,
+            pair_index: pIndex + 1,
+            metadata,
+            prompt_index: pair.promptIndex,
+            response_index: pair.responseIndex,
+            prompt_text: (pair.prompt || {}).say || "",
+            response_text: (pair.response || {}).say || ""
+          });
+        });
+      });
+
+      const extracted = rawPairs.map((p) => extractPromptParts(p.prompt_text));
+      const counts = new Map();
+      extracted.forEach((e) => {
+        if (!e.baseNorm || e.baseNorm.length < 200) return;
+        counts.set(e.baseNorm, (counts.get(e.baseNorm) || 0) + 1);
+      });
+
+      let canonicalNorm = null;
+      let canonicalCount = 0;
+      [...counts.entries()].forEach(([k, v]) => {
+        if (v > canonicalCount || (v === canonicalCount && k.length > (canonicalNorm || "").length)) {
+          canonicalNorm = k;
+          canonicalCount = v;
+        }
+      });
+
+      let canonicalText = "";
+      for (const e of extracted) {
+        if (canonicalNorm && e.baseNorm === canonicalNorm && e.baseBlock) {
+          canonicalText = e.baseBlock;
+          break;
+        }
+      }
+
+      const entries = rawPairs.map((pair, idx) => {
+        const ext = extracted[idx];
+        const baseKind = !ext.baseBlock ? "none" : ext.baseNorm === canonicalNorm ? "canonical" : "variant";
+        const responseRaw = pair.response_text || "";
+        return {
+          id: String(idx + 1).padStart(3, "0"),
+          global_index: idx + 1,
+          conversation_index: pair.conv_index,
+          pair_index: pair.pair_index,
+          title: pair.metadata.title || "Untitled",
+          link: pair.metadata.link || "",
+          dates: pair.metadata.dates || {},
+          prompt_message_index: pair.prompt_index,
+          response_message_index: pair.response_index,
+          prompt: {
+            raw: pair.prompt_text,
+            payload: ext.payload,
+            base_kind: baseKind,
+            base_block: ext.baseBlock,
+            word_count_raw: wordCount(pair.prompt_text),
+            word_count_payload: wordCount(ext.payload),
+            is_followup: !ext.baseBlock
+          },
+          response: {
+            raw: responseRaw,
+            word_count: wordCount(responseRaw),
+            thought_seconds: (responseRaw.match(/^\s*Thought\s+for\s+(\d+)s/i) || [])[1] || null,
+            preview: responseRaw.slice(0, 280).trim()
+          }
+        };
+      });
+
+      return {
+        generated_at: new Date().toISOString(),
+        conversations,
+        canonical_base: {
+          norm: canonicalNorm,
+          occurrences: canonicalCount,
+          text: canonicalText,
+          word_count: wordCount(canonicalText)
+        },
+        stats: {
+          conversation_count: conversations.length,
+          entry_count: entries.length,
+          canonical_base_occurrences: canonicalCount,
+          entries_with_any_base: entries.filter((e) => e.prompt.base_kind !== "none").length,
+          followup_only_entries: entries.filter((e) => e.prompt.is_followup).length
+        },
+        entries
+      };
+    }
+
+    function saveGrades() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.grades));
+    }
+
+    function loadGrades() {
+      try {
+        state.grades = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {};
+      } catch {
+        state.grades = {};
+      }
+    }
+
+    function activeEntries() {
+      return state.filteredEntries;
+    }
+
+    function currentEntry() {
+      const rows = activeEntries();
+      return rows[state.currentIndex] || null;
+    }
+
+    function setStats() {
+      if (!state.parsed) {
+        el.stats.innerHTML = "";
+        return;
+      }
+      const s = state.parsed.stats || {};
+      const graded = Object.keys(state.grades).length;
+      const cards = [
+        [s.entry_count || 0, "Entries"],
+        [s.canonical_base_occurrences || 0, "Canonical"],
+        [s.followup_only_entries || 0, "Followups"],
+        [graded, "Graded"]
+      ];
+      el.stats.innerHTML = cards.map(([n, l]) => `<div class=\"stat\"><b>${n}</b><span>${l}</span></div>`).join("");
+    }
+
+    function applyFilters() {
+      if (!state.parsed) {
+        state.filteredEntries = [];
+        state.currentIndex = 0;
+        return;
+      }
+      const q = el.search.value.trim().toLowerCase();
+      const baseKind = el.baseFilter.value;
+      const verdict = el.verdictFilter.value;
+
+      state.filteredEntries = state.parsed.entries.filter((entry) => {
+        if (baseKind !== "all" && entry.prompt.base_kind !== baseKind) return false;
+        const g = state.grades[entry.id] || {};
+        if (verdict !== "all" && (g.verdict || "") !== verdict) return false;
+        if (!q) return true;
+        const hay = [entry.title, entry.prompt.payload, entry.response.raw].join("\n").toLowerCase();
+        return hay.includes(q);
+      });
+
+      if (state.currentIndex >= state.filteredEntries.length) {
+        state.currentIndex = Math.max(0, state.filteredEntries.length - 1);
+      }
+      render();
+    }
+
+    function renderMeta(entry) {
+      const chips = [];
+      chips.push(`<span class=\"chip\">Conv ${entry.conversation_index}</span>`);
+      chips.push(`<span class=\"chip\">Pair ${entry.pair_index}</span>`);
+      chips.push(`<span class=\"chip\">${entry.prompt.word_count_payload}w payload</span>`);
+      chips.push(`<span class=\"chip\">${entry.response.word_count}w response</span>`);
+      if (entry.link) chips.push(`<a class=\"chip\" href=\"${entry.link}\" target=\"_blank\" rel=\"noreferrer\">source link</a>`);
+      return chips.join("");
+    }
+
+    function paneText(entry) {
+      if (!entry) return "";
+      if (state.pane === "payload") return entry.prompt.payload || "(No payload extracted)";
+      if (state.pane === "response") return entry.response.raw || "(No response)";
+      if (state.pane === "rawPrompt") return entry.prompt.raw || "(No prompt)";
+      if (state.pane === "canonical") return state.parsed?.canonical_base?.text || "(No canonical source found)";
+      if (state.pane === "json") return JSON.stringify(entry, null, 2);
+      return "";
+    }
+
+    function renderGrade(entry) {
+      const g = state.grades[entry.id] || { verdict: "hold", clarity: 3, force: 3, novelty: 3, notes: "" };
+      el.scoreClarity.value = g.clarity || 3;
+      el.scoreForce.value = g.force || 3;
+      el.scoreNovelty.value = g.novelty || 3;
+      el.gradeNotes.value = g.notes || "";
+      document.querySelectorAll(".verdict").forEach((b) => {
+        b.dataset.active = String(b.dataset.verdict === (g.verdict || "hold"));
+      });
+    }
+
+    function renderCompareSlot(slot, entry) {
+      if (!entry) {
+        slot.title.textContent = slot.label;
+        slot.body.textContent = "Empty slot";
+        return;
+      }
+      const grade = state.grades[entry.id] || {};
+      slot.title.textContent = `${slot.label} #${entry.id} · ${entry.title || "Untitled"}`;
+      slot.body.textContent = [
+        `Verdict: ${grade.verdict || "(none)"}`,
+        `Scores: C${grade.clarity || 3} / F${grade.force || 3} / N${grade.novelty || 3}`,
+        "",
+        "Payload:",
+        entry.prompt.payload || "(none)",
+        "",
+        "Response:",
+        entry.response.raw || "(none)"
+      ].join("\n");
+    }
+
+    function renderCompare() {
+      const a = state.parsed?.entries?.find((x) => x.id === state.compareA) || null;
+      const b = state.parsed?.entries?.find((x) => x.id === state.compareB) || null;
+      renderCompareSlot({ label: "Slot A", title: el.compareATitle, body: el.compareABody }, a);
+      renderCompareSlot({ label: "Slot B", title: el.compareBTitle, body: el.compareBBody }, b);
+    }
+
+    function render() {
+      const rows = activeEntries();
+      const entry = currentEntry();
+      setStats();
+
+      const hasData = !!entry;
+      const showAdvanced = !!el.advancedTools?.open;
+      el.deck.hidden = !hasData;
+      el.gradeBox.hidden = !hasData || !showAdvanced;
+      el.exportTools.hidden = !state.parsed || !showAdvanced;
+      el.footer.hidden = !hasData;
+      el.compareBox.hidden = !state.showCompare || !showAdvanced;
+
+      if (!hasData) {
+        el.entryTitle.textContent = state.parsed ? "No entries match current filter" : "Load a parsed dataset";
+        el.meta.innerHTML = "";
+        el.pane.textContent = "";
+        el.progress.textContent = `0 / ${rows.length}`;
+        return;
+      }
+
+      el.progress.textContent = `${state.currentIndex + 1} / ${rows.length}`;
+      el.baseBadge.textContent = entry.prompt.base_kind.toUpperCase();
+      el.baseBadge.style.background =
+        entry.prompt.base_kind === "canonical" ? "#e5f7e9" : entry.prompt.base_kind === "variant" ? "#fff2d5" : "#f7e6e4";
+
+      el.entryTitle.textContent = `${entry.id} · ${entry.title || "Untitled"}`;
+      el.meta.innerHTML = renderMeta(entry);
+
+      const text = paneText(entry);
+      el.pane.textContent = text || "";
+      el.pane.classList.toggle("pane-empty", !text);
+
+      document.querySelectorAll("#paneNav button").forEach((btn) => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.pane === state.pane));
+      });
+
+      renderGrade(entry);
+      renderCompare();
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text || "").catch(() => {});
+    }
+
+    function downloadBlob(filename, content, mime = "application/json") {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function move(delta) {
+      const rows = activeEntries();
+      if (!rows.length) return;
+      state.currentIndex = (state.currentIndex + delta + rows.length) % rows.length;
+      render();
+    }
+
+    function jumpTo(index1Based) {
+      const rows = activeEntries();
+      if (!rows.length) return;
+      const idx = Math.max(1, Math.min(rows.length, Number(index1Based) || 1)) - 1;
+      state.currentIndex = idx;
+      render();
+    }
+
+    function setVerdict(verdict, moveNext = false) {
+      const entry = currentEntry();
+      if (!entry) return;
+      const existing = state.grades[entry.id] || {};
+      state.grades[entry.id] = {
+        ...existing,
+        verdict,
+        clarity: Number(el.scoreClarity.value),
+        force: Number(el.scoreForce.value),
+        novelty: Number(el.scoreNovelty.value),
+        notes: el.gradeNotes.value || "",
+        updated_at: new Date().toISOString(),
+      };
+      saveGrades();
+      render();
+      if (moveNext) move(1);
+    }
+
+    function saveCurrentGrade() {
+      const entry = currentEntry();
+      if (!entry) return;
+      const verdictBtn = [...document.querySelectorAll(".verdict")].find((b) => b.dataset.active === "true");
+      const verdict = verdictBtn ? verdictBtn.dataset.verdict : (state.grades[entry.id]?.verdict || "hold");
+      state.grades[entry.id] = {
+        verdict,
+        clarity: Number(el.scoreClarity.value),
+        force: Number(el.scoreForce.value),
+        novelty: Number(el.scoreNovelty.value),
+        notes: el.gradeNotes.value || "",
+        updated_at: new Date().toISOString(),
+      };
+      saveGrades();
+      render();
+    }
+
+    function clearCurrentGrade() {
+      const entry = currentEntry();
+      if (!entry) return;
+      delete state.grades[entry.id];
+      saveGrades();
+      render();
+    }
+
+    function gradesCsv() {
+      const header = ["entry_id", "verdict", "clarity", "force", "novelty", "notes", "updated_at"];
+      const rows = [header.join(",")];
+      Object.entries(state.grades).forEach(([id, g]) => {
+        const line = [
+          id,
+          g.verdict || "",
+          g.clarity || "",
+          g.force || "",
+          g.novelty || "",
+          JSON.stringify(g.notes || ""),
+          g.updated_at || ""
+        ];
+        rows.push(line.join(","));
+      });
+      return rows.join("\n");
+    }
+
+    async function loadDefaultDataset() {
+      const tried = [];
+      for (const path of DEFAULT_PATHS) {
+        tried.push(path);
+        try {
+          const res = await fetch(path, { cache: "no-store" });
+          if (!res.ok) continue;
+          const parsed = await res.json();
+          state.parsed = parsed;
+          applyFilters();
+          return;
+        } catch {
+        }
+      }
+      throw new Error(`Failed to load parsed JSON. Tried: ${tried.join(", ")}`);
+    }
+
+    function initWithParsed(parsed) {
+      state.parsed = parsed;
+      state.currentIndex = 0;
+      applyFilters();
+    }
+
+    function handleFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const text = String(reader.result || "");
+          if (file.name.toLowerCase().endsWith(".json")) {
+            initWithParsed(JSON.parse(text));
+          } else {
+            initWithParsed(parseRawExport(text));
+          }
+        } catch (err) {
+          alert(`Failed to parse file: ${err.message}`);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function setupSwipe() {
+      const card = el.card;
+
+      const onDown = (clientX) => {
+        state.drag.active = true;
+        state.drag.startX = clientX;
+        state.drag.dx = 0;
+        card.classList.add("swiping");
+      };
+
+      const onMove = (clientX) => {
+        if (!state.drag.active) return;
+        state.drag.dx = clientX - state.drag.startX;
+        const rotate = state.drag.dx / 36;
+        card.style.transform = `translateX(${state.drag.dx}px) rotate(${rotate}deg)`;
+      };
+
+      const onUp = () => {
+        if (!state.drag.active) return;
+        state.drag.active = false;
+        const threshold = 92;
+        const dx = state.drag.dx;
+        card.classList.remove("swiping");
+        card.style.transform = "";
+
+        if (dx > threshold) {
+          setVerdict("canonize", true);
+        } else if (dx < -threshold) {
+          setVerdict("subtract", true);
+        }
+      };
+
+      card.addEventListener("touchstart", (e) => onDown(e.touches[0].clientX), { passive: true });
+      card.addEventListener("touchmove", (e) => onMove(e.touches[0].clientX), { passive: true });
+      card.addEventListener("touchend", onUp);
+      card.addEventListener("mousedown", (e) => onDown(e.clientX));
+      window.addEventListener("mousemove", (e) => onMove(e.clientX));
+      window.addEventListener("mouseup", onUp);
+    }
+
+    function wireEvents() {
+      el.loadDefault.addEventListener("click", async () => {
+        try {
+          await loadDefaultDataset();
+        } catch (err) {
+          alert(`${err.message}. Import file manually.`);
+        }
+      });
+
+      el.fileInput.addEventListener("change", (e) => {
+        handleFile(e.target.files?.[0]);
+        e.target.value = "";
+      });
+
+      [el.search, el.baseFilter, el.verdictFilter].forEach((node) => {
+        node.addEventListener("input", applyFilters);
+      });
+
+      el.jump.addEventListener("change", () => jumpTo(el.jump.value));
+      el.advancedTools.addEventListener("toggle", render);
+      el.toggleComparePanel.addEventListener("click", () => {
+        state.showCompare = !state.showCompare;
+        render();
+      });
+
+      el.paneNav.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-pane]");
+        if (!btn) return;
+        state.pane = btn.dataset.pane;
+        render();
+      });
+
+      el.copyPane.addEventListener("click", () => copyText(el.pane.textContent));
+      el.copyPayload.addEventListener("click", () => copyText(currentEntry()?.prompt?.payload || ""));
+      el.copyResponse.addEventListener("click", () => copyText(currentEntry()?.response?.raw || ""));
+      el.copyCanonical.addEventListener("click", () => copyText(state.parsed?.canonical_base?.text || ""));
+
+      el.downloadEntry.addEventListener("click", () => {
+        const entry = currentEntry();
+        if (!entry) return;
+        downloadBlob(`asclepius-entry-${entry.id}.json`, JSON.stringify(entry, null, 2));
+      });
+
+      el.downloadParsed.addEventListener("click", () => {
+        if (!state.parsed) return;
+        downloadBlob("ASCLEPIUS-ROD.parsed.export.json", JSON.stringify(state.parsed, null, 2));
+      });
+
+      el.downloadGrades.addEventListener("click", () => {
+        downloadBlob("ASCLEPIUS-ROD.grades.json", JSON.stringify(state.grades, null, 2));
+      });
+
+      el.downloadGradesCsv.addEventListener("click", () => {
+        downloadBlob("ASCLEPIUS-ROD.grades.csv", gradesCsv(), "text/csv;charset=utf-8");
+      });
+
+      el.setCompareA.addEventListener("click", () => {
+        const entry = currentEntry();
+        if (!entry) return;
+        state.compareA = entry.id;
+        state.showCompare = true;
+        render();
+      });
+
+      el.setCompareB.addEventListener("click", () => {
+        const entry = currentEntry();
+        if (!entry) return;
+        state.compareB = entry.id;
+        state.showCompare = true;
+        render();
+      });
+
+      el.swapCompare.addEventListener("click", () => {
+        const tmp = state.compareA;
+        state.compareA = state.compareB;
+        state.compareB = tmp;
+        render();
+      });
+
+      el.copyCompare.addEventListener("click", () => {
+        const a = state.parsed?.entries?.find((x) => x.id === state.compareA);
+        const b = state.parsed?.entries?.find((x) => x.id === state.compareB);
+        copyText(JSON.stringify({ a, b }, null, 2));
+      });
+
+      document.querySelectorAll(".verdict").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".verdict").forEach((b) => b.dataset.active = "false");
+          btn.dataset.active = "true";
+        });
+      });
+
+      el.saveGrade.addEventListener("click", saveCurrentGrade);
+      el.clearGrade.addEventListener("click", clearCurrentGrade);
+
+      el.prevBtn.addEventListener("click", () => move(-1));
+      el.nextBtn.addEventListener("click", () => move(1));
+      el.holdBtn.addEventListener("click", () => setVerdict("hold", true));
+      el.canonBtn.addEventListener("click", () => setVerdict("canonize", true));
+      el.subtractBtn.addEventListener("click", () => setVerdict("subtract", true));
+      el.saveAndNext.addEventListener("click", () => { saveCurrentGrade(); move(1); });
+      el.randomBtn.addEventListener("click", () => {
+        const rows = activeEntries();
+        if (!rows.length) return;
+        state.currentIndex = Math.floor(Math.random() * rows.length);
+        render();
+      });
+      el.toggleCompare.addEventListener("click", () => {
+        state.showCompare = !state.showCompare;
+        render();
+      });
+    }
+
+    async function boot() {
+      loadGrades();
+      wireEvents();
+      setupSwipe();
+      render();
+      try {
+        await loadDefaultDataset();
+      } catch {
+        // Manual import fallback.
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

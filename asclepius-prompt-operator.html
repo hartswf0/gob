@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asclepius Operator</title>
+  <style>
+    :root {
+      --bg: #eeebe4;
+      --panel: #f8f5ef;
+      --ink: #14171e;
+      --muted: #5f6570;
+      --line: #b8b1a4;
+      --primary: #0f1522;
+      --ok: #0d7750;
+      --radius: 12px;
+
+      --tone-short: #d7efdf;
+      --tone-mid: #dbe8ff;
+      --tone-long: #f8ebd1;
+      --tone-xl: #eaddff;
+
+      --tok-tag: #2f56d0;
+      --tok-attr: #a33458;
+      --tok-string: #0d7c4f;
+      --tok-comment: #6c7385;
+      --tok-angle: #8a90a0;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+      line-height: 1.35;
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pane {
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .prompt-pane {
+      position: sticky;
+      top: 6px;
+      z-index: 40;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .prompt-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 2px solid var(--line);
+      background: #fff;
+    }
+
+    .active-id {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.9rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .active-label {
+      margin-top: 2px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .btn {
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      min-height: 38px;
+      padding: 0 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.66rem;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      min-width: 112px;
+    }
+
+    .btn.ok {
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+
+    .prompt-text {
+      overflow: auto;
+      min-height: 38vh;
+      max-height: 48vh;
+      background: #fff;
+      border-top: 0;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.76rem;
+      line-height: 1.46;
+      color: #1a2236;
+      user-select: text;
+      -webkit-user-select: text;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .sline {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: 0;
+      border-bottom: 1px solid #f3f2ef;
+    }
+
+    .sline:last-child { border-bottom: none; }
+
+    .ln {
+      color: #8b90a0;
+      background: #f8f8fb;
+      border-right: 1px solid #eceaf0;
+      text-align: right;
+      padding: 3px 8px 3px 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .lc {
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 3px 10px;
+      min-height: 1.35em;
+    }
+
+    .tok-angle { color: var(--tok-angle); }
+    .tok-tag { color: var(--tok-tag); font-weight: 700; }
+    .tok-attr { color: var(--tok-attr); }
+    .tok-string { color: var(--tok-string); }
+    .tok-comment { color: var(--tok-comment); font-style: italic; }
+
+    .menu-head {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 2px solid var(--line);
+      background: #fff;
+    }
+
+    .menu-title {
+      margin: 0;
+      font-size: 0.96rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .menu-count {
+      justify-self: end;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .menu-actions {
+      padding: 8px;
+      border-bottom: 2px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      background: var(--panel);
+    }
+
+    .dial {
+      padding: 8px;
+      border-bottom: 2px solid var(--line);
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      background: #f2eee6;
+    }
+
+    .dial-btn {
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      min-height: 46px;
+      padding: 4px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      gap: 2px;
+      text-align: center;
+    }
+
+    .dial-btn.active {
+      border-color: var(--primary);
+      box-shadow: inset 0 0 0 2px var(--primary);
+      background: #edf3ff;
+    }
+
+    .dial-num {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.76rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .dial-tag {
+      font-size: 0.54rem;
+      color: var(--muted);
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .rows {
+      max-height: 42vh;
+      overflow: auto;
+      background: #fff;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 7px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+
+    .row:last-child { border-bottom: none; }
+    .row.active { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+    .row.short { background: var(--tone-short); }
+    .row.mid { background: var(--tone-mid); }
+    .row.long { background: var(--tone-long); }
+    .row.xl { background: var(--tone-xl); }
+
+    .rid {
+      min-width: 56px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 3px 7px;
+      background: #fff;
+      text-align: center;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+
+    .rlabel {
+      margin: 0 0 2px;
+      font-size: 0.78rem;
+      line-height: 1.2;
+    }
+
+    .rmeta {
+      font-size: 0.58rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .menu-foot {
+      border-top: 2px solid var(--line);
+      padding: 7px 8px;
+      background: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .menu-foot a {
+      text-decoration: none;
+      color: var(--muted);
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%) translateY(12px);
+      background: #111;
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.74rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 80;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 980px) {
+      .workspace {
+        grid-template-columns: 390px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .menu-pane {
+        order: 1;
+        position: sticky;
+        top: 10px;
+      }
+
+      .prompt-pane {
+        order: 2;
+        top: 10px;
+      }
+
+      .prompt-text {
+        min-height: calc(100vh - 152px);
+        max-height: calc(100vh - 152px);
+      }
+
+      .rows {
+        max-height: calc(100vh - 278px);
+      }
+    }
+
+    @media (max-width: 620px) {
+      .menu-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dial { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .shell { padding: 8px; }
+      .btn.primary { min-width: 92px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="workspace">
+      <section class="pane prompt-pane" aria-label="Prompt text">
+        <div class="prompt-head">
+          <div>
+            <div id="activeId" class="active-id">T---</div>
+            <div id="activeLabel" class="active-label">Loading templates...</div>
+          </div>
+          <button id="copyCurrent" class="btn primary" type="button">Copy Whole</button>
+        </div>
+
+        <div id="promptText" class="prompt-text" role="region" aria-label="Current prompt source"></div>
+      </section>
+
+      <section class="pane menu-pane" aria-label="Operator menu">
+        <div class="menu-head">
+          <h1 class="menu-title">Asclepius Operator</h1>
+          <div id="count" class="menu-count">0 / 0</div>
+        </div>
+
+        <div class="menu-actions">
+          <button id="prevBtn" class="btn" type="button">Prev</button>
+          <button id="nextBtn" class="btn" type="button">Next</button>
+        </div>
+
+        <div id="dial" class="dial"></div>
+        <div id="rows" class="rows"></div>
+
+        <div class="menu-foot" aria-label="Navigation">
+          <a href="index.html">Index</a>
+          <a href="asclepius-completions-mobile.html">Completions</a>
+          <a href="asclepius-zen-reader.html">Zen</a>
+          <a href="asclepius-prompt-operator.html">Asclepius Operator</a>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const DEFAULT_FILE = 'ASCLEPIUS-ROD.templates.json';
+
+    const state = {
+      templates: [],
+      filtered: [],
+      active: null,
+      syntaxCache: new Map(),
+    };
+
+    const el = {
+      count: document.getElementById('count'),
+      activeId: document.getElementById('activeId'),
+      activeLabel: document.getElementById('activeLabel'),
+      promptText: document.getElementById('promptText'),
+      copyCurrent: document.getElementById('copyCurrent'),
+      prevBtn: document.getElementById('prevBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      dial: document.getElementById('dial'),
+      rows: document.getElementById('rows'),
+      toast: document.getElementById('toast'),
+    };
+
+    function showToast(msg) {
+      el.toast.textContent = msg;
+      el.toast.classList.add('show');
+      clearTimeout(showToast.t);
+      showToast.t = setTimeout(() => el.toast.classList.remove('show'), 1200);
+    }
+
+    async function copyText(text, label = 'Copied') {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        showToast(label);
+      } catch {
+        showToast('Copy failed');
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function activeTemplate() {
+      if (!state.filtered.length || state.active == null) return null;
+      return state.filtered[state.active] || null;
+    }
+
+    function bucket(t) {
+      const w = Number(t.word_count || 0);
+      if (w < 450) return { key: 'short' };
+      if (w < 700) return { key: 'mid' };
+      if (w < 1000) return { key: 'long' };
+      return { key: 'xl' };
+    }
+
+    function makeTemplateTag(label) {
+      const stop = new Set([
+        'a', 'an', 'and', 'as', 'at', 'based', 'by', 'for', 'from',
+        'in', 'into', 'of', 'on', 'or', 'the', 'to', 'with'
+      ]);
+
+      const words = String(label || '')
+        .replace(/[^a-zA-Z0-9\\s]/g, ' ')
+        .split(/\\s+/)
+        .filter(Boolean)
+        .filter((w) => !stop.has(w.toLowerCase()));
+
+      if (!words.length) return 'TAG';
+      if (words.length === 1) return words[0].slice(0, 4).toUpperCase();
+
+      const acronym = words.slice(0, 4).map((w) => w[0]).join('').toUpperCase();
+      return acronym || words[0].slice(0, 4).toUpperCase();
+    }
+
+    function highlightTagAttrs(inner) {
+      return inner.replace(/([a-zA-Z_:][\w:.-]*)(=)(&quot;.*?&quot;|&#39;.*?&#39;)/g, (_m, name, eq, val) => {
+        return `<span class="tok-attr">${name}</span>${eq}<span class="tok-string">${val}</span>`;
+      });
+    }
+
+    function highlightLine(line) {
+      const escaped = escapeHtml(line);
+      const withComments = escaped.replace(/(&lt;!--.*?--&gt;)/g, '<span class="tok-comment">$1</span>');
+
+      return withComments.replace(/(&lt;\/?)([a-zA-Z_][\w:.-]*)([^&]*?)(\/??&gt;)/g, (_m, open, tag, rest, close) => {
+        const attrs = highlightTagAttrs(rest);
+        return `<span class="tok-angle">${open}</span><span class="tok-tag">${tag}</span>${attrs}<span class="tok-angle">${close}</span>`;
+      });
+    }
+
+    function renderSyntaxHtml(templateId, text) {
+      const cacheKey = `${templateId}:${text.length}`;
+      const cached = state.syntaxCache.get(cacheKey);
+      if (cached) return cached;
+
+      const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+      const html = lines.map((line, i) => {
+        const body = line.length ? highlightLine(line) : '&nbsp;';
+        return `<div class="sline"><span class="ln">${i + 1}</span><span class="lc">${body}</span></div>`;
+      }).join('');
+
+      state.syntaxCache.set(cacheKey, html);
+      if (state.syntaxCache.size > 2000) {
+        state.syntaxCache.clear();
+      }
+      return html;
+    }
+
+    function renderCount() {
+      el.count.textContent = `${state.filtered.length} / ${state.templates.length}`;
+    }
+
+    function renderPrompt() {
+      const cur = activeTemplate();
+      if (!cur) {
+        el.activeId.textContent = 'T---';
+        el.activeLabel.textContent = 'No templates loaded.';
+        el.promptText.innerHTML = '';
+        return;
+      }
+
+      el.activeId.textContent = cur.template_id;
+      el.activeLabel.textContent = cur.label;
+      el.promptText.innerHTML = renderSyntaxHtml(cur.template_id, cur.template || '');
+    }
+
+    function renderDialRows() {
+      if (!state.filtered.length) {
+        el.dial.innerHTML = '';
+        el.rows.innerHTML = '<div class="row"><div><p class="rlabel">No templates found.</p></div></div>';
+        return;
+      }
+
+      el.dial.innerHTML = state.filtered.map((t, i) => {
+        const b = bucket(t);
+        return `
+          <button class="dial-btn ${i === state.active ? 'active' : ''}" data-dial="${i}" type="button">
+            <span class="dial-num">${t.template_id.replace('T', '')}</span>
+            <span class="dial-tag">${t.tag}</span>
+          </button>
+        `;
+      }).join('');
+
+      el.rows.innerHTML = state.filtered.map((t, i) => {
+        const b = bucket(t);
+        return `
+          <div class="row ${b.key} ${i === state.active ? 'active' : ''}" data-open="${i}">
+            <div class="rid">${t.template_id}</div>
+            <div>
+              <p class="rlabel">${escapeHtml(t.label)}</p>
+              <div class="rmeta">${t.word_count} words · ${t.tag}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function markActive(index, on) {
+      const d = el.dial.querySelector(`[data-dial="${index}"]`);
+      if (d) d.classList.toggle('active', on);
+      const r = el.rows.querySelector(`[data-open="${index}"]`);
+      if (r) r.classList.toggle('active', on);
+    }
+
+    function setActive(index, options = {}) {
+      const { scroll = false } = options;
+      if (!state.filtered.length) return;
+
+      const max = state.filtered.length - 1;
+      const next = Math.max(0, Math.min(index, max));
+      const prev = state.active;
+
+      if (prev != null && prev !== next) {
+        markActive(prev, false);
+      }
+      state.active = next;
+      markActive(next, true);
+      renderPrompt();
+
+      if (scroll) {
+        const row = el.rows.querySelector(`[data-open="${next}"]`);
+        if (row) row.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function loadTemplatesPayload(payload) {
+      const templates = Array.isArray(payload?.templates) ? payload.templates : [];
+
+      state.templates = templates.map((t) => ({
+        template_id: t.template_id || '',
+        label: t.label || t.template_id || 'Template',
+        template: t.template || '',
+        tag: makeTemplateTag(t.label || t.template_id || 'Template'),
+        word_count: t.word_count || (String(t.template || '').trim().split(/\s+/).filter(Boolean).length),
+      }));
+
+      state.filtered = state.templates;
+      state.active = state.filtered.length ? 0 : null;
+
+      renderCount();
+      renderDialRows();
+      renderPrompt();
+    }
+
+    async function loadDefault() {
+      const res = await fetch(DEFAULT_FILE, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Could not load template file');
+      const data = await res.json();
+      loadTemplatesPayload(data);
+      showToast(`Loaded ${state.templates.length} templates`);
+    }
+
+    function copyCurrent() {
+      const cur = activeTemplate();
+      if (!cur) return;
+      copyText(cur.template.trim() + '\n', `${cur.template_id} copied`);
+    }
+
+    function move(delta) {
+      if (!state.filtered.length || state.active == null) return;
+      const next = (state.active + delta + state.filtered.length) % state.filtered.length;
+      setActive(next, { scroll: true });
+    }
+
+    function bindEvents() {
+      el.copyCurrent.addEventListener('click', copyCurrent);
+
+      el.prevBtn.addEventListener('click', () => move(-1));
+      el.nextBtn.addEventListener('click', () => move(1));
+
+      el.dial.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-dial]');
+        if (!target) return;
+        const idx = Number(target.getAttribute('data-dial'));
+        setActive(idx, { scroll: true });
+      });
+
+      el.rows.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const row = target.closest('[data-open]');
+        if (row instanceof HTMLElement) {
+          const idx = Number(row.getAttribute('data-open'));
+          setActive(idx, { scroll: false });
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (!state.filtered.length) return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') move(1);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') move(-1);
+        if (e.key === 'Enter') copyCurrent();
+      });
+    }
+
+    function boot() {
+      bindEvents();
+      loadDefault().catch(() => {
+        renderCount();
+        renderDialRows();
+        renderPrompt();
+        showToast('Load failed');
+      });
+    }
+
+    boot();
+  </script>
+</body>
+</html>

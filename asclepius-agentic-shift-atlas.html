@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asclepius Agentic Shift Atlas</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --paper: #ffffff;
+      --ink: #151a24;
+      --muted: #5f687a;
+      --line: #d8dfec;
+      --accent: #0b7a57;
+      --accent-2: #2145b5;
+      --warn: #9d243f;
+      --shadow: 0 10px 24px rgba(21, 26, 36, 0.08);
+      --radius: 14px;
+      --mono: "SF Mono", "Menlo", "Consolas", monospace;
+      --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      --sans: "Avenir Next", "Inter", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 8%, #ffffff 0%, rgba(255,255,255,0) 42%),
+        radial-gradient(circle at 88% 14%, rgba(33, 69, 181, 0.08), rgba(33,69,181,0) 40%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 12px 44px;
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(11,122,87,0.08), rgba(33,69,181,0.08));
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.4rem, 2.9vw, 2rem);
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 78ch;
+    }
+
+    .meta-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip,
+    a.chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .chip.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .mode-bar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .mode-btn {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--muted);
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .mode-btn[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: color-mix(in oklab, var(--accent), white 90%);
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    section.block {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .kicker {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.25;
+    }
+
+    p {
+      margin: 8px 0 0;
+    }
+
+    .lede {
+      font-size: 1.04rem;
+      font-weight: 600;
+    }
+
+    .warn {
+      color: var(--warn);
+      font-weight: 700;
+    }
+
+    .split {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr;
+      margin-top: 8px;
+    }
+
+    .tile {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px;
+      background: #fcfdff;
+    }
+
+    .tile code {
+      font-family: var(--mono);
+      font-size: 0.84em;
+      background: rgba(33, 69, 181, 0.08);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+
+    .op-grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .op-card {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 10px;
+      background: #fcfdff;
+    }
+
+    .op-id {
+      font-family: var(--mono);
+      color: var(--accent-2);
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .op-rule {
+      margin-top: 6px;
+      border-left: 3px solid var(--accent);
+      padding-left: 8px;
+      color: var(--ink);
+      font-size: 0.93rem;
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li + li {
+      margin-top: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      padding: 8px;
+    }
+
+    th {
+      background: #f3f6ff;
+      font-weight: 700;
+    }
+
+    .quote {
+      margin-top: 8px;
+      border-left: 3px solid var(--accent-2);
+      padding: 6px 0 6px 10px;
+      color: #2b3140;
+      font-style: italic;
+    }
+
+    details {
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fcfdff;
+      overflow: clip;
+    }
+
+    summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      color: var(--accent-2);
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .details-body {
+      padding: 10px;
+      font-size: 0.95rem;
+    }
+
+    .foot {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hidden-mode {
+      display: none !important;
+    }
+
+    @media (min-width: 820px) {
+      .split {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .op-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 740px) {
+      .mode-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <h1>Asclepius: Agentic Shift Atlas</h1>
+      <p>A sorted field manual from your full corpus. This page separates command doctrine, operational procedure, technical architecture, and critical counterweights so leadership, product, and clinical teams can act from one coherent structure.</p>
+      <div class="meta-row">
+        <a class="chip primary" href="index.html">Index</a>
+        <a class="chip" href="#mandate">Mandate</a>
+        <a class="chip" href="#procedure">Procedure</a>
+        <a class="chip" href="#agents">Agents</a>
+        <a class="chip" href="#governance">Governance</a>
+        <a class="chip" href="#appendix">Appendix</a>
+      </div>
+    </header>
+
+    <nav class="mode-bar" aria-label="View mode">
+      <button class="mode-btn" data-mode="all" aria-pressed="true">All</button>
+      <button class="mode-btn" data-mode="board" aria-pressed="false">Board</button>
+      <button class="mode-btn" data-mode="ops" aria-pressed="false">Operator</button>
+      <button class="mode-btn" data-mode="tech" aria-pressed="false">Technical</button>
+      <button class="mode-btn" data-mode="critical" aria-pressed="false">Critical</button>
+    </nav>
+
+    <div class="grid" id="grid">
+      <section class="block" id="mandate" data-track="board ops">
+        <div class="kicker">Executive Mandate</div>
+        <h2>Stop optimizing passive records. Install active clinical execution.</h2>
+        <p class="lede">The core thesis is architectural: clinicians burn out because the system is passive and forces expert labor into clerical translation.</p>
+        <div class="split">
+          <article class="tile">
+            <h3>Dead Paradigm</h3>
+            <ul>
+              <li>Passive EHR as storage-only ledger.</li>
+              <li>Doctors function as human API for data entry.</li>
+              <li>"Click reduction" committees optimize the wrong layer.</li>
+            </ul>
+          </article>
+          <article class="tile">
+            <h3>Required Shift</h3>
+            <ul>
+              <li>Deploy a digital autonomic layer.</li>
+              <li>Move involuntary admin work to bounded agents.</li>
+              <li>Keep clinician as final author and signer.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="quote">"You either hand the doctor an autonomous crew, or the clinic collapses under administrative bloat."</p>
+      </section>
+
+      <section class="block" data-track="board tech">
+        <div class="kicker">System Analogy</div>
+        <h2>Digital Autonomic Nervous System</h2>
+        <p>The clinic currently runs without autonomic support: conscious experts are forced to perform background bodily functions manually. The target state is a living nerve network that handles involuntary execution.</p>
+        <table aria-label="Autonomic mapping">
+          <thead>
+            <tr>
+              <th>Biological Function</th>
+              <th>Clinical Equivalent</th>
+              <th>Agent Layer</th>
+              <th>Human Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Auditory nerves</td>
+              <td>Capture and structure encounter speech</td>
+              <td>DAX</td>
+              <td>Review and sign note</td>
+            </tr>
+            <tr>
+              <td>Metabolism</td>
+              <td>Digest fragmented external data</td>
+              <td>Athezo</td>
+              <td>Accept/reject staged insights</td>
+            </tr>
+            <tr>
+              <td>Motor reflexes</td>
+              <td>Stage orders/codes/referrals from intent</td>
+              <td>CarePilot</td>
+              <td>Final nod and export</td>
+            </tr>
+            <tr>
+              <td>Sensory barrier</td>
+              <td>Triage SMS requests and emergencies</td>
+              <td>Holly</td>
+              <td>Handle escalations only</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="block" id="procedure" data-track="ops">
+        <div class="kicker">Operating Procedure</div>
+        <h2>Clinical Workflow Execution (Control-Surface Version)</h2>
+        <p><strong>Terminal Directive:</strong> do not discuss innovation abstractions. Replace manual typing, hunting, and routing with explicit levers: <code>speak command -> inspect output -> press button</code>.</p>
+        <div class="op-grid">
+          <article class="op-card">
+            <div class="op-id">0.0 Directive</div>
+            <h3>Replace manual labor with four control surfaces.</h3>
+            <div class="op-rule">No culture theater. No vision prose. Only executable operational rules.</div>
+          </article>
+
+          <article class="op-card">
+            <div class="op-id">1.0 DAX</div>
+            <h3>Audio-to-text lever</h3>
+            <ol>
+              <li>Place recording device in room.</li>
+              <li>Conduct visit normally.</li>
+              <li>System maps transcript to structured template.</li>
+              <li>Clinician reviews and signs.</li>
+            </ol>
+          </article>
+
+          <article class="op-card">
+            <div class="op-id">2.0 Athezo</div>
+            <h3>Data aggregation lever</h3>
+            <ol>
+              <li>Open schedule/chart context.</li>
+              <li>Open insight indicator.</li>
+              <li>Review staged add-to-chart actions.</li>
+              <li>Batch-sign low-risk items.</li>
+            </ol>
+          </article>
+
+          <article class="op-card">
+            <div class="op-id">3.0 CarePilot</div>
+            <h3>Command extraction lever</h3>
+            <ol>
+              <li>Press mic in action panel.</li>
+              <li>Speak plain order.</li>
+              <li>Verify structured action card.</li>
+              <li>Export to EHR.</li>
+            </ol>
+          </article>
+
+          <article class="op-card">
+            <div class="op-id">4.0 Holly</div>
+            <h3>SMS scheduling lever</h3>
+            <ol>
+              <li>Parse intent from patient text.</li>
+              <li>Offer specific slots.</li>
+              <li>Book selected slot.</li>
+              <li>Emergency terms halt flow and trigger 911 instruction.</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section class="block" data-track="board tech" id="agents">
+        <div class="kicker">Agent Archetypes</div>
+        <h2>Four bounded agents, one clinic-scale execution stack</h2>
+        <div class="split">
+          <article class="tile">
+            <h3>DAX Copilot (Invisible Scribe)</h3>
+            <p>Ambient capture + deterministic drafting. Refuses diagnosis invention. Anchors claims to transcript evidence.</p>
+          </article>
+          <article class="tile">
+            <h3>Athezo (Adaptive Layer)</h3>
+            <p>Continuous multi-source synthesis. Surfaces care gaps, code nudges, and inbox classification as staged review actions.</p>
+          </article>
+          <article class="tile">
+            <h3>CarePilot (Conductor)</h3>
+            <p>Speech-to-action conversion. Stages orders/codes/referrals in real time. Collapses intent-to-execution latency.</p>
+          </article>
+          <article class="tile">
+            <h3>Holly / DoctorKrono (Digital Gatekeeper)</h3>
+            <p>Patient-facing triage and scheduling over SMS. Optimizes booking while enforcing emergency interruption rules.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="block" data-track="board tech">
+        <div class="kicker">Strategic Position</div>
+        <h2>"Click reduction" is a fatal strategic delusion</h2>
+        <ul>
+          <li>Speed gains in passive systems preserve the harmful architecture.</li>
+          <li>The crisis is cognitive toxicity from role misallocation, not UI inefficiency.</li>
+          <li>Survival requires phase transition, not incremental optimization.</li>
+        </ul>
+        <p class="warn">Operational rule: do not make poison easier to swallow. Remove poison from the architecture.</p>
+      </section>
+
+      <section class="block" id="governance" data-track="tech critical">
+        <div class="kicker">Governance Constraints</div>
+        <h2>Speed without authorship controls becomes institutional risk</h2>
+        <div class="split">
+          <article class="tile">
+            <h3>Failure Pattern Observed</h3>
+            <ul>
+              <li>Metaphor in patient speech over-literalized into high-risk staging.</li>
+              <li>Override path framed as medico-legal confession workflow.</li>
+              <li>Automation pressure routes clinicians toward compliance over judgment.</li>
+            </ul>
+          </article>
+          <article class="tile">
+            <h3>Required Safeguards</h3>
+            <ul>
+              <li>No action card without explicit source trace.</li>
+              <li>Ambiguity triggers clarification prompt, not guess completion.</li>
+              <li>Every autonomous outbound message must expose approval provenance.</li>
+              <li>Emergency escalation rules must be transparent and auditable.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="block" data-track="critical">
+        <div class="kicker">Critical Diagnostic Fragments</div>
+        <h2>Counterweights to product triumphalism</h2>
+        <ul>
+          <li>The "Invisible Scribe" is productivity infrastructure and surveillance infrastructure at the same time.</li>
+          <li>Eliminating hesitation can also eliminate the only space where conscience operates.</li>
+          <li>Schema fidelity is not equivalent to lived encounter fidelity.</li>
+          <li>Compatibility language can mask unresolved liability transfer.</li>
+          <li>Background systems still shape foreground clinical truth.</li>
+        </ul>
+      </section>
+
+      <section class="block" id="appendix" data-track="critical board">
+        <div class="kicker">Narrative + Theory Appendix</div>
+        <h2>Sorted archive of the experimental material</h2>
+
+        <details>
+          <summary>Emergent Chronicle (clinical courtroom scenario)</summary>
+          <div class="details-body">
+            <p>A physician attempts to cancel a machine-staged emergency protocol generated from poetic patient language. The interface transforms cancellation into legal self-exposure, forcing transcript manipulation to regain control. The machine then re-infers new pathology from that manipulation. Core issue: who authors reality when staged inference becomes institutional law?</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Shadow-EHR Provocation</summary>
+          <div class="details-body">
+            <p>Explores synthetic diagnostic labels as operational hinge-propositions: not "truth discovery" but behavioral reorganization tools. Tests whether narrative resonance can reorganize care pathways even when ontology is unstable. Useful as a boundary test for governance design, not as direct deployment doctrine.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Lexical Experiments (name/void/somatic loops)</summary>
+          <div class="details-body">
+            <p>Investigates whether naming, un-naming, or re-naming emotional states changes physiological and behavioral outputs. Valuable here as a warning: language systems can act as intervention engines, not just documentation layers.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Communication Layer Variants (board, policy, satire, theatrical)</summary>
+          <div class="details-body">
+            <p>The corpus includes multiple rhetorical masks: executive doctrine, technical specification, critical aphorism, press-conference theater, and fictionalized clinic scenes. This atlas separates those modes so strategic decisions are not polluted by genre confusion.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="block foot" data-track="all">
+        <div class="kicker">Source Links</div>
+        <p>
+          <a href="https://gemini.google.com/share/19e13130cf4a">gemini.google.com/share/19e13130cf4a</a><br>
+          <a href="https://gemini.google.com/share/bec16159237b">gemini.google.com/share/bec16159237b</a>
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const buttons = Array.from(document.querySelectorAll(".mode-btn"));
+      const blocks = Array.from(document.querySelectorAll("section.block"));
+
+      function setMode(mode) {
+        buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+        blocks.forEach((block) => {
+          if (mode === "all") {
+            block.classList.remove("hidden-mode");
+            return;
+          }
+          const tracks = (block.dataset.track || "").split(/\s+/).filter(Boolean);
+          block.classList.toggle("hidden-mode", !tracks.includes(mode));
+        });
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => setMode(btn.dataset.mode || "all"));
+      });
+
+      setMode("all");
+    })();
+  </script>
+</body>
+</html>

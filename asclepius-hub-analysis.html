@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asclepius Hub Analysis</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --panel: #fffdf8;
+      --ink: #171a22;
+      --muted: #5f6472;
+      --line: #d8d0c1;
+      --accent: #0d7a59;
+      --accent-2: #3553c8;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12px 10px 34px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+
+    .head {
+      display: grid;
+      gap: 8px;
+    }
+
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    .actions {
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .btn {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      cursor: pointer;
+      padding: 0 10px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn.primary {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .btn.secondary {
+      border-color: var(--accent-2);
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    .metrics {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .metric .v {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-family: "SF Mono", Menlo, monospace;
+      line-height: 1.2;
+    }
+
+    .metric .k {
+      margin-top: 2px;
+      font-size: 0.67rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8f4ec;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .mono {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.78rem;
+    }
+
+    .msg {
+      font-size: 0.78rem;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    @media (max-width: 980px) {
+      .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="panel head">
+      <div class="title">
+        <h1>Asclepius Hub Analysis</h1>
+        <div id="status" class="status">Loading datasets...</div>
+      </div>
+      <div class="actions">
+        <button id="reload" class="btn primary" type="button">Reload</button>
+        <button id="download" class="btn secondary" type="button">Download Pattern JSON</button>
+        <a class="btn" href="asclepius-completions-mobile.html">Completions</a>
+        <a class="btn" href="asclepius-zen-reader.html">Zen</a>
+        <a class="btn" href="asclepius-prompt-operator.html">Operator</a>
+        <a class="btn" href="index.html">Index</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div id="metrics" class="metrics"></div>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <h2>Prompt Payload Anchors</h2>
+        <div id="payloadWords"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Response Lexical Anchors</h2>
+        <div id="responseWords"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Response Opening Patterns</h2>
+        <div id="responseOpeners"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Template Structure Signals</h2>
+        <div id="templateSignals"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Conversation Titles</h2>
+        <div id="titleDist"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Template Labels</h2>
+        <div id="templateLabels"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const PARSED_PATHS = [
+      "ASCLEPIUS-ROD.parsed.json",
+      "ASCLEPIUS.parsed.json",
+      "asclepius-rod.parsed.json",
+      "asclepius.parsed.json"
+    ];
+    const TEMPLATE_PATHS = [
+      "ASCLEPIUS-ROD.templates.json",
+      "ASCLEPIUS.templates.json",
+      "asclepius-rod.templates.json",
+      "asclepius.templates.json"
+    ];
+
+    const STOPWORDS = new Set([
+      "the", "and", "for", "that", "with", "this", "from", "into", "your", "you", "are", "was", "were", "have",
+      "has", "had", "will", "would", "can", "could", "should", "must", "not", "but", "they", "their", "them", "its",
+      "our", "about", "also", "than", "then", "what", "when", "where", "while", "which", "who", "whom", "how", "why",
+      "all", "any", "out", "use", "using", "used", "being", "been", "more", "less", "only", "just", "over", "under",
+      "through", "across", "onto", "off", "each", "per", "same", "new", "old", "very"
+    ]);
+
+    const el = {
+      status: document.getElementById("status"),
+      reload: document.getElementById("reload"),
+      download: document.getElementById("download"),
+      metrics: document.getElementById("metrics"),
+      payloadWords: document.getElementById("payloadWords"),
+      responseWords: document.getElementById("responseWords"),
+      responseOpeners: document.getElementById("responseOpeners"),
+      templateSignals: document.getElementById("templateSignals"),
+      titleDist: document.getElementById("titleDist"),
+      templateLabels: document.getElementById("templateLabels"),
+    };
+
+    const state = {
+      parsed: null,
+      templates: null,
+      report: null,
+    };
+
+    function normalize(s) {
+      return String(s || "").toLowerCase();
+    }
+
+    function words(text) {
+      return String(text || "").split(/\s+/).filter(Boolean);
+    }
+
+    function countMap(items) {
+      const map = new Map();
+      items.forEach((it) => map.set(it, (map.get(it) || 0) + 1));
+      return map;
+    }
+
+    function topN(map, n = 12) {
+      return Array.from(map.entries())
+        .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
+        .slice(0, n);
+    }
+
+    function tokenizeForPattern(text) {
+      return normalize(text)
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean)
+        .filter((w) => w.length > 2 && !STOPWORDS.has(w));
+    }
+
+    async function loadFirst(paths) {
+      const tried = [];
+      for (const p of paths) {
+        tried.push(p);
+        try {
+          const r = await fetch(p, { cache: "no-store" });
+          if (!r.ok) continue;
+          return { data: await r.json(), path: p };
+        } catch {
+        }
+      }
+      throw new Error(`Failed load. Tried: ${tried.join(", ")}`);
+    }
+
+    function fmt(num) {
+      return new Intl.NumberFormat().format(Number(num || 0));
+    }
+
+    function avg(nums) {
+      if (!nums.length) return 0;
+      return nums.reduce((a, b) => a + b, 0) / nums.length;
+    }
+
+    function table(rows, headA = "Key", headB = "Count") {
+      if (!rows.length) return `<div class="msg">No data.</div>`;
+      return `
+        <table>
+          <thead><tr><th>${headA}</th><th>${headB}</th></tr></thead>
+          <tbody>
+            ${rows.map(([k, v]) => `<tr><td>${escapeHtml(String(k))}</td><td class="mono">${fmt(v)}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function metricCard(value, label) {
+      return `<div class="metric"><div class="v">${escapeHtml(String(value))}</div><div class="k">${escapeHtml(label)}</div></div>`;
+    }
+
+    function buildReport(parsed, templatePayload) {
+      const entries = Array.isArray(parsed?.entries) ? parsed.entries : [];
+      const templates = Array.isArray(templatePayload?.templates) ? templatePayload.templates : [];
+
+      const promptTokens = [];
+      const responseTokens = [];
+      const openers = [];
+      const titles = [];
+      const responseWordCounts = [];
+      const thoughtSecs = [];
+
+      entries.forEach((e) => {
+        const payload = e?.prompt?.payload || "";
+        const response = e?.response?.raw || "";
+        promptTokens.push(...tokenizeForPattern(payload));
+        responseTokens.push(...tokenizeForPattern(response));
+        const first = String(response).split(/\r?\n/).find((ln) => ln.trim()) || "";
+        if (first) openers.push(first.trim().slice(0, 120));
+        titles.push(e?.title || "Untitled");
+        responseWordCounts.push(Number(e?.response?.word_count || words(response).length));
+        if (Number.isFinite(Number(e?.response?.thought_seconds))) thoughtSecs.push(Number(e.response.thought_seconds));
+      });
+
+      const signalCounts = {
+        with_prompt_tag: 0,
+        with_phase_tag: 0,
+        with_domain_tag: 0,
+        with_section_tag: 0,
+        with_directive_tag: 0,
+      };
+      const labelTokens = [];
+      templates.forEach((t) => {
+        const body = String(t?.template || "");
+        if (/<prompt\b/i.test(body)) signalCounts.with_prompt_tag += 1;
+        if (/<phase\b/i.test(body)) signalCounts.with_phase_tag += 1;
+        if (/<domain\b/i.test(body)) signalCounts.with_domain_tag += 1;
+        if (/<section\b/i.test(body)) signalCounts.with_section_tag += 1;
+        if (/<directive\b/i.test(body)) signalCounts.with_directive_tag += 1;
+        labelTokens.push(...tokenizeForPattern(t?.label || ""));
+      });
+
+      const stats = parsed?.stats || {};
+      return {
+        generated_at: new Date().toISOString(),
+        source_parsed_file: parsed?._source_path || null,
+        source_templates_file: templatePayload?._source_path || null,
+        counts: {
+          conversations: Number(stats.conversation_count || 0),
+          entries: entries.length,
+          templates: templates.length,
+          followups: Number(stats.followup_only_entries || 0),
+          canonical_occurrences: Number(stats.canonical_base_occurrences || 0),
+        },
+        means: {
+          response_words: Number(avg(responseWordCounts).toFixed(1)),
+          thought_seconds: Number(avg(thoughtSecs).toFixed(1)),
+        },
+        top_payload_words: topN(countMap(promptTokens), 16),
+        top_response_words: topN(countMap(responseTokens), 16),
+        top_response_openers: topN(countMap(openers), 12),
+        title_distribution: topN(countMap(titles), 12),
+        template_signal_counts: signalCounts,
+        top_template_label_tokens: topN(countMap(labelTokens), 12),
+      };
+    }
+
+    function render() {
+      const r = state.report;
+      if (!r) return;
+
+      el.metrics.innerHTML = [
+        metricCard(fmt(r.counts.conversations), "Conversations"),
+        metricCard(fmt(r.counts.entries), "Entries"),
+        metricCard(fmt(r.counts.templates), "Templates"),
+        metricCard(fmt(r.counts.followups), "Followup Prompts"),
+        metricCard(fmt(r.means.response_words), "Avg Response Words"),
+        metricCard(fmt(r.means.thought_seconds), "Avg Thought Seconds"),
+      ].join("");
+
+      el.payloadWords.innerHTML = table(r.top_payload_words, "Payload Token", "Freq");
+      el.responseWords.innerHTML = table(r.top_response_words, "Response Token", "Freq");
+      el.responseOpeners.innerHTML = table(r.top_response_openers, "Opening Line", "Freq");
+      el.titleDist.innerHTML = table(r.title_distribution, "Conversation Title", "Freq");
+      el.templateLabels.innerHTML = table(r.top_template_label_tokens, "Template Label Token", "Freq");
+
+      el.templateSignals.innerHTML = `
+        <table>
+          <thead><tr><th>Signal</th><th>Count</th></tr></thead>
+          <tbody>
+            ${Object.entries(r.template_signal_counts).map(([k, v]) => `
+              <tr><td>${escapeHtml(k)}</td><td class="mono">${fmt(v)}</td></tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function downloadReport() {
+      if (!state.report) return;
+      const blob = new Blob([JSON.stringify(state.report, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ASCLEPIUS-ROD.pattern-analysis.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function loadAll() {
+      el.status.textContent = "Loading datasets...";
+      try {
+        const parsedRes = await loadFirst(PARSED_PATHS);
+        const tmplRes = await loadFirst(TEMPLATE_PATHS);
+
+        parsedRes.data._source_path = parsedRes.path;
+        tmplRes.data._source_path = tmplRes.path;
+
+        state.parsed = parsedRes.data;
+        state.templates = tmplRes.data;
+        state.report = buildReport(state.parsed, state.templates);
+        render();
+        el.status.textContent = `Loaded ${parsedRes.path} + ${tmplRes.path}`;
+      } catch (err) {
+        state.report = null;
+        el.metrics.innerHTML = `<div class="msg">${escapeHtml(err.message)}</div>`;
+        el.payloadWords.innerHTML = `<div class="msg">Missing parsed/templates dataset files.</div>`;
+        el.responseWords.innerHTML = `<div class="msg">Run parser/extractor first.</div>`;
+        el.responseOpeners.innerHTML = `<div class="msg">No data loaded.</div>`;
+        el.templateSignals.innerHTML = `<div class="msg">No data loaded.</div>`;
+        el.titleDist.innerHTML = `<div class="msg">No data loaded.</div>`;
+        el.templateLabels.innerHTML = `<div class="msg">No data loaded.</div>`;
+        el.status.textContent = "Load failed";
+      }
+    }
+
+    el.reload.addEventListener("click", loadAll);
+    el.download.addEventListener("click", downloadReport);
+    loadAll();
+  </script>
+</body>
+</html>
