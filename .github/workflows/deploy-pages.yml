@@ -30,15 +30,10 @@ jobs:
       - name: Build site bundle
         run: |
           mkdir -p site
-          cp index.html site/
-          cp worldtext-completions-mobile.html site/
-          cp worldtext-prompt-operator.html site/
-          cp worldtext-zen-reader.html site/
-          cp WORLD-TEXT-DOUBLE.parsed.json site/
-          cp WORLD-TEXT-DOUBLE.templates.json site/
-          cp WORLD-TEXT-DOUBLE.canonical-source.md site/
-          cp WORLD-TEXT-DOUBLE.MD site/
-          cp WORLDTEXT.MD site/
+          shopt -s nullglob
+          for f in *.html; do cp "$f" site/; done
+          for f in *.parsed.json *.templates.json; do cp "$f" site/; done
+          for f in *.canonical-source.md *.MD *.md; do cp "$f" site/; done
           touch site/.nojekyll
 
       - name: Upload artifact
